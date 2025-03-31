@@ -1,0 +1,21 @@
+spring:
+  profiles:
+    active: dev            # 현재 사용할 프로파일 설정 (application-dev.yml 파일 사용)
+    include: secret        # 민감 정보가 담긴 application-secret.yml 포함
+
+  jpa:
+    hibernate:
+      ddl-auto: validate   # DB 스키마를 애플리케이션 시작 시 점검 (validate, update, create 등 설정 가능)
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        # 위 두 설정은 JPA 엔티티의 테이블/컬럼 이름을 Java 이름 그대로 DB에 반영되게 설정함
+    properties:
+      hibernate:
+        show_sql: true         # 콘솔에 실행되는 SQL 출력
+        format_sql: true       # SQL을 보기 좋게 정렬
+        use_sql_comments: true # SQL에 주석을 추가하여 JPA 동작 설명
+
+logging:
+  level:
+    root: INFO               # 전체 로그 레벨 설정 (DEBUG, INFO, WARN, ERROR 등)

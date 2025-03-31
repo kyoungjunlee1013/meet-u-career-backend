@@ -1,0 +1,20 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: meet-u-backend
+    networks:
+      - meetu_net
+    ports:
+      - "8080:8080"
+    env_file: .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=${JPA_HIBERNATE_DDL_AUTO}
+    restart: always
+networks:
+  meetu_net:
+    driver: bridge
