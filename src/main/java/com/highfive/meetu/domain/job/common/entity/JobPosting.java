@@ -3,7 +3,9 @@ package com.highfive.meetu.domain.job.common.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.highfive.meetu.domain.company.common.entity.Company;
 import com.highfive.meetu.domain.job.common.type.JobPostingTypes.CloseType;
+import com.highfive.meetu.domain.job.common.type.JobPostingTypes.EducationLevel;
 import com.highfive.meetu.domain.job.common.type.JobPostingTypes.ExperienceLevel;
+import com.highfive.meetu.domain.job.common.type.JobPostingTypes.SalaryCode;
 import com.highfive.meetu.domain.job.common.type.JobPostingTypes.Status;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.global.common.entity.BaseEntity;
@@ -75,10 +77,10 @@ public class JobPosting extends BaseEntity {
     private ExperienceLevel experienceLevel;  // 경력 코드 (NEW_GRAD, JUNIOR, MID_LEVEL, SENIOR) - 컨버터 자동 적용
 
     @Column(nullable = false)
-    private Integer educationLevel;  // 학력 코드 (0~9)
+    private EducationLevel educationLevel;  // 학력 코드 - Enum 타입으로 변경
 
     @Column(nullable = false)
-    private Integer salaryCode;  // 연봉 코드
+    private SalaryCode salaryCode;  // 연봉 코드 - Enum 타입으로 변경
 
     @Column(length = 255, nullable = false)
     private String salaryRange;  // 연봉 범위 텍스트 (예: "3,000~4,000만원")

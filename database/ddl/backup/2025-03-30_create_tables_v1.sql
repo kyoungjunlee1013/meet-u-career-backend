@@ -114,22 +114,22 @@ CREATE TABLE admin (
 -- 6. profile (구직자 프로필 테이블)
 --------------------------------------------------
 CREATE TABLE profile (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,  -- 프로필 고유 ID (자동 증가)
-    accountId BIGINT NOT NULL UNIQUE,  -- 계정 ID (각 개인 계정은 1개의 프로필만 가짐)
-    locationId BIGINT NOT NULL,  -- 거주 지역 ID (외래 키)
-    experienceLevel INT NULL,  -- 경력 수준 (예: 1년, 3년, 5년 등)
-    educationLevel INT NULL,  -- 학력 수준 (예: 학사, 석사 등)
-    skills TEXT NULL,  -- 보유 기술 (예: "Java, Spring, SQL")
-    desiredJob VARCHAR(50) NULL,  -- 희망 직무 (예: "백엔드 개발자")
-    desiredLocationId BIGINT NULL,  -- 희망 근무 지역 ID (NULL 가능)
-    profileImageUrl VARCHAR(500) NULL,  -- 프로필 이미지 URL
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 프로필 생성일
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- 프로필 수정일
-    FOREIGN KEY (accountId) REFERENCES account(id) ON DELETE CASCADE,  -- 계정 삭제 시 프로필도 삭제
-    FOREIGN KEY (locationId) REFERENCES location(id) ON DELETE CASCADE,  -- 지역 삭제 시 프로필도 삭제
-    FOREIGN KEY (desiredLocationId) REFERENCES location(id) ON DELETE SET NULL  -- 희망 지역 삭제 시 NULL 처리
+   id BIGINT AUTO_INCREMENT PRIMARY KEY,  -- 프로필 고유 ID (자동 증가)
+   accountId BIGINT NOT NULL UNIQUE,  -- 계정 ID (각 개인 계정은 1개의 프로필만 가짐)
+   locationId BIGINT NOT NULL,  -- 거주 지역 ID (외래 키)
+   experienceLevel INT NULL,  -- 경력 수준 (예: 1년, 3년, 5년 등)
+   educationLevel INT NULL,  -- 학력 수준 (예: 학사, 석사 등)
+   skills TEXT NULL,  -- 보유 기술 (예: "Java, Spring, SQL")
+   desiredJob VARCHAR(50) NULL,  -- 희망 직무 (예: "백엔드 개발자")
+   desiredLocationId BIGINT NULL,  -- 희망 근무 지역 ID (NULL 가능)
+   desiredSalaryCode INT NULL,  -- 희망 연봉 코드 (사람인 API 코드와 동일)
+   profileImageUrl VARCHAR(500) NULL,  -- 프로필 이미지 URL
+   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 프로필 생성일
+   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- 프로필 수정일
+   FOREIGN KEY (accountId) REFERENCES account(id) ON DELETE CASCADE,  -- 계정 삭제 시 프로필도 삭제
+   FOREIGN KEY (locationId) REFERENCES location(id) ON DELETE CASCADE,  -- 지역 삭제 시 프로필도 삭제
+   FOREIGN KEY (desiredLocationId) REFERENCES location(id) ON DELETE SET NULL  -- 희망 지역 삭제 시 NULL 처리
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 --------------------------------------------------
 -- 7. jobPosting (채용 공고 테이블)

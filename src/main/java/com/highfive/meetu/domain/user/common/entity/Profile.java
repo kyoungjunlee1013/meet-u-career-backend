@@ -3,6 +3,9 @@ package com.highfive.meetu.domain.user.common.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import com.highfive.meetu.domain.job.common.entity.Location;
+import com.highfive.meetu.domain.job.common.type.JobPostingTypes.EducationLevel;
+import com.highfive.meetu.domain.job.common.type.JobPostingTypes.ExperienceLevel;
+import com.highfive.meetu.domain.job.common.type.JobPostingTypes.SalaryCode;
 import com.highfive.meetu.domain.resume.common.entity.Resume;
 import com.highfive.meetu.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -48,10 +51,10 @@ public class Profile extends BaseEntity {
     private Location location;  // 거주 지역 ID
 
     @Column
-    private Integer experienceLevel;  // 경력 수준 (예: 1년, 3년, 5년 등)
+    private ExperienceLevel experienceLevel;  // 경력 수준 (예: 신입, 주니어, 미드레벨, 시니어)
 
     @Column
-    private Integer educationLevel;  // 학력 수준 (예: 학사, 석사 등)
+    private EducationLevel educationLevel;  // 학력 수준 (예: 학사, 석사 등)
 
     @Column(columnDefinition = "TEXT")
     private String skills;  // 보유 기술 (예: "Java, Spring, SQL")
@@ -62,6 +65,9 @@ public class Profile extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "desiredLocationId")
     private Location desiredLocation;  // 희망 근무 지역 ID
+
+    @Column(name = "desiredSalaryCode")
+    private SalaryCode desiredSalaryCode;  // 희망 연봉 코드 (사람인 API 코드와 동일)
 
     @Column(length = 500)
     private String profileImageUrl;  // 프로필 이미지 URL

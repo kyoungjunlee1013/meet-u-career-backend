@@ -517,14 +517,15 @@ VALUES
 -- 6. profile (구직자 프로필 테이블)
 --------------------------------------------------
 INSERT INTO profile 
-    (accountId, locationId, experienceLevel, educationLevel, skills, desiredJob, desiredLocationId, profileImageUrl)
+   (accountId, locationId, experienceLevel, educationLevel, skills, desiredJob, desiredLocationId, desiredSalaryCode, profileImageUrl)
 VALUES 
-    (1, 1, 3, 4, 'Java, Spring, SQL', '백엔드 개발자', 1, 'http://example.com/profile/honggildong.png'),
-    (2, 3, 5, 4, 'React, Node.js, GraphQL', '프론트엔드 개발자', 3, 'http://example.com/profile/leesoonshin.png'),
-    (3, 2, 4, 5, 'Python, Spark, AWS', '데이터 엔지니어', 2, 'http://example.com/profile/kimyushin.png'),
-    (4, 5, 1, 3, 'C++, Python, ML', 'AI 엔지니어', 5, 'http://example.com/profile/kangminsu.png'),
-    (5, 6, 2, 4, 'Node.js, Express, MongoDB', '백엔드 개발자', 6, 'http://example.com/profile/junghyejin.png');
-
+   (1, 1, 3, 4, 'Java, Spring, SQL', '백엔드 개발자', 1, 16, 'http://example.com/profile/honggildong.png'),
+   (2, 3, 5, 4, 'React, Node.js, GraphQL', '프론트엔드 개발자', 3, 18, 'http://example.com/profile/leesoonshin.png'),
+   (3, 2, 4, 5, 'Python, Spark, AWS', '데이터 엔지니어', 2, 17, 'http://example.com/profile/kimyushin.png'),
+   (4, 5, 1, 3, 'C++, Python, ML', 'AI 엔지니어', 5, 15, 'http://example.com/profile/kangminsu.png'),
+   (5, 6, 2, 4, 'Node.js, Express, MongoDB', '백엔드 개발자', 6, 16, 'http://example.com/profile/junghyejin.png');
+   
+   
 --------------------------------------------------
 -- 7. jobPosting (채용 공고 테이블)
 -- 사람인 API에서 수집한 채용 공고 데이터를 저장하는 메인 테이블
