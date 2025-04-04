@@ -1,7 +1,5 @@
 package com.highfive.meetu.domain.system.common.entity;
 
-import com.highfive.meetu.domain.system.common.type.SystemLogTypes.LogType;
-import com.highfive.meetu.domain.system.common.type.SystemLogTypes.ModuleType;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.user.common.entity.Admin;
 import com.highfive.meetu.global.common.entity.BaseEntity;
@@ -77,7 +75,7 @@ public class SystemLog extends BaseEntity {
      * - SystemLogTypes.LogTypeConverter에 의해 INT ↔ Enum 자동 변환됨
      */
     @Column(nullable = false)
-    private LogType logType;
+    private Integer logType;
 
     /**
      * 로그가 발생한 모듈 (데이터베이스에 INT로 저장됨)
@@ -96,7 +94,7 @@ public class SystemLog extends BaseEntity {
      * - SystemLogTypes.ModuleTypeConverter에 의해 INT ↔ Enum 자동 변환됨
      */
     @Column(nullable = false)
-    private ModuleType module;
+    private Integer module;
 
     /**
      * 수행한 작업 내용
@@ -115,5 +113,30 @@ public class SystemLog extends BaseEntity {
      */
     @Column(length = 50, nullable = false)
     private String ipAddress;
+
+    /**
+     * 로그 유형
+     */
+    public static class LogType {
+        public static final int SECURITY = 0;      // 로그인, 비밀번호 변경 등
+        public static final int TRANSACTION = 1;   // 결제, 포인트 사용 등
+        public static final int USER = 2;          // 일반 사용자 활동
+        public static final int ADMIN = 3;         // 관리자 활동
+        public static final int ERROR = 4;         // 예외, 장애 기록
+    }
+
+    /**
+     * 로그 발생 모듈
+     */
+    public static class Module {
+        public static final int AUTH = 0;          // 인증/인가 관련
+        public static final int USER = 1;          // 사용자 관리
+        public static final int COMPANY = 2;       // 기업 정보
+        public static final int JOB_POSTING = 3;   // 채용 공고
+        public static final int RESUME = 4;        // 이력서
+        public static final int APPLICATION = 5;   // 지원 내역
+        public static final int PAYMENT = 6;       // 결제
+        public static final int ADMIN = 7;         // 관리자 기능
+    }
 
 }

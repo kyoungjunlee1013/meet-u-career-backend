@@ -718,11 +718,11 @@ VALUES
 -- 17. chatRoom (채팅방 테이블)
 --------------------------------------------------
 INSERT INTO chatRoom 
-    (companyId, businessAccountId, personalAccountId, jobPostingId, status, createdAt)
+    (companyId, businessAccountId, personalAccountId, resumeId, status, createdAt)
 VALUES 
     (1, 6, 1, 1, 0, CURRENT_TIMESTAMP), -- 기업 1과 개인 1 간 채팅방
     (2, 7, 2, 2, 0, CURRENT_TIMESTAMP), -- 기업 2와 개인 2 간 채팅방
-    (4, 8, 4, 3, 0, CURRENT_TIMESTAMP); -- 스타트업 A와 개인 4 간 채팅방
+    (3, 8, 4, 3, 0, CURRENT_TIMESTAMP); -- 예시: 기업 3과 개인 4 간 채팅방
 
 --------------------------------------------------
 -- 18. chatMessage (채팅 메시지 테이블)

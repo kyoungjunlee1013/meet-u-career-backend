@@ -273,7 +273,7 @@ CREATE TABLE application (
     jobPostingId BIGINT NOT NULL,  -- 지원한 채용 공고 ID
     resumeId BIGINT NOT NULL,  -- 제출한 이력서 ID
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 지원 날짜
-    status INT NOT NULL DEFAULT 0,  -- 지원 상태 (0: 대기, 1: 검토 중, 2: 면접 진행, 3: 불합격, 4: 지원 취소)
+    status INT NOT NULL DEFAULT 0,  -- 지원 상태 (0: 지원 완료, 1: 서류 통과(면접 예정), 2: 서류 불합격, 3: 면접 완료)
     FOREIGN KEY (profileId) REFERENCES profile(id) ON DELETE CASCADE,  -- 프로필 삭제 시 지원 내역도 삭제됨
     FOREIGN KEY (jobPostingId) REFERENCES jobPosting(id) ON DELETE CASCADE,  -- 채용 공고 삭제 시 지원 내역도 삭제됨
     FOREIGN KEY (resumeId) REFERENCES resume(id) ON DELETE CASCADE  -- 이력서 삭제 시 지원 내역도 삭제됨
@@ -436,13 +436,13 @@ CREATE TABLE chatRoom (
     companyId BIGINT NOT NULL,  -- 채팅을 개설한 기업 ID
     businessAccountId  BIGINT NOT NULL,  -- 채팅을 시작한 채용 담당자 ID
     personalAccountId  BIGINT NOT NULL,  -- 채팅을 받은 구직자 ID
-    jobPostingId BIGINT NULL,  -- 관련된 채용 공고 ID (NULL 가능)
+    resumeId BIGINT NULL,  -- 관련된 이력서 ID
     status INT NOT NULL DEFAULT 0 COMMENT '0: 열림, 1: 닫힘',  -- 채팅방 상태 (닫힌 채팅방은 메시지 전송 불가)
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 채팅방 생성일
     FOREIGN KEY (companyId) REFERENCES company(id) ON DELETE CASCADE,  -- 기업 삭제 시 채팅방도 삭제됨
     FOREIGN KEY (businessAccountId) REFERENCES account(id) ON DELETE CASCADE,  -- 채용 담당자 계정 삭제 시 채팅방도 삭제됨
     FOREIGN KEY (personalAccountId) REFERENCES account(id) ON DELETE CASCADE,  -- 구직자 계정 삭제 시 채팅방도 삭제됨
-    FOREIGN KEY (jobPostingId) REFERENCES jobPosting(id) ON DELETE SET NULL  -- 채용 공고 삭제 시 NULL 처리됨
+    FOREIGN KEY (resumeId) REFERENCES resume(id) ON DELETE SET NULL  -- 이력서 삭제 시 NULL 처리됨
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

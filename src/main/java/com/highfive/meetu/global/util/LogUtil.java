@@ -2,8 +2,6 @@ package com.highfive.meetu.global.util;
 
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.user.common.entity.Admin;
-import com.highfive.meetu.domain.system.common.type.SystemLogTypes.LogType;
-import com.highfive.meetu.domain.system.common.type.SystemLogTypes.ModuleType;
 import com.highfive.meetu.domain.system.common.entity.SystemLog;
 import com.highfive.meetu.domain.system.common.repository.SystemLogRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +14,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * 시스템 로그 생성 유틸리티
  * - 핵심 기능에 대한 최소한의 로그만 생성하도록 설계
  * - 데이터베이스에 이미 기록되는 일반 CRUD 작업은 로깅하지 않음
- * - LogType과 ModuleType은 데이터베이스에 INT로 저장되며 JPA 컨버터로 자동 변환됨
  */
 @Component
 @RequiredArgsConstructor
@@ -29,13 +26,13 @@ public class LogUtil {
      * LogType.SECURITY(0) 값으로 저장됨
      *
      * @param account 계정 정보
-     * @param module 관련 모듈 (ModuleType enum, 데이터베이스에 INT로 저장)
+     * @param module 관련 모듈 (데이터베이스에 INT로 저장)
      * @param action 수행한 작업 내용
      */
-    public void logSecurity(Account account, ModuleType module, String action) {
+    public void logSecurity(Account account, Integer module, String action) {
         SystemLog log = SystemLog.builder()
                 .account(account)
-                .logType(LogType.SECURITY)  // 데이터베이스에 0으로 저장
+                .logType(SystemLog.LogType.SECURITY)  // 데이터베이스에 0으로 저장
                 .module(module)             // 데이터베이스에 INT로 저장
                 .action(action)
                 .ipAddress(getClientIp())
@@ -49,13 +46,13 @@ public class LogUtil {
      * LogType.ADMIN(3) 값으로 저장됨
      *
      * @param admin 관리자 정보
-     * @param module 관련 모듈 (ModuleType enum, 데이터베이스에 INT로 저장)
+     * @param module 관련 모듈 (데이터베이스에 INT로 저장)
      * @param action 수행한 관리 작업 내용
      */
-    public void logAdmin(Admin admin, ModuleType module, String action) {
+    public void logAdmin(Admin admin, Integer module, String action) {
         SystemLog log = SystemLog.builder()
                 .admin(admin)
-                .logType(LogType.ADMIN)     // 데이터베이스에 3으로 저장
+                .logType(SystemLog.LogType.ADMIN)     // 데이터베이스에 3으로 저장
                 .module(module)             // 데이터베이스에 INT로 저장
                 .action(action)
                 .ipAddress(getClientIp())
@@ -74,8 +71,8 @@ public class LogUtil {
     public void logTransaction(Account account, String action) {
         SystemLog log = SystemLog.builder()
                 .account(account)
-                .logType(LogType.TRANSACTION)  // 데이터베이스에 1로 저장
-                .module(ModuleType.PAYMENT)    // 데이터베이스에 6으로 저장
+                .logType(SystemLog.LogType.TRANSACTION)  // 데이터베이스에 1로 저장
+                .module(SystemLog.Module.PAYMENT)    // 데이터베이스에 6으로 저장
                 .action(action)
                 .ipAddress(getClientIp())
                 .build();
@@ -88,13 +85,13 @@ public class LogUtil {
      * LogType.USER(2) 값으로 저장됨
      *
      * @param account 계정 정보
-     * @param module 관련 모듈 (ModuleType enum, 데이터베이스에 INT로 저장)
+     * @param module 관련 모듈 (데이터베이스에 INT로 저장)
      * @param action 수행한 작업 내용
      */
-    public void logUserAction(Account account, ModuleType module, String action) {
+    public void logUserAction(Account account, Integer module, String action) {
         SystemLog log = SystemLog.builder()
                 .account(account)
-                .logType(LogType.USER)      // 데이터베이스에 2로 저장
+                .logType(SystemLog.LogType.USER)      // 데이터베이스에 2로 저장
                 .module(module)             // 데이터베이스에 INT로 저장
                 .action(action)
                 .ipAddress(getClientIp())
@@ -107,11 +104,11 @@ public class LogUtil {
      * 시스템 오류 로그
      * LogType.ERROR(4) 값으로 저장됨
      *
-     * @param module 오류가 발생한 모듈 (ModuleType enum, 데이터베이스에 INT로 저장)
+     * @param module 오류가 발생한 모듈 (데이터베이스에 INT로 저장)
      * @param action 오류 설명
      * @param e 발생한 예외
      */
-    public void logError(ModuleType module, String action, Exception e) {
+    public void logError(Integer module, String action, Exception e) {
         String errorMessage = action + ": " + e.getMessage();
         // 메시지가 너무 길면 잘라내기
         if (errorMessage.length() > 255) {
@@ -119,7 +116,7 @@ public class LogUtil {
         }
 
         SystemLog log = SystemLog.builder()
-                .logType(LogType.ERROR)     // 데이터베이스에 4로 저장
+                .logType(SystemLog.LogType.ERROR)     // 데이터베이스에 4로 저장
                 .module(module)             // 데이터베이스에 INT로 저장
                 .action(errorMessage)
                 .ipAddress(getClientIp())
@@ -132,12 +129,12 @@ public class LogUtil {
      * 시스템 일반 로그 (특정 계정과 관련 없는 시스템 작업)
      * LogType.USER(2) 값으로 저장됨
      *
-     * @param module 관련 모듈 (ModuleType enum, 데이터베이스에 INT로 저장)
+     * @param module 관련 모듈 (데이터베이스에 INT로 저장)
      * @param action 시스템 작업 내용
      */
-    public void logSystem(ModuleType module, String action) {
+    public void logSystem(Integer module, String action) {
         SystemLog log = SystemLog.builder()
-                .logType(LogType.USER)      // 데이터베이스에 2로 저장
+                .logType(SystemLog.LogType.USER)      // 데이터베이스에 2로 저장
                 .module(module)             // 데이터베이스에 INT로 저장
                 .action(action)
                 .ipAddress(getClientIp())

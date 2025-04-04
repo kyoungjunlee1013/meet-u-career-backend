@@ -2,7 +2,6 @@ package com.highfive.meetu.domain.company.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import com.highfive.meetu.domain.company.common.type.CompanyTypes;
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.global.common.entity.BaseEntity;
@@ -71,7 +70,7 @@ public class Company extends BaseEntity {
     private LocalDateTime updatedAt;  // 기업 정보 수정일
 
     @Column(nullable = false)
-    private CompanyTypes.Status status;  // 기업 상태 (ACTIVE, INACTIVE) - 컨버터 자동 적용
+    private Integer status;  // 기업 상태 (ACTIVE, INACTIVE)
 
     @BatchSize(size = 20)
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
@@ -85,17 +84,9 @@ public class Company extends BaseEntity {
     @Builder.Default
     private List<JobPosting> jobPostingList = new ArrayList<>();
 
-    /**
-     * 기업 상태 업데이트
-     */
-    public void updateStatus(CompanyTypes.Status newStatus) {
-        this.status = newStatus;
-    }
-
-    /**
-     * 기업이 활성 상태인지 확인
-     */
-    public boolean isActive() {
-        return this.status == CompanyTypes.Status.ACTIVE;
+    // 상태 코드 정의
+    public static class Status {
+        public static final int ACTIVE = 0;   // 정상
+        public static final int INACTIVE = 1; // 비활성화됨
     }
 }

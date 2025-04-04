@@ -2,8 +2,6 @@ package com.highfive.meetu.domain.resume.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.highfive.meetu.domain.coverletter.common.entity.CoverLetter;
-import com.highfive.meetu.domain.resume.common.type.ResumeTypes.Status;
-import com.highfive.meetu.domain.resume.common.type.ResumeTypes.Type;
 import com.highfive.meetu.domain.user.common.entity.Profile;
 import com.highfive.meetu.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -48,7 +46,7 @@ public class Resume extends BaseEntity {
     private String title;  // 이력서 제목
 
     @Column(nullable = false)
-    private Type resumeType;  // 이력서 유형 (CUSTOM, FILE, URL) - 컨버터 자동 적용
+    private Integer resumeType;  // 이력서 유형 (CUSTOM, FILE, URL)
 
     @Column(length = 500)
     private String resumeFile;  // 이력서 파일 첨부 (resumeType = FILE일 경우)
@@ -70,7 +68,7 @@ public class Resume extends BaseEntity {
     private String extraLink2;  // 추가 링크 2 (GitHub, Blog, LinkedIn 등)
 
     @Column(nullable = false)
-    private Status status;  // 이력서 상태 (ACTIVE, DRAFT, DELETED) - 컨버터 자동 적용
+    private Integer status;  // 이력서 상태 (ACTIVE, DRAFT, DELETED)
 
     @LastModifiedDate
     @Column(nullable = false)
@@ -88,32 +86,21 @@ public class Resume extends BaseEntity {
     private List<ResumeContent> resumeContentList = new ArrayList<>();
 
     /**
-     * 이력서 항목을 추가하는 편의 메서드
+     * 이력서 유형
      */
-    public void addResumeContent(ResumeContent content) {
-        this.resumeContentList.add(content);
-        content.setResume(this);
+    public static class ResumeType {
+        public static final int DIRECT_INPUT = 0;  // 직접 입력
+        public static final int FILE_UPLOAD = 1;   // 파일 업로드
+        public static final int URL = 2;           // 외부 URL 등록
     }
 
     /**
-     * 이력서 항목을 제거하는 편의 메서드
+     * 상태값
      */
-    public void removeResumeContent(ResumeContent content) {
-        this.resumeContentList.remove(content);
-        content.setResume(null);
+    public static class Status {
+        public static final int ACTIVE = 0;  // 활성 상태
+        public static final int DRAFT = 1;   // 임시 저장
+        public static final int DELETED = 2; // 삭제됨
     }
 
-    /**
-     * 이력서 상태 업데이트
-     */
-    public void updateStatus(Status newStatus) {
-        this.status = newStatus;
-    }
-
-    /**
-     * 이력서가 활성 상태인지 확인
-     */
-    public boolean isActive() {
-        return this.status == Status.ACTIVE;
-    }
 }

@@ -32,5 +32,14 @@ public class ResultData<T> {
     public static<T> ResultData<T> fail(){
         return of(0, "fail", null);
     }
-    
+
+    /**
+     * 실패 응답용 헬퍼
+     * 사용 예시: ResultData.fail("메시지")
+     */
+    public static<T> ResultData<T> fail(String msg) {
+        return of(0, msg, null);
+    }
+
+
 }

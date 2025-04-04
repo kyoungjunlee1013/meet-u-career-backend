@@ -2,11 +2,6 @@ package com.highfive.meetu.domain.job.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.highfive.meetu.domain.company.common.entity.Company;
-import com.highfive.meetu.domain.job.common.type.JobPostingTypes.CloseType;
-import com.highfive.meetu.domain.job.common.type.JobPostingTypes.EducationLevel;
-import com.highfive.meetu.domain.job.common.type.JobPostingTypes.ExperienceLevel;
-import com.highfive.meetu.domain.job.common.type.JobPostingTypes.SalaryCode;
-import com.highfive.meetu.domain.job.common.type.JobPostingTypes.Status;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -42,7 +37,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"company", "businessAccount", "location", "jobCategories"})
+@ToString(exclude = {"company", "businessAccount", "location", "jobPostingJobCategoryList"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class JobPosting extends BaseEntity {
 
@@ -74,13 +69,13 @@ public class JobPosting extends BaseEntity {
     private Location location;  // 근무 지역 코드
 
     @Column(nullable = false)
-    private ExperienceLevel experienceLevel;  // 경력 코드 (NEW_GRAD, JUNIOR, MID_LEVEL, SENIOR) - 컨버터 자동 적용
+    private Integer experienceLevel;  // 경력 코드 (NEW_GRAD, JUNIOR, MID_LEVEL, SENIOR)
 
     @Column(nullable = false)
-    private EducationLevel educationLevel;  // 학력 코드 - Enum 타입으로 변경
+    private Integer educationLevel;  // 학력 코드 - Enum 타입으로 변경
 
     @Column(nullable = false)
-    private SalaryCode salaryCode;  // 연봉 코드 - Enum 타입으로 변경
+    private Integer salaryCode;  // 연봉 코드 - Enum 타입으로 변경
 
     @Column(length = 255, nullable = false)
     private String salaryRange;  // 연봉 범위 텍스트 (예: "3,000~4,000만원")
@@ -95,7 +90,7 @@ public class JobPosting extends BaseEntity {
     private LocalDateTime expirationDate;  // 공고 마감일
 
     @Column(nullable = false)
-    private CloseType closeType;  // 마감 형식 (DEADLINE, UPON_HIRING) - 컨버터 자동 적용
+    private Integer closeType;  // 마감 형식 (DEADLINE, UPON_HIRING)
 
     @Column(nullable = false)
     private Integer viewCount;  // 공고 조회수
@@ -117,67 +112,63 @@ public class JobPosting extends BaseEntity {
     private LocalDateTime updatedAt;  // 공고 수정일
 
     @Column(nullable = false)
-    private Status status;  // 공고 상태 (INACTIVE, PENDING, ACTIVE) - 컨버터 자동 적용
+    private Integer status;  // 공고 상태 (INACTIVE, PENDING, ACTIVE)
 
     @BatchSize(size = 20)
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "jobPostingJobCategory",
-            joinColumns = @JoinColumn(name = "jobPostingId"),
-            inverseJoinColumns = @JoinColumn(name = "jobCategoryId")
-    )
-    @JsonIgnoreProperties({"jobPostings"})
+    @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"jobPosting"})
     @Builder.Default
-    private List<JobCategory> jobCategories = new ArrayList<>();
+    private List<JobPostingJobCategory> jobPostingJobCategoryList = new ArrayList<>();
 
-    /**
-     * 공고 상태 업데이트
-     */
-    public void updateStatus(Status newStatus) {
-        this.status = newStatus;
+    public static class EducationLevel {
+        public static final int NONE = 0;
+        public static final int HIGH_SCHOOL = 1;
+        public static final int ASSOCIATE = 2;
+        public static final int BACHELOR = 3;
+        public static final int MASTER = 4;
+        public static final int DOCTOR = 5;
     }
 
-    /**
-     * 공고가 활성 상태인지 확인
-     */
-    public boolean isActive() {
-        return this.status == Status.ACTIVE;
+    public static class SalaryCode {
+        public static final int NEGOTIABLE = 0;
+        public static final int ABOVE_2600 = 9;
+        public static final int ABOVE_2800 = 10;
+        public static final int ABOVE_3000 = 11;
+        public static final int ABOVE_3200 = 12;
+        public static final int ABOVE_3400 = 13;
+        public static final int ABOVE_3600 = 14;
+        public static final int ABOVE_3800 = 15;
+        public static final int ABOVE_4000 = 16;
+        public static final int ABOVE_5000 = 17;
+        public static final int ABOVE_6000 = 18;
+        public static final int ABOVE_7000 = 19;
+        public static final int RANGE_8000_9000 = 20;
+        public static final int RANGE_9000_10000 = 21;
+        public static final int ABOVE_10000 = 22;
+        public static final int INTERVIEW = 99;
+        public static final int MONTHLY = 101;
+        public static final int WEEKLY = 102;
+        public static final int DAILY = 103;
+        public static final int HOURLY = 104;
+        public static final int PER_PROJECT = 105;
     }
 
-    /**
-     * 공고가 만료되었는지 확인
-     */
-    public boolean isExpired() {
-        return LocalDateTime.now().isAfter(this.expirationDate);
+    public static class ExperienceLevel {
+        public static final int NEW_GRAD = 0;
+        public static final int JUNIOR = 1;
+        public static final int MID_LEVEL = 2;
+        public static final int SENIOR = 3;
     }
 
-    /**
-     * 조회수 증가
-     */
-    public void incrementViewCount() {
-        this.viewCount++;
+    public static class CloseType {
+        public static final int DEADLINE = 1;
+        public static final int UNTIL_HIRE = 2;
     }
 
-    /**
-     * 지원자 수 증가
-     */
-    public void incrementApplyCount() {
-        this.applyCount++;
+    public static class Status {
+        public static final int INACTIVE = 0;
+        public static final int PENDING = 1;
+        public static final int ACTIVE = 2;
     }
 
-    /**
-     * 직무 카테고리 추가
-     */
-    public void addJobCategory(JobCategory category) {
-        this.jobCategories.add(category);
-        category.getJobPostings().add(this);
-    }
-
-    /**
-     * 직무 카테고리 제거
-     */
-    public void removeJobCategory(JobCategory category) {
-        this.jobCategories.remove(category);
-        category.getJobPostings().remove(this);
-    }
 }

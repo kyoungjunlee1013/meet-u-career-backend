@@ -1,7 +1,6 @@
 package com.highfive.meetu.domain.coverletter.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.highfive.meetu.domain.coverletter.common.type.CoverLetterTypes.Status;
 import com.highfive.meetu.domain.resume.common.entity.Resume;
 import com.highfive.meetu.domain.user.common.entity.Profile;
 import com.highfive.meetu.global.common.entity.BaseEntity;
@@ -47,7 +46,7 @@ public class CoverLetter extends BaseEntity {
     private String title;  // 자기소개서 제목
 
     @Column(nullable = false)
-    private Status status;  // 자기소개서 상태 (ACTIVE, DRAFT, DELETED) - 컨버터 자동 적용
+    private Integer status;  // 자기소개서 상태 (ACTIVE, DRAFT, DELETED)
 
     @LastModifiedDate
     @Column(nullable = false)
@@ -63,33 +62,10 @@ public class CoverLetter extends BaseEntity {
     @Builder.Default
     private List<CoverLetterContent> coverLetterContentList = new ArrayList<>();
 
-    /**
-     * 자기소개서 항목 추가 편의 메서드
-     */
-    public void addContent(CoverLetterContent content) {
-        this.coverLetterContentList.add(content);
-        content.setCoverLetter(this);
-    }
-
-    /**
-     * 자기소개서 항목 제거 편의 메서드
-     */
-    public void removeContent(CoverLetterContent content) {
-        this.coverLetterContentList.remove(content);
-        content.setCoverLetter(null);
-    }
-
-    /**
-     * 자기소개서 상태 업데이트
-     */
-    public void updateStatus(Status newStatus) {
-        this.status = newStatus;
-    }
-
-    /**
-     * 자기소개서가 활성 상태인지 확인
-     */
-    public boolean isActive() {
-        return this.status == Status.ACTIVE;
+    // 상태 상수 정의
+    public static class Status {
+        public static final int ACTIVE = 0;   // 정상
+        public static final int DRAFT = 1;    // 임시 저장
+        public static final int DELETED = 2;  // 삭제됨
     }
 }

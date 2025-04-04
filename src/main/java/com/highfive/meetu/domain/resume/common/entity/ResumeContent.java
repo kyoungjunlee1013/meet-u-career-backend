@@ -1,7 +1,6 @@
 package com.highfive.meetu.domain.resume.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.highfive.meetu.domain.resume.common.type.ResumeContentTypes.SectionType;
 import com.highfive.meetu.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,7 +36,7 @@ public class ResumeContent extends BaseEntity {
     private Resume resume;  // 해당 이력서 ID (외래 키)
 
     @Column(nullable = false)
-    private SectionType sectionType;  // 항목 유형 (EDUCATION, EXPERIENCE, CERTIFICATE, ACTIVITY) - 컨버터 자동 적용
+    private Integer sectionType;  // 항목 유형 (EDUCATION, EXPERIENCE, CERTIFICATE, ACTIVITY)
 
     @Column(length = 255, nullable = false)
     private String sectionTitle;  // 항목 제목 ("경력", "학력" 등)
@@ -64,20 +63,13 @@ public class ResumeContent extends BaseEntity {
     private LocalDate dateTo;  // 종료일 (자격증이면 NULL)
 
     /**
-     * 현재 진행 중인지 여부 (종료일이 없으면 현재 진행 중)
+     * 항목 구분
      */
-    @Transient
-    public boolean isOngoing() {
-        return dateTo == null;
+    public static class SectionType {
+        public static final int EDUCATION = 0;      // 학력
+        public static final int EXPERIENCE = 1;     // 경력
+        public static final int CERTIFICATION = 2;  // 자격증
+        public static final int ACTIVITY = 3;       // 대외활동
     }
 
-    /**
-     * 항목 기간 표시 (예: "2020.03 - 2023.02" 또는 "2020.03 - 현재")
-     */
-    @Transient
-    public String getFormattedPeriod() {
-        String from = dateFrom == null ? "" : dateFrom.toString().substring(0, 7).replace('-', '.');
-        String to = isOngoing() ? "현재" : dateTo.toString().substring(0, 7).replace('-', '.');
-        return from + " - " + to;
-    }
 }

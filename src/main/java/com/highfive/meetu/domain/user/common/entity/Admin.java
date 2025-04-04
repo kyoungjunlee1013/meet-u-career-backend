@@ -1,6 +1,5 @@
 package com.highfive.meetu.domain.user.common.entity;
 
-import com.highfive.meetu.domain.user.common.type.AdminTypes.Role;
 import com.highfive.meetu.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,12 +33,14 @@ public class Admin extends BaseEntity {
     private String name;  // 관리자 이름
 
     @Column(nullable = false)
-    private Role role;  // 관리자 역할 (SUPER, ADMIN) - 컨버터 자동 적용
+    private Integer role;  // 관리자 역할 (SUPER, ADMIN)
 
     /**
-     * 관리자가 슈퍼 관리자인지 확인
+     * 관리자 권한 등급
      */
-    public boolean isSuperAdmin() {
-        return this.role == Role.SUPER;
+    public static class Role {
+        public static final int SUPER = 1;  // 슈퍼 관리자 (모든 권한)
+        public static final int ADMIN = 2;  // 일반 관리자 (일부 제한 가능)
     }
+
 }

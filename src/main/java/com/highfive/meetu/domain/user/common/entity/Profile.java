@@ -3,9 +3,6 @@ package com.highfive.meetu.domain.user.common.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import com.highfive.meetu.domain.job.common.entity.Location;
-import com.highfive.meetu.domain.job.common.type.JobPostingTypes.EducationLevel;
-import com.highfive.meetu.domain.job.common.type.JobPostingTypes.ExperienceLevel;
-import com.highfive.meetu.domain.job.common.type.JobPostingTypes.SalaryCode;
 import com.highfive.meetu.domain.resume.common.entity.Resume;
 import com.highfive.meetu.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -51,10 +48,10 @@ public class Profile extends BaseEntity {
     private Location location;  // 거주 지역 ID
 
     @Column
-    private ExperienceLevel experienceLevel;  // 경력 수준 (예: 신입, 주니어, 미드레벨, 시니어)
+    private Integer experienceLevel;  // 경력 수준 (예: 신입, 주니어, 미드레벨, 시니어)
 
     @Column
-    private EducationLevel educationLevel;  // 학력 수준 (예: 학사, 석사 등)
+    private Integer educationLevel;  // 학력 수준 (예: 학사, 석사 등)
 
     @Column(columnDefinition = "TEXT")
     private String skills;  // 보유 기술 (예: "Java, Spring, SQL")
@@ -67,7 +64,7 @@ public class Profile extends BaseEntity {
     private Location desiredLocation;  // 희망 근무 지역 ID
 
     @Column(name = "desiredSalaryCode")
-    private SalaryCode desiredSalaryCode;  // 희망 연봉 코드 (사람인 API 코드와 동일)
+    private Integer desiredSalaryCode;  // 희망 연봉 코드 (사람인 API 코드와 동일)
 
     @Column(length = 500)
     private String profileImageUrl;  // 프로필 이미지 URL
@@ -83,18 +80,23 @@ public class Profile extends BaseEntity {
     private List<Resume> resumeList = new ArrayList<>();
 
     /**
-     * 이력서 추가 편의 메서드
+     * 경력 수준 코드
      */
-    public void addResume(Resume resume) {
-        this.resumeList.add(resume);
-        resume.setProfile(this);
+    public static class ExperienceLevel {
+        public static final int NEW_GRAD = 0;     // 신입
+        public static final int JUNIOR = 1;       // 1~3년차
+        public static final int MID_LEVEL = 2;    // 4~7년차
+        public static final int SENIOR = 3;       // 8년 이상
     }
 
     /**
-     * 이력서 제거 편의 메서드
+     * 학력 수준 코드
      */
-    public void removeResume(Resume resume) {
-        this.resumeList.remove(resume);
-        resume.setProfile(null);
+    public static class EducationLevel {
+        public static final int HIGH_SCHOOL = 0;  // 고졸
+        public static final int ASSOCIATE = 1;    // 전문대졸
+        public static final int BACHELOR = 2;     // 대졸
+        public static final int MASTER = 3;       // 석사
+        public static final int DOCTORAL = 4;     // 박사
     }
 }
