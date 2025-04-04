@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.highfive.meetu.domain.coverletter.common.entity.CoverLetter;
+import com.highfive.meetu.domain.resume.common.entity.Resume;
+import com.highfive.meetu.domain.user.common.entity.Profile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,4 +49,64 @@ public class ResumePersonalDTO {
 
     // 이력서 항목 리스트
     private List<ResumeContentPersonalDTO> contents;
+
+
+    /**
+     * DTO → 엔티티 변환 메서드
+     * - 이력서 작성/수정 시 사용
+     * - 연관된 프로필(Profile), 자기소개서(CoverLetter)를 인자로 받아 설정
+     */
+    public Resume toEntity(Profile profile, CoverLetter coverLetter) {
+        return Resume.builder()
+                .title(this.title)
+                .overview(this.overview)
+                .resumeType(this.resumeType)
+                .resumeFile(this.resumeFile)
+                .resumeUrl(this.resumeUrl)
+                .extraLink1(this.extraLink1)
+                .extraLink2(this.extraLink2)
+                .status(this.status != null ? this.status : 1) // 기본값: 임시저장(1)
+                .profile(profile)
+                .coverLetter(coverLetter)
+                .build();
+    }
+
+    /**
+     * 엔티티 → DTO 변환 메서드
+     * - 이력서 상세 조회 시 사용
+     * - ResumeContentPersonalDTO 리스트는 사전에 변환된 결과를 전달
+     */
+    public static ResumePersonalDTO fromEntity(Resume resume, List<ResumeContentPersonalDTO> contentDTOs) {
+        return ResumePersonalDTO.builder()
+                .id(resume.getId())
+                .title(resume.getTitle())
+                .overview(resume.getOverview())
+                .resumeType(resume.getResumeType())
+                .resumeFile(resume.getResumeFile())
+                .resumeUrl(resume.getResumeUrl())
+                .extraLink1(resume.getExtraLink1())
+                .extraLink2(resume.getExtraLink2())
+                .status(resume.getStatus())
+                .createdAt(resume.getCreatedAt())
+                .updatedAt(resume.getUpdatedAt())
+                .profileId(resume.getProfile().getId())
+                .coverLetterId(resume.getCoverLetter() != null ? resume.getCoverLetter().getId() : null)
+                .coverLetterTitle(resume.getCoverLetter() != null ? resume.getCoverLetter().getTitle() : null)
+                .contents(contentDTOs)
+                .build();
+    }
+
+    // 간단 목록용
+    public static ResumePersonalDTO fromEntity(Resume resume) {
+        return ResumePersonalDTO.builder()
+                .id(resume.getId())
+                .title(resume.getTitle())
+                .updatedAt(resume.getUpdatedAt())
+                .createdAt(resume.getCreatedAt())
+                .status(resume.getStatus())
+                .resumeType(resume.getResumeType())
+                .profileId(resume.getProfile().getId())
+                .build();
+    }
+
 }

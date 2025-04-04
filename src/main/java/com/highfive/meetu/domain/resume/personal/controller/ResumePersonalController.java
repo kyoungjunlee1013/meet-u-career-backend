@@ -38,7 +38,7 @@ public class ResumePersonalController {
      * @param resumeId 조회할 이력서 ID
      * @return 이력서 상세 정보
      */
-    @GetMapping("/{resumeId}")
+    @GetMapping("/view/{resumeId}")
     public ResultData<ResumePersonalDTO> getResumeDetail(@PathVariable Long resumeId) {
 
         ResumePersonalDTO resumeDetail = resumePersonalService.getResumeDetail(resumeId);
@@ -66,7 +66,7 @@ public class ResumePersonalController {
      * @param dto 수정할 내용이 포함된 ResumePersonalDTO
      * @return 수정된 이력서 ID
      */
-    @PatchMapping("/{resumeId}")
+    @PutMapping("/edit/{resumeId}")
     public ResultData<Long> updateResumeAll(@PathVariable Long resumeId, @RequestBody ResumePersonalDTO dto) {
 
         resumePersonalService.updateResumeAll(resumeId, dto);

@@ -2,6 +2,8 @@ package com.highfive.meetu.domain.resume.personal.dto;
 
 import java.time.LocalDateTime;
 
+import com.highfive.meetu.domain.resume.common.entity.Resume;
+import com.highfive.meetu.domain.resume.common.entity.ResumeContent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,4 +33,46 @@ public class ResumeContentPersonalDTO {
     private LocalDateTime dateFrom; // 시작일 또는 발급일
     private LocalDateTime dateTo;   // 종료일 (자격증이면 NULL)
     private LocalDateTime createdAt;// 생성일
+
+
+    /**
+     * DTO → 엔티티 변환 메서드
+     * - 이력서 항목 작성/수정 시 사용
+     * - 연관 이력서(Resume)를 인자로 받아 FK 설정
+     */
+    public ResumeContent toEntity(Resume resume) {
+        return ResumeContent.builder()
+                .resume(resume)
+                .sectionType(this.sectionType)
+                .sectionTitle(this.sectionTitle)
+                .contentOrder(this.contentOrder)
+                .organization(this.organization)
+                .title(this.title)
+                .field(this.field)
+                .description(this.description)
+                .dateFrom(this.dateFrom != null ? this.dateFrom.toLocalDate() : null)
+                .dateTo(this.dateTo != null ? this.dateTo.toLocalDate() : null)
+                .build();
+    }
+
+    /**
+     * 엔티티 → DTO 변환 메서드
+     * - 이력서 항목 상세 조회 시 사용
+     */
+    public static ResumeContentPersonalDTO fromEntity(ResumeContent entity) {
+        return ResumeContentPersonalDTO.builder()
+                .id(entity.getId())
+                .resumeId(entity.getResume().getId())
+                .sectionType(entity.getSectionType())
+                .sectionTitle(entity.getSectionTitle())
+                .contentOrder(entity.getContentOrder())
+                .organization(entity.getOrganization())
+                .title(entity.getTitle())
+                .field(entity.getField())
+                .description(entity.getDescription())
+                .dateFrom(entity.getDateFrom() != null ? entity.getDateFrom().atStartOfDay() : null)
+                .dateTo(entity.getDateTo() != null ? entity.getDateTo().atStartOfDay() : null)
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
 }

@@ -497,20 +497,21 @@ VALUES
 -- 5. account (계정 테이블)
 --------------------------------------------------
 INSERT INTO account 
-    (email, password, name, position, phone, accountType, oauthProvider, oauthId, companyId, status)
+    (email, password, name, position, phone, birthday, accountType, oauthProvider, oauthId, nickname, communityProfileImageUrl, companyId, status)
 VALUES 
-    -- 개인 계정 (position은 NULL)
-    ('user1@example.com', NULL, '홍길동', NULL, '010-1111-2222', 0, 1, 'google_uid_001', NULL, 0),  -- GOOGLE(1)
-    ('user2@example.com', NULL, '이순신', NULL, '010-5555-6666', 0, 3, 'naver_uid_002', NULL, 0),   -- NAVER(3)
-    ('user3@example.com', 'pw_hash_03', '김유신', NULL, '010-7777-8888', 0, NULL, NULL, NULL, 0),      -- NONE(0)
-    ('user4@example.com', NULL, '강민수', NULL, '010-2222-3333', 0, 1, 'google_uid_004', NULL, 0),  -- GOOGLE(1)
-    ('user5@example.com', 'pw_hash_05', '정혜진', NULL, '010-4444-5555', 0, NULL, NULL, NULL, 0),      -- NONE(0)
-    -- 기업 계정 (position 추가, companyId는 해당 기업 ID)
-    ('hr@testco.kr', 'pw_hash_hr', '김팀장', '인사팀장', '010-3333-4444', 1, NULL, NULL, 1, 0),           -- 테스트주식회사
-    ('hr@newit.kr', 'pw_hash_hr', '김인사', '채용 담당자', '010-5555-9999', 1, NULL, NULL, 2, 0),          -- 새로운IT회사
-    ('hr@designstudio.com', 'pw_hash_hr', '이디자인', 'HR 매니저', '010-8888-9999', 1, NULL, NULL, 3, 0),   -- 디자인스튜디오
-    ('hr@startupA.com', 'pw_hash_hr', '이스타트업', '채용 담당자', '010-6666-7777', 1, NULL, NULL, 4, 0),    -- 스타트업A
-    ('hr@healthB.com', 'pw_hash_hr', '박헬스', '채용 관리자', '010-2222-4444', 1, NULL, NULL, 5, 0);       -- 헬스케어기업B
+    -- 개인 계정 (position, companyId는 NULL)
+    ('user1@example.com', NULL, '홍길동', NULL, '010-1111-2222', '1990-01-01', 0, 1, 'google_uid_001', '길동이', 'https://s3.com/user1.jpg', NULL, 0),
+    ('user2@example.com', NULL, '이순신', NULL, '010-5555-6666', '1985-05-15', 0, 3, 'naver_uid_002', '거북선장군', 'https://s3.com/user2.jpg', NULL, 0),
+    ('user3@example.com', 'pw_hash_03', '김유신', NULL, '010-7777-8888', '1992-03-10', 0, NULL, NULL, '화랑', NULL, NULL, 0),
+    ('user4@example.com', NULL, '강민수', NULL, '010-2222-3333', '1997-07-21', 0, 1, 'google_uid_004', NULL, NULL, NULL, 0),
+    ('user5@example.com', 'pw_hash_05', '정혜진', NULL, '010-4444-5555', '1991-11-30', 0, NULL, NULL, '혜진', 'https://s3.com/user5.jpg', NULL, 0),
+
+    -- 기업 계정 (position, companyId 필요 / nickname, communityProfileImageUrl은 NULL)
+    ('hr@testco.kr', 'pw_hash_hr', '김팀장', '인사팀장', '010-3333-4444', '1980-04-10', 1, NULL, NULL, NULL, NULL, 1, 0),
+    ('hr@newit.kr', 'pw_hash_hr', '김인사', '채용 담당자', '010-5555-9999', '1983-12-01', 1, NULL, NULL, NULL, NULL, 2, 0),
+    ('hr@designstudio.com', 'pw_hash_hr', '이디자인', 'HR 매니저', '010-8888-9999', '1987-08-22', 1, NULL, NULL, NULL, NULL, 3, 0),
+    ('hr@startupA.com', 'pw_hash_hr', '이스타트업', '채용 담당자', '010-6666-7777', '1995-02-14', 1, NULL, NULL, NULL, NULL, 4, 0),
+    ('hr@healthB.com', 'pw_hash_hr', '박헬스', '채용 관리자', '010-2222-4444', '1979-09-09', 1, NULL, NULL, NULL, NULL, 5, 0);
 
 
 --------------------------------------------------

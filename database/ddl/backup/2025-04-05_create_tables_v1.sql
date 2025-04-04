@@ -80,21 +80,29 @@ CREATE TABLE account (
     password VARCHAR(255) NULL,  -- 비밀번호 (일반 로그인 시 사용, OAuth 로그인 시 NULL)
     name VARCHAR(50) NOT NULL,  -- 이름
     phone VARCHAR(20) NOT NULL,  -- 연락처
+    birthday DATE NOT NULL,  -- 생년월일 (필수값)
     accountType INT NOT NULL,  -- 회원 계정 유형 (0: 개인 계정, 1: 기업 계정)
     position VARCHAR(100) NULL,  -- 기업 계정인 경우 담당 직책 (예: HR Manager, CTO 등)
-    oauthProvider INT DEFAULT NULL,  -- OAuth 제공자 (1: GOOGLE, 2: KAKAO, 3: NAVER) 개인 계정만 사용
+    oauthProvider INT DEFAULT NULL,  -- OAuth 제공자 (1: GOOGLE, 2: KAKAO, 3: NAVER)
     oauthId VARCHAR(255) UNIQUE NULL,  -- OAuth 사용자 고유 ID (개인 계정만 사용)
-    
+
+    -- ✅ 커뮤니티 관련 컬럼 추가
+    nickname VARCHAR(30) NULL,  -- 커뮤니티 닉네임 (개인 계정만 해당)
+    communityProfileImageUrl VARCHAR(500) NULL,  -- 커뮤니티 프로필 이미지 URL
+
     companyId BIGINT NULL,  -- 기업 계정의 경우 소속된 회사 ID (NULL 가능)
-    -- ✅ 사업자등록증 이미지 관련 컬럼 추가
+
+    -- ✅ 사업자등록증 이미지 관련 컬럼
     businessFileUrl VARCHAR(500) NULL,     -- 사업자등록증 이미지 파일의 URL 또는 경로
-    businessFileName VARCHAR(255) NULL,    -- 업로드된 파일의 원본 이름 (선택 사항)
-    
+    businessFileName VARCHAR(255) NULL,    -- 업로드된 파일의 원본 이름
+
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 계정 생성일
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- 계정 정보 수정일
     status INT NOT NULL DEFAULT 0,  -- 계정 상태 (0: 활성, 1: 비활성, 2: 기업계정 승인 대기 중, 3: 기업계정 반려됨)
+    
     FOREIGN KEY (companyId) REFERENCES company(id) ON DELETE SET NULL  -- 기업 계정 삭제 시 NULL 처리
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 
 --------------------------------------------------

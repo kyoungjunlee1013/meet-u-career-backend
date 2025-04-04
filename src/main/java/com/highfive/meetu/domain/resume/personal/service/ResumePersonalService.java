@@ -42,16 +42,8 @@ public class ResumePersonalService {
 
         // 조회된 Resume 엔티티 리스트를 DTO 리스트로 변환하여 반환
         return resumeList.stream()
-                .map(resume -> ResumePersonalDTO.builder()
-                        .id(resume.getId())                             // 이력서 ID
-                        .title(resume.getTitle())                       // 제목
-                        .updatedAt(resume.getUpdatedAt())               // 수정일
-                        .createdAt(resume.getCreatedAt())               // 생성일
-                        .status(resume.getStatus())                     // 상태 (0: 활성, 1: 임시저장, 2: 삭제)
-                        .resumeType(resume.getResumeType())             // 이력서 유형 (직접입력/파일/URL)
-                        .profileId(resume.getProfile().getId())         // 프로필 ID
-                        .build())
-                .toList(); // 스트림을 리스트로 변환하여 최종 반환
+                .map(ResumePersonalDTO::fromEntity) // 간단 목록용 fromEntity
+                .toList();
     }
 
 
@@ -70,41 +62,15 @@ public class ResumePersonalService {
 
         // ====================== 2. 이력서 항목 리스트 변환 ======================
         // 이력서에 포함된 항목(ResumeContent)들을 각각 ResumeContentPersonalDTO로 변환
+        // resume.getResumeContentList()의 각 ResumeContent 객체를
+        // ResumeContentPersonalDTO.fromEntity(content)로 변환하는 것과 동일
+        // 메서드 레퍼런스(::)는 람다식 content -> ResumeContentPersonalDTO.fromEntity(content) 를 간결하게 표현한 문법
         List<ResumeContentPersonalDTO> contentDTOs = resume.getResumeContentList().stream()
-                .map(content -> ResumeContentPersonalDTO.builder()
-                        .id(content.getId())                                 // 항목 ID
-                        .resumeId(resume.getId())                            // 소속 이력서 ID
-                        .sectionType(content.getSectionType())              // 섹션 유형 (예: 경력, 학력, 수상 등)
-                        .sectionTitle(content.getSectionTitle())            // 섹션 제목
-                        .contentOrder(content.getContentOrder())            // 출력 순서
-                        .organization(content.getOrganization())            // 소속 조직명
-                        .title(content.getTitle())                          // 항목 제목
-                        .field(content.getField())                          // 세부 분야
-                        .description(content.getDescription())              // 상세 설명 (TEXT)
-                        .dateFrom(content.getDateFrom() != null ? content.getDateFrom().atStartOfDay() : null) // 시작일 (LocalDate → LocalDateTime 변환)
-                        .dateTo(content.getDateTo() != null ? content.getDateTo().atStartOfDay() : null)       // 종료일
-                        .createdAt(content.getCreatedAt())                  // 생성일
-                        .build())
-                .toList(); // 스트림 결과를 리스트로 변환
+                .map(ResumeContentPersonalDTO::fromEntity)
+                .toList();
 
         // ====================== 3. 이력서 → DTO 변환 및 반환 ======================
-        return ResumePersonalDTO.builder()
-                .id(resume.getId())                                          // 이력서 ID
-                .title(resume.getTitle())                                    // 제목
-                .overview(resume.getOverview())                              // 개요 / 한줄소개
-                .resumeType(resume.getResumeType())                          // 이력서 유형
-                .resumeFile(resume.getResumeFile())                          // 첨부파일 경로 (있다면)
-                .resumeUrl(resume.getResumeUrl())                            // URL (있다면)
-                .extraLink1(resume.getExtraLink1())                          // 추가 링크 1
-                .extraLink2(resume.getExtraLink2())                          // 추가 링크 2
-                .status(resume.getStatus())                                  // 상태값 (활성/임시저장/삭제 등)
-                .createdAt(resume.getCreatedAt())                            // 생성일
-                .updatedAt(resume.getUpdatedAt())                            // 수정일
-                .profileId(resume.getProfile().getId())                      // 작성자 프로필 ID
-                .coverLetterId(resume.getCoverLetter() != null ? resume.getCoverLetter().getId() : null)          // 자기소개서 ID (nullable)
-                .coverLetterTitle(resume.getCoverLetter() != null ? resume.getCoverLetter().getTitle() : null)    // 자기소개서 제목 (nullable)
-                .contents(contentDTOs)                                       // 위에서 구성한 항목 리스트
-                .build();
+        return ResumePersonalDTO.fromEntity(resume, contentDTOs); // 여기서 사용됨!
     }
 
 
@@ -135,18 +101,7 @@ public class ResumePersonalService {
         }
 
         // 4. 이력서 엔티티 생성
-        Resume resume = Resume.builder()
-                .title(dto.getTitle())
-                .overview(dto.getOverview())
-                .resumeType(dto.getResumeType())
-                .resumeFile(dto.getResumeFile())
-                .resumeUrl(dto.getResumeUrl())
-                .extraLink1(dto.getExtraLink1())
-                .extraLink2(dto.getExtraLink2())
-                .status(dto.getStatus() != null ? dto.getStatus() : 1) // 기본값: 임시저장(1)
-                .profile(profile)
-                .coverLetter(coverLetter)
-                .build();
+        Resume resume = dto.toEntity(profile, coverLetter);
 
         // 5. 저장 (ID 생성됨)
         resumeRepository.save(resume);
@@ -155,19 +110,8 @@ public class ResumePersonalService {
         if (dto.getContents() != null && !dto.getContents().isEmpty()) {
 
             List<ResumeContent> contentList = dto.getContents().stream()
-                    .map(content -> ResumeContent.builder()
-                            .resume(resume)
-                            .sectionType(content.getSectionType())
-                            .sectionTitle(content.getSectionTitle())
-                            .contentOrder(content.getContentOrder())
-                            .organization(content.getOrganization())
-                            .title(content.getTitle())
-                            .field(content.getField())
-                            .description(content.getDescription())
-                            .dateFrom(content.getDateFrom() != null ? content.getDateFrom().toLocalDate() : null)
-                            .dateTo(content.getDateTo() != null ? content.getDateTo().toLocalDate() : null)
-                            .build())
-                    .collect(Collectors.toList()); // 명확하게 List<ResumeContent>로 수집
+                    .map(content -> content.toEntity(resume))
+                    .collect(Collectors.toList());
 
             resumeContentRepository.saveAll(contentList);
         }
@@ -204,27 +148,11 @@ public class ResumePersonalService {
 
         // 4. 새 항목 리스트 저장
         if (dto.getContents() != null && !dto.getContents().isEmpty()) { // 항목 리스트가 null이 아니고 비어 있지 않은 경우에만 처리
-            List<ResumeContent> contentList = dto.getContents().stream() // DTO 리스트를 스트림으로 변환
-                    .map(content -> ResumeContent.builder()
-                            .resume(resume)                                              // 연관된 이력서 엔티티 설정 (FK)
-                            .sectionType(content.getSectionType())                       // 항목 유형 (예: 경력, 학력 등)
-                            .sectionTitle(content.getSectionTitle())                     // 항목 섹션 제목
-                            .contentOrder(content.getContentOrder())                     // 항목 순서
-                            .organization(content.getOrganization())                     // 소속 조직 (회사, 학교 등)
-                            .title(content.getTitle())                                   // 항목 제목
-                            .field(content.getField())                                   // 세부 분야
-                            .description(content.getDescription())                       // 항목 설명
-                            .dateFrom(content.getDateFrom() != null
-                                    ? content.getDateFrom().toLocalDate() : null)            // 시작일 (LocalDateTime → LocalDate 변환)
-                            .dateTo(content.getDateTo() != null
-                                    ? content.getDateTo().toLocalDate() : null)              // 종료일 (LocalDateTime → LocalDate 변환)
-                            .build())                                                    // ResumeContent 엔티티 생성
-                    .collect(Collectors.toList());                                       // 최종적으로 리스트로 수집
+            List<ResumeContent> contentList = dto.getContents().stream()
+                    .map(content -> content.toEntity(resume))
+                    .collect(Collectors.toList());
 
             resumeContentRepository.saveAll(contentList); // 항목 리스트를 DB에 일괄 저장
         }
-
     }
-
-
 }
