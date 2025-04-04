@@ -111,139 +111,201 @@
   <summary>폴더 구조 확인하기</summary>
 
 ```
-src/
-└── main/
-    └── java/
-        └── com.highfive.meetu/  # 메인 패키지: 회사명.프로젝트명 형식의 루트 패키지
-            ├── domain/  # 도메인 계층: 비즈니스 기능별로 모듈화된 패키지 모음
-            │   ├── application/  # 지원서 관련 도메인
-            │   │   ├── business/  # 기업 관점의 지원서 비즈니스 로직
-            │   │   ├── common/  # 공통 컴포넌트
-            │   │   │   └── entity/  # 지원서 관련 엔티티 클래스
-            │   │   │       ├── Application  # 지원서 엔티티
-            │   │   │       └── InterviewReview  # 면접 후기 엔티티
-            │   │   ├── repository/  # 지원서 관련 데이터 접근 계층
-            │   │   ├── type/  # 지원서 관련 타입 정의
-            │   │   └── personal/  # 개인 사용자 관점의 지원서 관련 기능
-            │   │
-            │   ├── auth/  # 인증 관련 도메인
-            │   │   ├── admin/  # 관리자 인증
-            │   │   ├── business/  # 기업 사용자 인증
-            │   │   ├── common/  # 공통 인증 컴포넌트
-            │   │   └── personal/  # 개인 사용자 인증
-            │   │
-            │   ├── calendar/  # 캘린더 관련 도메인
-            │   │   ├── business/  # 기업용 캘린더 기능
-            │   │   ├── common/  # 공통 캘린더 컴포넌트
-            │   │   │   └── entity/  # 캘린더 관련 엔티티
-            │   │   │       └── CalendarEvent  # 캘린더 이벤트 엔티티
-            │   │   ├── repository/  # 캘린더 데이터 접근 계층
-            │   │   ├── type/  # 캘린더 관련 타입 정의
-            │   │   └── personal/  # 개인 사용자용 캘린더 기능
-            │   │
-            │   ├── chat/  # 채팅 관련 도메인
-            │   │   ├── business/  # 기업용 채팅 기능
-            │   │   ├── common/  # 공통 채팅 컴포넌트
-            │   │   │   └── entity/  # 채팅 관련 엔티티
-            │   │   │       ├── ChatMessage  # 채팅 메시지 엔티티
-            │   │   │       └── ChatRoom  # 채팅방 엔티티
-            │   │   ├── repository/  # 채팅 데이터 접근 계층
-            │   │   ├── type/  # 채팅 관련 타입 정의
-            │   │   └── personal/  # 개인 사용자용 채팅 기능
-            │   │
-            │   ├── community/  # 커뮤니티 관련 도메인
-            │   │   ├── admin/  # 커뮤니티 관리 기능
-            │   │   ├── common/  # 공통 커뮤니티 컴포넌트
-            │   │   │   └── entity/  # 커뮤니티 관련 엔티티
-            │   │   │       ├── CommunityComment  # 커뮤니티 댓글 엔티티
-            │   │   │       ├── CommunityLike  # 좋아요 엔티티
-            │   │   │       ├── CommunityPost  # 게시글 엔티티
-            │   │   │       └── CommunityTag  # 태그 엔티티
-            │   │   ├── repository/  # 커뮤니티 데이터 접근 계층
-            │   │   ├── type/  # 커뮤니티 관련 타입 정의
-            │   │   └── personal/  # 개인 사용자용 커뮤니티 기능
-            │   │
-            │   ├── company/  # 기업 관련 도메인
-            │   │   ├── admin/  # 기업 관리 기능
-            │   │   ├── business/  # 기업 계정용 비즈니스 로직
-            │   │   ├── common/  # 공통 기업 컴포넌트
-            │   │   │   └── entity/  # 기업 관련 엔티티
-            │   │   │       ├── Company  # 기업 정보 엔티티
-            │   │   │       └── CompanyFollow  # 기업 팔로우 엔티티
-            │   │   ├── repository/  # 기업 데이터 접근 계층
-            │   │   ├── type/  # 기업 관련 타입 정의
-            │   │   └── personal/  # 개인 사용자의 기업 관련 기능
-            │   │
-            │   ├── coverletter/  # 자기소개서 관련 도메인
-            │   │   ├── admin/  # 자기소개서 관리 기능
-            │   │   ├── business/  # 기업 관점의 자기소개서 관련 기능
-            │   │   ├── common/  # 공통 자기소개서 컴포넌트
-            │   │   │   └── entity/  # 자기소개서 관련 엔티티
-            │   │   │       ├── CoverLetter  # 자기소개서 엔티티
-            │   │   │       └── CoverLetterContent  # 자기소개서 내용 엔티티
-            │   │   ├── repository/  # 자기소개서 데이터 접근 계층
-            │   │   ├── type/  # 자기소개서 관련 타입 정의
-            │   │   └── personal/  # 개인 사용자의 자기소개서 관련 기능
-            │   │
-            │   ├── cs/  # 고객 지원 관련 도메인
-            │   │   ├── admin/  # 고객 지원 관리 기능
-            │   │   ├── business/  # 기업 관점의 고객 지원 기능
-            │   │   ├── common/  # 공통 고객 지원 컴포넌트
-            │   │   │   └── entity/  # 고객 지원 관련 엔티티
-            │   │   │       └── CustomerSupport  # 고객 지원 요청 엔티티
-            │   │   ├── repository/  # 고객 지원 데이터 접근 계층
-            │   │   ├── type/  # 고객 지원 관련 타입 정의
-            │   │   └── personal/  # 개인 사용자의 고객 지원 관련 기능
-            │   │
-            │   ├── dashboard/  # 대시보드 관련 도메인
-            │   │   ├── admin/  # 관리자용 대시보드
-            │   │   ├── business/  # 기업용 대시보드
-            │   │   └── personal/  # 개인 사용자용 대시보드
-            │   │
-            │   └── job/  # 채용 공고 관련 도메인
-            │       ├── admin/  # 채용 공고 관리 기능
-            │       │   ├── controller/  # 관리자용 컨트롤러
-            │       │   ├── dto/  # 관리자용 데이터 전송 객체
-            │       │   └── service/  # 관리자용 서비스 로직
-            │       ├── business/  # 기업용 채용 공고 관련 기능
-            │       ├── common/  # 공통 채용 공고 컴포넌트
-            │       │   ├── entity/  # 채용 공고 관련 엔티티
-            │       │   │   ├── Bookmark  # 북마크 엔티티
-            │       │   │   ├── JobCategory  # 직무 카테고리 엔티티
-            │       │   │   ├── JobPosting  # 채용 공고 엔티티
-            │       │   │   ├── JobPostingJobCategory  # 채용 공고-카테고리 연결 엔티티
-            │       │   │   ├── JobPostingViewLog  # 채용 공고 조회 기록 엔티티
-            │       │   │   └── Location  # 근무지 위치 엔티티
-            │       │   ├── repository/  # 채용 공고 데이터 접근 계층
-            │       │   └── type/  # 채용 공고 관련 타입 정의
-            │       │       └── JobPostingTypes  # 채용 공고 타입 정의
-            │       ├── personal/  # 개인 사용자의 채용 공고 관련 기능
-            │       ├── notification/  # 채용 알림 관련 기능
-            │       ├── offer/  # 채용 제안 관련 기능
-            │       ├── payment/  # 결제 관련 기능
-            │       ├── portal/  # 채용 포털 관련 기능
-            │       ├── resume/  # 이력서 관련 기능
-            │       ├── system/  # 시스템 관련 기능
-            │       ├── user/  # 사용자 관련 기능
-            │       └── global/  # 글로벌 공통 컴포넌트
-            │           └── common/  # 공통 유틸리티 및 기본 클래스
-            │               ├── converter/  # 데이터 변환 관련 클래스
-            │               ├── entity/  # 기본 엔티티 클래스
-            │               │   └── BaseEntity  # 모든 엔티티의 기본이 되는 클래스
-            │               └── response/  # 응답 관련 클래스
-            │                   └── ResultData  # API 응답 포맷 클래스
-            │
-            ├── config/  # 애플리케이션 설정 관련 패키지
-            │   ├── QuerydslConfig  # Querydsl 설정 클래스
-            │   ├── SecurityConfig  # 보안 설정 클래스
-            │   ├── security/  # 추가 보안 설정 관련 패키지
-            │   └── util/  # 유틸리티 클래스 모음
-            │
-            └── MeetUBackendApplication  # 스프링 부트 애플리케이션 진입점
-    └── resources/  # 리소스 파일 디렉토리
-        ├── application.yml  # 기본 애플리케이션 설정 파일
-        ├── application-dev.yml  # 개발 환경 설정 파일
-        └── application-secret.yml  # 보안 정보 설정 파일
+Application Domain
+지원서 작성, 제출, 관리
+application/
+├── business/
+│   ├── controller/
+│   ├── dto/
+│   └── service/
+├── common/
+│   ├── entity/
+│   │   ├── Application
+│   │   └── InterviewReview
+│   └── repository/
+└── personal/
+    ├── controller/
+    ├── dto/
+    └── service/
+  
+Auth Domain
+인증, 권한 부여 및 관리
+auth/
+├── admin/
+├── business/
+├── common/
+└── personal/
+
+Calendar Domain
+일정 관리 및 스케줄링
+calendar/
+├── admin/
+├── business/
+├── common/
+│   ├── entity/
+│   │   ├── Calendar
+│   │   ├── CalendarEvent
+│   │   └── CalendarSharing
+│   └── repository/
+└── personal/
+
+Chat Domain
+실시간 채팅 및 메시징
+chat/
+├── business/
+├── common/
+│   ├── entity/
+│   │   ├── ChatMessage
+│   │   └── ChatRoom
+│   └── repository/
+└── personal/
+
+Community Domain
+사용자 간 커뮤니티 활동 및 콘텐츠 공유
+community/
+├── admin/
+├── common/
+│   ├── entity/
+│   │   ├── CommunityComment
+│   │   ├── CommunityLike
+│   │   ├── CommunityPost
+│   │   └── CommunityTag
+│   └── repository/
+└── personal/
+
+Company Domain
+기업 정보 관리 및 기업 프로필
+company/
+├── admin/
+├── business/
+├── common/
+│   ├── entity/
+│   │   ├── Company
+│   │   └── CompanyFollow
+│   └── repository/
+└── personal/
+
+CoverLetter Domain
+자기소개서 작성 및 관리
+coverletter/
+├── business/
+├── common/
+│   ├── entity/
+│   │   ├── CoverLetter
+│   │   └── CoverLetterContent
+│   └── repository/
+└── personal/
+
+Customer Support (CS) Domain
+고객 지원 및 문의 응대
+cs/
+├── admin/
+├── business/
+├── common/
+│   ├── entity/
+│   │   └── CustomerSupport
+│   └── repository/
+└── personal/
+
+Dashboard Domain
+사용자 유형별 대시보드(마이페이지) 및 요약 정보
+dashboard/
+├── admin/
+├── business/
+└── personal/
+
+Job Domain
+채용 공고 및 구직 활동 관련
+job/
+├── admin/
+├── business/
+├── common/
+│   ├── entity/
+│   │   ├── Bookmark
+│   │   ├── JobCategory
+│   │   ├── JobPosting
+│   │   ├── JobPostingJobCategory
+│   │   ├── JobPostingViewLog
+│   │   └── Location
+│   └── repository/
+└── personal/
+
+Notification Domain
+알림 및 푸시 메시지
+notification/
+├── business/
+├── common/
+│   ├── entity/
+│   │   └── Notification
+│   └── repository/
+└── personal/
+
+Offer Domain
+기업의 채용 제안 및 관리
+offer/
+├── admin/
+├── business/
+├── common/
+│   ├── entity/
+│   │   └── Offer
+│   └── repository/
+└── personal/
+
+Payment Domain
+결제 및 과금
+payment/
+├── admin/
+├── business/
+├── common/
+│   ├── entity/
+│   │   ├── Advertisement
+│   │   └── Payment
+│   └── repository/
+└── personal/
+
+Portal Domain
+서비스 메인 페이지 및 통합
+portal/
+├── controller/
+├── dto/
+└── service/
+
+Resume Domain
+이력서 작성 및 관리
+resume/
+├── admin/
+├── business/
+├── common/
+│   ├── entity/
+│   │   ├── Resume
+│   │   ├── ResumeContent
+│   │   └── ResumeViewLog
+│   └── repository/
+└── personal/
+
+System Domain
+시스템 관리 및 운영
+system/
+├── admin/
+├── common/
+│   ├── entity/
+│   │   └── SystemLog
+│   └── repository/
+└── user/
+
+User Domain
+사용자 계정 관리 및 프로필
+user/
+├── admin/
+├── business/
+├── common/
+│   ├── entity/
+│   │   ├── Account
+│   │   ├── Admin
+│   │   └── Profile
+│   └── repository/
+└── personal/
+    
 ```
 </details>
 
