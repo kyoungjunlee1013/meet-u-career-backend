@@ -1,0 +1,28 @@
+package com.highfive.meetu.domain.user.personal.service;
+
+import com.highfive.meetu.domain.user.common.entity.Account;
+import com.highfive.meetu.domain.user.common.repository.AccountRepository;
+import com.highfive.meetu.domain.user.personal.dto.PersonalSignUpRequestDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class PersonalAccountService {
+    private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    // 이메일(아이디) 중복 체크
+    public boolean findByEmail(String email) {
+        return accountRepository.existsByEmail(email);
+    }
+
+    // 개인회원 회원가입
+    public PersonalSignUpRequestDTO save(PersonalSignUpRequestDTO dto) {
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
+        Account saved  = accountRepository.save(dto.toEntity(encodedPassword));
+
+        return PersonalSignUpRequestDTO.fromEntity(saved);
+    }
+}
