@@ -10,23 +10,34 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
-    @Query("SELECT j FROM jobPosting j " +
-        "WHERE j.status = 2 ORDER BY j.viewCount DESC")
+    @Query("""
+        SELECT j FROM jobPosting j
+        WHERE j.status = 2
+        ORDER BY j.viewCount DESC
+    """)
     Page<JobPosting> findPopular(Pageable pageable);
 
-    @Query("SELECT j FROM jobPosting j " +
-        "WHERE j.status = 2 ORDER BY j.createdAt DESC")
+    @Query("""
+        SELECT j FROM jobPosting j
+        WHERE j.status = 2
+        ORDER BY j.createdAt DESC
+    """)
     Page<JobPosting> findLatest(Pageable pageable);
 
-    @Query("SELECT j FROM jobPosting j " +
-        "WHERE j.status = 2 ORDER BY j.applyCount DESC")
+    @Query("""
+        SELECT j FROM jobPosting j
+        WHERE j.status = 2
+        ORDER BY j.applyCount DESC
+    """)
     Page<JobPosting> findMostApplied(Pageable pageable);
 
-    @Query("SELECT DISTINCT j FROM jobPosting j " +
-        "WHERE j.status = 2 AND (LOWER(j.keyword) LIKE LOWER(CONCAT('%', :keyword1, '%')) " +
-        "OR LOWER(j.keyword) LIKE LOWER(CONCAT('%', :keyword2, '%')) " +
-        "OR LOWER(j.keyword) LIKE LOWER(CONCAT('%', :keyword3, '%'))) " +
-        "ORDER BY j.createdAt DESC")
+    @Query("""
+        SELECT DISTINCT j FROM jobPosting j
+        WHERE j.status = 2 AND (LOWER(j.keyword) LIKE LOWER(CONCAT('%', :keyword1, '%'))
+        OR LOWER(j.keyword) LIKE LOWER(CONCAT('%', :keyword2, '%'))
+        OR LOWER(j.keyword) LIKE LOWER(CONCAT('%', :keyword3, '%')))
+        ORDER BY j.createdAt DESC
+    """)
     Page<JobPosting> findRecommended(
         @Param("keyword1") String k1,
         @Param("keyword2") String k2,
