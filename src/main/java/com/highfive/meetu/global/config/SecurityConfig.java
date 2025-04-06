@@ -27,10 +27,10 @@ public class SecurityConfig {
                 )).authorizeHttpRequests(
                         authorize -> authorize
                             .requestMatchers(
-                                "/api/user/login",
-                                "/api/user/signup",
-                                "/api/auth/**",
-                                "/api/jobpostings/**",
+                                "/api/auth/**", // 로그인
+                                "/api/user/**", // 회원가입
+                                "/api/main/**", // 메인
+                                "/api/jobpostings/**", // 공고
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**")
                                 .permitAll()
