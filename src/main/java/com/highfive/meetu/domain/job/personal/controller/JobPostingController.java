@@ -17,7 +17,6 @@ public class JobPostingController {
 
     @GetMapping("/{jobpostingId}")
     public ResultData<JobPostingDetailDTO> getJobPostingDetail(@PathVariable Long jobpostingId) {
-        JobPostingDetailDTO detail = jobPostingService.getJobPostingDetail(jobpostingId);
-        return ResultData.success(1, detail);
+        return jobPostingService.getJobPostingDetail(jobpostingId);
     }
 }
