@@ -4,6 +4,7 @@ import com.highfive.meetu.domain.notification.personal.dto.NotificationCreateReq
 import com.highfive.meetu.domain.notification.personal.dto.NotificationDTO;
 import com.highfive.meetu.domain.notification.common.entity.Notification;
 import com.highfive.meetu.domain.notification.common.repository.NotificationRepository;
+import com.highfive.meetu.domain.notification.personal.dto.NotificationPageResponseDTO;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.user.common.repository.AccountRepository;
 import com.highfive.meetu.global.common.response.ResultData;
@@ -20,11 +21,9 @@ public class PersonalNotificationService {
     private final AccountRepository accountRepository;
 
     @Transactional(readOnly = true)
-    public ResultData<Page<NotificationDTO>> getNotifications(Long userId, int page, int size) {
-        Page<NotificationDTO> notifications = notificationRepository.findAllByAccountId(userId, PageRequest.of(page, size))
-            .map(NotificationDTO::from);
-
-        return ResultData.success(1, notifications);
+    public ResultData<NotificationPageResponseDTO> getNotifications(Long userId, int page, int size) {
+        Page<Notification> notifications = notificationRepository.findAllPersonalAndCommon(userId, PageRequest.of(page, size));
+        return ResultData.success(1, NotificationPageResponseDTO.from(notifications));
     }
 
     @Transactional

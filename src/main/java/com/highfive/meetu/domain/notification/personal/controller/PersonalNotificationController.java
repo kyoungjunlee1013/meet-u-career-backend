@@ -2,6 +2,7 @@ package com.highfive.meetu.domain.notification.personal.controller;
 
 import com.highfive.meetu.domain.notification.personal.dto.NotificationCreateRequestDTO;
 import com.highfive.meetu.domain.notification.personal.dto.NotificationDTO;
+import com.highfive.meetu.domain.notification.personal.dto.NotificationPageResponseDTO;
 import com.highfive.meetu.domain.notification.personal.service.PersonalNotificationService;
 import com.highfive.meetu.global.common.response.ResultData;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +17,7 @@ public class PersonalNotificationController {
     private final PersonalNotificationService personalNotificationService;
 
     @GetMapping
-    public ResultData<Page<NotificationDTO>> getNotifications(
+    public ResultData<NotificationPageResponseDTO> getNotifications(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
         HttpServletRequest request
