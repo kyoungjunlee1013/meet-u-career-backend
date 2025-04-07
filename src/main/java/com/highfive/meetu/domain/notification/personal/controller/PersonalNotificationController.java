@@ -9,30 +9,25 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import static com.highfive.meetu.global.util.RequestUtil.getUserId;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notification/personal")
 public class PersonalNotificationController {
     private final PersonalNotificationService personalNotificationService;
+    private final HttpServletRequest request;
 
     @GetMapping
     public ResultData<NotificationPageResponseDTO> getNotifications(
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        HttpServletRequest request
+        @RequestParam(defaultValue = "10") int size
     ) {
-        Long userId = getUserId(request);
+        Long userId = RequestUtil.getAccountId(request);
         return personalNotificationService.getNotifications(userId, page, size);
     }
 
     @PostMapping("/{notificationId}/read")
-    public ResultData<?> markAsRead(
-        @PathVariable Long notificationId,
-        HttpServletRequest request
-    ) {
-        Long userId = RequestUtil.getUserId(request); // 공통 유틸 사용
+    public ResultData<?> markAsRead(@PathVariable Long notificationId) {
+        Long userId = RequestUtil.getAccountId(request);
         return personalNotificationService.markAsRead(notificationId, userId);
     }
 
