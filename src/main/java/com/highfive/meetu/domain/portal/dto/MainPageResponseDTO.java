@@ -10,7 +10,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MainPageResponse {
+public class MainPageResponseDTO {
+    private boolean isLoggedIn;
     private List<JobPostingDTO> recommendations;
     private List<JobPostingDTO> popular;
     private List<JobPostingDTO> latest;
