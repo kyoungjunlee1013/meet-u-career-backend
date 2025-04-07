@@ -62,6 +62,16 @@ public class ResumeContent extends BaseEntity {
     @Column
     private LocalDate dateTo;  // 종료일 (자격증이면 NULL)
 
+    @Column(length = 500)
+    private String contentFileKey; // S3 Key
+
+    @Column(length = 255)
+    private String contentFileName; // 업로드 당시 원본 파일명
+
+    @Column(length = 100)
+    private String contentFileType; // MIME 타입 (pdf, word 등)
+
+
     /**
      * 항목 구분
      */
