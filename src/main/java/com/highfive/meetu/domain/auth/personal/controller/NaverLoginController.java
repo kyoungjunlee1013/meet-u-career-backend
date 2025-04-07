@@ -17,7 +17,6 @@ public class NaverLoginController {
 
     @GetMapping("/naver/callback")
     public ResultData<LoginResponseDTO> naverCallback(@RequestParam("code") String code, @RequestParam("state") String state) {
-
         LoginResponseDTO loginResponse = naverLoginService.naverLogin(code, state);
         return ResultData.success(1, loginResponse);
     }
