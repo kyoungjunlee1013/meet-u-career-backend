@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 @Entity(name = "account")
 @Table(
         indexes = {
+                @Index(name = "idx_account_userId", columnList = "userId"),
                 @Index(name = "idx_account_email", columnList = "email"),
                 @Index(name = "idx_account_oauthId", columnList = "oauthId"),
                 @Index(name = "idx_account_accountType", columnList = "accountType"),
@@ -36,8 +37,11 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Account extends BaseEntity {
 
-    @Column(length = 255, unique = true)
-    private String email;  // 이메일 (로그인 ID, OAuth 사용자는 NULL 가능)
+    @Column(length = 50, unique = true)
+    private String userId;  // 로그인용 ID (일반 로그인 사용자만 사용, OAuth 사용자는 NULL)
+
+    @Column(length = 255)
+    private String email;  // 이메일 (OAuth 또는 일반 사용자, 중복 가능)
 
     @Column(length = 255)
     private String password;  // 비밀번호 (일반 로그인 시 사용, OAuth 로그인 시 NULL)
@@ -61,7 +65,7 @@ public class Account extends BaseEntity {
     private Integer oauthProvider;  // OAuth 제공자 (GOOGLE, KAKAO, NAVER 등)
 
     @Column(length = 255, unique = true)
-    private String oauthId;  // OAuth 사용자 고유 ID (개인 계정만 사용)
+    private String oauthId;  // OAuth 사용자 고유 ID (OAuth 로그인 시 사용)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "companyId")
@@ -110,5 +114,4 @@ public class Account extends BaseEntity {
         public static final int PENDING_APPROVAL = 2;  // 관리자 승인 대기
         public static final int REJECTED = 3;          // 승인 거절됨
     }
-
 }
