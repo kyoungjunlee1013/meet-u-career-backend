@@ -3,6 +3,7 @@ package com.highfive.meetu.infra.jwt;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.user.common.entity.Profile;
 import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
+import com.highfive.meetu.global.common.exception.NotFoundException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -47,7 +48,7 @@ public class JwtProvider {
     private String generateToken(Long accountId, long expiration) {
         // accountId로 profile을 가져오기
         Profile profile = profileRepository.findByAccountId(accountId)
-            .orElseThrow(() -> new IllegalArgumentException("프로필을 찾을 수 없습니다."));
+            .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
 
         Long profileId = profile.getId();
 
