@@ -61,9 +61,6 @@ public class InterviewReviewPersonalService {
     Application application = applicationRepository.findById(dto.getApplicationId())
         .orElseThrow(() -> new NotFoundException("지원 이력을 찾을 수 없습니다."));
 
-    // jobCategoryId로부터 jobCode와 jobName 확인 (디버깅용 예시)
-    String jobCode = jobCategory.getJobCode();
-    String jobName = jobCategory.getJobName();
 
     // 2. InterviewReview 엔티티 생성
     InterviewReview review = InterviewReview.builder()
@@ -112,6 +109,7 @@ public class InterviewReviewPersonalService {
             .id(review.getId())  // 후기 ID
             .companyName(review.getCompany().getName())  // 회사명 (조회용)
             .jobCategoryName(review.getJobCategory().getJobName())  // 직무명 (조회용)
+            .jobCode(review.getJobCategory().getJobCode())
             .interviewYearMonth(review.getInterviewYearMonth())  // 면접 연월
             .rating(review.getRating())  // 전반적 평가
             .createdAt(review.getCreatedAt())  // 작성일시
@@ -134,6 +132,6 @@ public class InterviewReviewPersonalService {
             // 상태값 (0: 활성, 1: 삭제 요청 등)
             .status(review.getStatus())
             .build())
-        .toList();
+            .toList();
   }
 }
