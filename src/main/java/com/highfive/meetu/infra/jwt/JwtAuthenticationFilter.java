@@ -1,5 +1,6 @@
 package com.highfive.meetu.infra.jwt;
 
+import com.highfive.meetu.global.util.JwtErrorResponseUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +26,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -34,9 +34,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 Long userId = jwtProvider.parseToken(token);
 
-                // 요청에 userId 설정
-                request.setAttribute("userId", userId);
-
                 // 인증 객체 생성 및 SecurityContext 등록
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
                     userId, null, List.of() // 권한이 없다면 빈 리스트
@@ -44,8 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (Exception e) {
-                e.printStackTrace();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                JwtErrorResponseUtil.sendUnauthorized(response, "유효하지 않거나 만료된 토큰입니다.");
                 return;
             }
         }

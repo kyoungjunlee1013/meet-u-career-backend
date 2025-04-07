@@ -23,8 +23,8 @@ public class PersonalNotificationService {
     private final AccountRepository accountRepository;
 
     @Transactional(readOnly = true)
-    public ResultData<NotificationPageResponseDTO> getNotifications(Long userId, int page, int size) {
-        Page<Notification> notifications = notificationRepository.findAllPersonalAndCommon(userId, PageRequest.of(page, size));
+    public ResultData<NotificationPageResponseDTO> getNotifications(Long accountId, int page, int size) {
+        Page<Notification> notifications = notificationRepository.findAllPersonalAndCommon(accountId, PageRequest.of(page, size));
         return ResultData.success(1, NotificationPageResponseDTO.from(notifications));
     }
 

@@ -4,7 +4,7 @@ import com.highfive.meetu.domain.notification.personal.dto.NotificationCreateReq
 import com.highfive.meetu.domain.notification.personal.dto.NotificationPageResponseDTO;
 import com.highfive.meetu.domain.notification.personal.service.PersonalNotificationService;
 import com.highfive.meetu.global.common.response.ResultData;
-import com.highfive.meetu.global.util.RequestUtil;
+import com.highfive.meetu.infra.oauth.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,21 +14,21 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/notification/personal")
 public class PersonalNotificationController {
     private final PersonalNotificationService personalNotificationService;
-    private final HttpServletRequest request;
+    private final SecurityUtil securityUtil;
 
     @GetMapping
     public ResultData<NotificationPageResponseDTO> getNotifications(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
-        Long userId = RequestUtil.getAccountId(request);
-        return personalNotificationService.getNotifications(userId, page, size);
+        Long accountId = securityUtil.getCurrentAccountId();
+        return personalNotificationService.getNotifications(accountId, page, size);
     }
 
     @PostMapping("/{notificationId}/read")
     public ResultData<?> markAsRead(@PathVariable Long notificationId) {
-        Long userId = RequestUtil.getAccountId(request);
-        return personalNotificationService.markAsRead(notificationId, userId);
+        Long accountId = securityUtil.getCurrentAccountId();
+        return personalNotificationService.markAsRead(notificationId, accountId);
     }
 
     @PostMapping("/create")
