@@ -57,12 +57,6 @@ public class Account extends BaseEntity {
     @Column(length = 100)
     private String position;  // 기업 계정인 경우 담당 직책 (예: HR Manager, CTO 등)
 
-    @Column(length = 30)
-    private String nickname;  // 커뮤니티 닉네임 (개인 계정만 사용, 선택값)
-
-    @Column(length = 500)
-    private String communityProfileImageUrl;  // 커뮤니티용 프로필 이미지 URL (선택값)
-
     @Column(nullable = true)
     private Integer oauthProvider;  // OAuth 제공자 (GOOGLE, KAKAO, NAVER 등)
 
