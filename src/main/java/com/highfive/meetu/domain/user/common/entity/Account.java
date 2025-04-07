@@ -63,7 +63,6 @@ public class Account extends BaseEntity {
     @Column(length = 500)
     private String communityProfileImageUrl;  // 커뮤니티용 프로필 이미지 URL (선택값)
 
-
     @Column(nullable = true)
     private Integer oauthProvider;  // OAuth 제공자 (GOOGLE, KAKAO, NAVER 등)
 
