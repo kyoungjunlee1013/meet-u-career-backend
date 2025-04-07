@@ -1,6 +1,7 @@
 package com.highfive.meetu.domain.auth.personal.dto;
 
 import com.highfive.meetu.domain.user.common.entity.Account;
+import com.highfive.meetu.domain.user.common.entity.Profile;
 import lombok.*;
 
 @Getter
@@ -14,12 +15,12 @@ public class UserInfoDTO {
     private String email;
     private String profileImage;
 
-    public static UserInfoDTO from(Account account) {
+    public static UserInfoDTO from(Account account, Profile profile) {
         return UserInfoDTO.builder()
             .id(account.getId())
             .name(account.getName())
             .email(account.getEmail())
-            .profileImage(account.getCommunityProfileImageUrl())
+            .profileImage(profile != null ? profile.getProfileImageUrl() : null)
             .build();
     }
 }
