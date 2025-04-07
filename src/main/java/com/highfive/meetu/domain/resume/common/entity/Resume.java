@@ -26,7 +26,8 @@ import java.util.List;
 @Table(
         indexes = {
                 @Index(name = "idx_resume_profileId", columnList = "profileId"),
-                @Index(name = "idx_resume_status", columnList = "status")
+                @Index(name = "idx_resume_status", columnList = "status"),
+                @Index(name = "idx_resume_isPrimary", columnList = "isPrimary")
         }
 )
 @Getter
@@ -68,7 +69,10 @@ public class Resume extends BaseEntity {
     private String extraLink2;  // 추가 링크 2 (GitHub, Blog, LinkedIn 등)
 
     @Column(nullable = false)
-    private Integer status;  // 이력서 상태 (ACTIVE, DRAFT, DELETED)
+    private Boolean isPrimary;  // 대표 이력서 여부
+
+    @Column(nullable = false)
+    private Integer status;  // 이력서 상태 (DRAFT, PRIVATE, PUBLIC, DELETED)
 
     @LastModifiedDate
     @Column(nullable = false)
@@ -98,9 +102,9 @@ public class Resume extends BaseEntity {
      * 상태값
      */
     public static class Status {
-        public static final int ACTIVE = 0;  // 활성 상태
-        public static final int DRAFT = 1;   // 임시 저장
-        public static final int DELETED = 2; // 삭제됨
+        public static final int DRAFT = 0;    // 임시저장
+        public static final int PRIVATE = 1;  // 비공개 등록
+        public static final int PUBLIC = 2;   // 공개 등록
+        public static final int DELETED = 3;  // 삭제됨
     }
-
 }
