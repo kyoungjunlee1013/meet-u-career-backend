@@ -5,7 +5,6 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 public class LoginResponseDTO {
-    private Long userId;
     private String accessToken;
     private String refreshToken;
 }

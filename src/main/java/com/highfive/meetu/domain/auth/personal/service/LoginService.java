@@ -33,7 +33,7 @@ public class LoginService {
         String refreshToken = jwtProvider.generateRefreshToken(account.getId());
 
         LoginResponseDTO responseDTO = new LoginResponseDTO(
-            account.getId(), accessToken, refreshToken
+            accessToken, refreshToken
         );
 
         return ResultData.success(1, responseDTO);

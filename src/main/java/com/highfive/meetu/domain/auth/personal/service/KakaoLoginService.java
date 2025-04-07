@@ -84,6 +84,6 @@ public class KakaoLoginService {
         String accessToken = jwtProvider.generateAccessToken(account.getId());
         String refreshToken = jwtProvider.generateRefreshToken(account.getId());
 
-        return new LoginResponseDTO(account.getId(), accessToken, refreshToken);
+        return new LoginResponseDTO(accessToken, refreshToken);
     }
 }

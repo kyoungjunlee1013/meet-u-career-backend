@@ -55,7 +55,7 @@ public class NaverLoginService {
         String jwtAccessToken = jwtProvider.generateAccessToken(account.getId());
         String jwtRefreshToken = jwtProvider.generateRefreshToken(account.getId());
 
-        return new LoginResponseDTO(account.getId(), jwtAccessToken, jwtRefreshToken);
+        return new LoginResponseDTO(jwtAccessToken, jwtRefreshToken);
     }
 
     private String requestAccessToken(String code, String state) {

@@ -24,7 +24,7 @@ public class TokenController {
             String newAccessToken = jwtProvider.generateAccessToken(userId);
             String newRefreshToken = jwtProvider.generateRefreshToken(userId);
 
-            return ResultData.success(1, new LoginResponseDTO(userId, newAccessToken, newRefreshToken));
+            return ResultData.success(1, new LoginResponseDTO(newAccessToken, newRefreshToken));
         } catch (Exception e) {
             return ResultData.fail("Invalid or expired refresh token");
         }

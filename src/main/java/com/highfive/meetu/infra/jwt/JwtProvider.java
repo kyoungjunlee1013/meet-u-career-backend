@@ -30,18 +30,18 @@ public class JwtProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateAccessToken(Long userId) {
+    public String generateAccessToken(Long accountId) {
         return Jwts.builder()
-            .setSubject(userId.toString())
+            .setSubject(accountId.toString())
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
             .compact();
     }
 
-    public String generateRefreshToken(Long userId) {
+    public String generateRefreshToken(Long accountId) {
         return Jwts.builder()
-            .setSubject(userId.toString())
+            .setSubject(accountId.toString())
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
