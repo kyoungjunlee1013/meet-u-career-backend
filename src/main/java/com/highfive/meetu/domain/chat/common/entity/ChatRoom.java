@@ -37,7 +37,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"company", "businessAccount", "personalAccount", "resume", "messages"})
+@ToString(exclude = {"company", "businessAccount", "personalAccount", "resume", "messageList"})
 public class ChatRoom extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

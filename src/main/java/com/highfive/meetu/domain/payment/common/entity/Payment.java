@@ -34,7 +34,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"account", "advertisements"})
+@ToString(exclude = {"account", "advertisementList"})
 public class Payment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
