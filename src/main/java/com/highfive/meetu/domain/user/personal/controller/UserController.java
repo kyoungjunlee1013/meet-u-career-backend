@@ -15,10 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final HttpServletRequest request;
 
     @GetMapping("/me")
-    public ResultData<UserInfoDTO> getMyInfo(HttpServletRequest request) {
-        Long userId = RequestUtil.getUserId(request);
+    public ResultData<UserInfoDTO> getMyInfo() {
+        Long userId = RequestUtil.getAccountId(request);
         return userService.getMyInfo(userId);
     }
 }
