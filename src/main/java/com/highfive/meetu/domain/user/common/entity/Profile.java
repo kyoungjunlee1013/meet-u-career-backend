@@ -43,7 +43,7 @@ public class Profile extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "accountId", nullable = false, unique = true)
-    private Account account;  // 계정 ID
+    private Account account;  // 계정 ID (각 개인 계정은 1개의 프로필만 가짐)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "locationId", nullable = true)
@@ -86,10 +86,10 @@ public class Profile extends BaseEntity {
      * 경력 수준 코드
      */
     public static class ExperienceLevel {
-        public static final int NEW_GRAD = 0;
-        public static final int JUNIOR = 1;
-        public static final int MID_LEVEL = 2;
-        public static final int SENIOR = 3;
+        public static final int NEW_GRAD = 0;     // 신입
+        public static final int JUNIOR = 1;       // 1~3년차
+        public static final int MID_LEVEL = 2;    // 4~7년차
+        public static final int SENIOR = 3;       // 8년 이상
     }
 
     /**
