@@ -36,7 +36,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"account", "tag", "comments", "likes"})
+@ToString(exclude = {"account", "tag", "commentList", "likeList"})
 public class CommunityPost extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
