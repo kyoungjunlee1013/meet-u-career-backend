@@ -13,7 +13,11 @@ import java.util.List;
  */
 @Repository
 public interface InterviewReviewRepository extends JpaRepository<InterviewReview, Long> {
-  List<InterviewReview> findAllByProfileId(Long profileId);
+  List<InterviewReview> findAllByProfile_Id(Long profileId);
+
+  // applicationId 기준으로 후기 존재 여부 확인
+  boolean existsByApplicationId(Long applicationId);
+
 }
 
 

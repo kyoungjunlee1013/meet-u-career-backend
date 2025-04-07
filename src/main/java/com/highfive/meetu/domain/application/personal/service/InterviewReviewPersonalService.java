@@ -12,6 +12,7 @@ import com.highfive.meetu.domain.job.common.entity.JobCategory;
 import com.highfive.meetu.domain.job.common.repository.JobCategoryRepository;
 import com.highfive.meetu.domain.user.common.entity.Profile;
 import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
+import com.highfive.meetu.global.common.exception.BadRequestException;
 import com.highfive.meetu.global.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,11 @@ public class InterviewReviewPersonalService {
   @Transactional
   public Long createInterviewReview(InterviewReviewCreateDTO dto, Long profileId) {
 
+    // 0. 이미 후기 등록 여부 확인
+    if (interviewReviewRepository.existsByApplicationId(dto.getApplicationId())) {
+      throw new BadRequestException("이미 해당 지원서에 대해 후기를 작성하셨습니다.");
+    }
+
     // 1. 연관 엔티티 조회
     Profile profile = profileRepository.findById(profileId)
         .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
@@ -54,6 +60,10 @@ public class InterviewReviewPersonalService {
 
     Application application = applicationRepository.findById(dto.getApplicationId())
         .orElseThrow(() -> new NotFoundException("지원 이력을 찾을 수 없습니다."));
+
+    // jobCategoryId로부터 jobCode와 jobName 확인 (디버깅용 예시)
+    String jobCode = jobCategory.getJobCode();
+    String jobName = jobCategory.getJobName();
 
     // 2. InterviewReview 엔티티 생성
     InterviewReview review = InterviewReview.builder()
@@ -94,14 +104,14 @@ public class InterviewReviewPersonalService {
   public List<InterviewReviewPersonalDTO> findAllByProfileId(Long profileId) {
 
     // 1. 후기 목록 조회 (Profile 기준) - 연관 데이터는 지연 로딩
-    List<InterviewReview> reviews = interviewReviewRepository.findAllByProfileId(profileId);
+    List<InterviewReview> reviews = interviewReviewRepository.findAllByProfile_Id(profileId);
 
     // 2. Entity → DTO 변환
     return reviews.stream()
         .map(review -> InterviewReviewPersonalDTO.builder()
             .id(review.getId())  // 후기 ID
-           // .companyName(review.getCompany().getName())  // 회사명 (조회용)
-            // .jobCategoryName(review.getJobCategory().getName())  // 직무명 (조회용)
+            .companyName(review.getCompany().getName())  // 회사명 (조회용)
+            .jobCategoryName(review.getJobCategory().getJobName())  // 직무명 (조회용)
             .interviewYearMonth(review.getInterviewYearMonth())  // 면접 연월
             .rating(review.getRating())  // 전반적 평가
             .createdAt(review.getCreatedAt())  // 작성일시
@@ -126,5 +136,4 @@ public class InterviewReviewPersonalService {
             .build())
         .toList();
   }
-
 }
