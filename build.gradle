@@ -29,6 +29,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'  // 웹 개발 관련
     implementation 'org.springframework.boot:spring-boot-starter-security'  // 보안 기능
     implementation 'org.springframework.boot:spring-boot-starter-validation'  // 데이터 검증
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 
     // Lombok 관련
     compileOnly 'org.projectlombok:lombok'  // Lombok을 컴파일 타임에만 사용

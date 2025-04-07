@@ -5,8 +5,8 @@ import com.highfive.meetu.domain.coverletter.common.entity.CoverLetterContentFee
 import com.highfive.meetu.domain.coverletter.common.repository.CoverLetterContentFeedbackRepository;
 import com.highfive.meetu.domain.coverletter.common.repository.CoverLetterContentRepository;
 import com.highfive.meetu.domain.coverletter.common.repository.CoverLetterRepository;
-import com.highfive.meetu.domain.coverletter.personal.dto.CoachingRequest;
-import com.highfive.meetu.domain.coverletter.personal.dto.CoachingResponse;
+import com.highfive.meetu.domain.coverletter.personal.dto.CoachingRequestDTO;
+import com.highfive.meetu.domain.coverletter.personal.dto.CoachingResponseDTO;
 import com.highfive.meetu.global.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,25 +35,25 @@ public class CoachingService {
      * FastAPI로 AI 코칭 요청을 보내고 응답을 받아 db에 저장하는 메서드
      */
     @Transactional
-    public CoachingResponse getCoaching(Long contentId, String sectionTitle, String content) {
+    public CoachingResponseDTO getCoaching(Long contentId, String sectionTitle, String content) {
         // 요청 데이터 생성
-        CoachingRequest request = CoachingRequest.builder()
+        CoachingRequestDTO request = CoachingRequestDTO.builder()
                 .contentId(contentId)
                 .sectionTitle(sectionTitle)
                 .content(content)
                 .build();
 
         // FastAPI 서버로 POST 요청 전송
-        CoachingResponse response = webClient.post()
+        CoachingResponseDTO response = webClient.post()
                 .uri(aiServiceUrl + "/coaching") // ex: http://ai-service:8000/coaching
                 .bodyValue(request) // JSON 본문 전송
                 .retrieve()
-                .bodyToMono(CoachingResponse.class) // 응답을 DTO로 매핑
+                .bodyToMono(CoachingResponseDTO.class) // 응답을 DTO로 매핑
                 .block(); // 동기식으로 처리 (즉시 결과 반환)
 
         // 실패했을 경우 기본 메시지 처리
         if (response == null) {
-            return new CoachingResponse(contentId, "[AI 서버 응답 실패]", "");
+            return new CoachingResponseDTO(contentId, "[AI 서버 응답 실패]", "");
         }
 
         // contentId에 해당하는 내용 가져오기
@@ -81,7 +81,7 @@ public class CoachingService {
      * 자기소개서 항목에 AI 피드백 내용을 적용하는 메서드
      */
     @Transactional
-    public CoachingResponse applyFeedback(Long contentId, Long feedbackId) {
+    public CoachingResponseDTO applyFeedback(Long contentId, Long feedbackId) {
         // 자기소개서 항목 조회
         CoverLetterContent content = coverLetterContentRepository.findById(contentId)
                 .orElseThrow(() -> new NotFoundException("자기소개서 내용이 없습니다."));
@@ -105,7 +105,7 @@ public class CoachingService {
         coverLetterContentFeedbackRepository.save(feedback);
 
         // 응답 생성
-        return CoachingResponse.builder()
+        return CoachingResponseDTO.builder()
                 .contentId(contentId)
                 .feedbackId(feedbackId)
                 .feedback(feedback.getFeedback())

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CoachingResponse {
+public class CoachingResponseDTO {
     private Long contentId;
     private Long feedbackId;
     private String feedback;
@@ -20,7 +20,7 @@ public class CoachingResponse {
     private LocalDateTime createdAt;
 
     // 기존 생성자 유지 (하위 호환성)
-    public CoachingResponse(Long contentId, String feedback, String revisedContent) {
+    public CoachingResponseDTO(Long contentId, String feedback, String revisedContent) {
         this.contentId = contentId;
         this.feedback = feedback;
         this.revisedContent = revisedContent;
