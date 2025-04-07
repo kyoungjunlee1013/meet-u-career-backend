@@ -10,14 +10,16 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class UserInfoDTO {
-    private Long id;
+    private Long accountId;
+    private Long profileId;
     private String name;
     private String email;
     private String profileImage;
 
     public static UserInfoDTO from(Account account, Profile profile) {
         return UserInfoDTO.builder()
-            .id(account.getId())
+            .accountId(account.getId())
+            .profileId(profile != null ? profile.getId() : null)
             .name(account.getName())
             .email(account.getEmail())
             .profileImage(profile != null ? profile.getProfileImageUrl() : null)

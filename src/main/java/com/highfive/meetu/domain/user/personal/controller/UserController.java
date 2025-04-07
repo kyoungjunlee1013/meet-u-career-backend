@@ -18,19 +18,14 @@ public class UserController {
 
     @GetMapping("/me")
     public ResultData<UserInfoDTO> getMyInfo() {
-        System.out.println("---------------------------------------------");
-        System.out.println("/me");
-
-        // SecurityUtil을 이용해 accountId 가져오기
-        Long accountId = securityUtil.getCurrentAccountId(); // accountId 가져오기
+        System.out.println("---------------------------------");
+        Long accountId = securityUtil.getCurrentAccountId();
         System.out.println("accountId: " + accountId);
 
-        // SecurityUtil을 이용해 profileId 가져오기
-        Long profileId = securityUtil.getProfileIdByAccountId(); // profileId 가져오기
+        Long profileId = securityUtil.getProfileIdByAccountId();
         System.out.println("profileId: " + profileId);
-        System.out.println("---------------------------------------------");
+        System.out.println("---------------------------------");
 
-        // UserService에서 accountId로 사용자 정보를 가져오기
         return userService.getMyInfo(accountId);
     }
 }

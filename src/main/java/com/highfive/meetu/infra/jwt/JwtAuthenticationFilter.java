@@ -34,9 +34,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 Long userId = jwtProvider.parseToken(token);
 
-                // 요청에 userId 설정
-                request.setAttribute("userId", userId);
-
                 // 인증 객체 생성 및 SecurityContext 등록
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
                     userId, null, List.of() // 권한이 없다면 빈 리스트
