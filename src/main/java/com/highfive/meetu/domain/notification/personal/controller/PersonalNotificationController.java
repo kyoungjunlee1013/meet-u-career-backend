@@ -1,14 +1,15 @@
 package com.highfive.meetu.domain.notification.personal.controller;
 
 import com.highfive.meetu.domain.notification.personal.dto.NotificationCreateRequestDTO;
-import com.highfive.meetu.domain.notification.personal.dto.NotificationDTO;
 import com.highfive.meetu.domain.notification.personal.dto.NotificationPageResponseDTO;
 import com.highfive.meetu.domain.notification.personal.service.PersonalNotificationService;
 import com.highfive.meetu.global.common.response.ResultData;
+import com.highfive.meetu.global.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+
+import static com.highfive.meetu.global.util.RequestUtil.getUserId;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,13 +23,17 @@ public class PersonalNotificationController {
         @RequestParam(defaultValue = "10") int size,
         HttpServletRequest request
     ) {
-        Long userId = (Long) request.getAttribute("userId");
+        Long userId = getUserId(request);
         return personalNotificationService.getNotifications(userId, page, size);
     }
 
     @PostMapping("/{notificationId}/read")
-    public ResultData<?> markAsRead(@PathVariable Long notificationId) {
-        return personalNotificationService.markAsRead(notificationId);
+    public ResultData<?> markAsRead(
+        @PathVariable Long notificationId,
+        HttpServletRequest request
+    ) {
+        Long userId = RequestUtil.getUserId(request); // 공통 유틸 사용
+        return personalNotificationService.markAsRead(notificationId, userId);
     }
 
     @PostMapping("/create")
