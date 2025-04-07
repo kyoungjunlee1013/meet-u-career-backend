@@ -30,7 +30,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"posts"})
+@ToString(exclude = {"postList"})
 public class CommunityTag extends BaseEntity {
 
     @Column(length = 50, nullable = false, unique = true)
