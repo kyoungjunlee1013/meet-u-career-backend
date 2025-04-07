@@ -63,7 +63,7 @@ public class Company extends BaseEntity {
     private String website;  // 회사 웹사이트 URL
 
     @Column(length = 500)
-    private String logoUrl;  // 기업 로고 이미지 URL
+    private String logoKey;  // 기업 로고 이미지 URL
 
     @Column(length = 500)
     private String address;  // 회사 주소
