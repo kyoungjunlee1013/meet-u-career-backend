@@ -92,8 +92,8 @@ public class Account extends BaseEntity {
      * 계정 유형
      */
     public static class AccountType {
-        public static final int PERSONAL = 0;
-        public static final int BUSINESS = 1;
+        public static final int PERSONAL = 0;  // 개인회원
+        public static final int BUSINESS = 1;  // 기업회원
     }
 
     /**
@@ -109,9 +109,9 @@ public class Account extends BaseEntity {
      * 계정 상태
      */
     public static class Status {
-        public static final int ACTIVE = 0;
-        public static final int INACTIVE = 1;
-        public static final int PENDING_APPROVAL = 2;
-        public static final int REJECTED = 3;
+        public static final int ACTIVE = 0;            // 정상
+        public static final int INACTIVE = 1;          // 탈퇴 또는 정지
+        public static final int PENDING_APPROVAL = 2;  // 관리자 승인 대기
+        public static final int REJECTED = 3;          // 승인 거절됨
     }
 }
