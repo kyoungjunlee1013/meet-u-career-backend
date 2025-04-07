@@ -29,7 +29,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"childCategories", "jobPostings"})
+@ToString(exclude = {"childCategoryList", "jobPostingJobCategoryList"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class JobCategory extends BaseEntity {
 
