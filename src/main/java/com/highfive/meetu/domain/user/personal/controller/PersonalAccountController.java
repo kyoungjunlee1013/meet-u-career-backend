@@ -17,13 +17,23 @@ public class PersonalAccountController {
     @PostMapping("/check/email")
     public ResultData<Boolean> findByEmail(@RequestBody PersonalEmailRequestDTO dto) {
         boolean result = accountService.findByEmail(dto.getEmail());
-        return ResultData.success(result ? 1 : 0, result);
+
+        if (result) {
+            return ResultData.of(1, "이미 존재하는 이메일입니다.", null);
+        } else {
+            return ResultData.of(0, "사용 가능한 이메일입니다.", null);
+        }
     }
 
     // 개인회원 회원가입
     @PostMapping("/signup")
     public ResultData<PersonalSignUpRequestDTO> signupBusiness(@RequestBody PersonalSignUpRequestDTO dto) {
         PersonalSignUpRequestDTO result = accountService.save(dto);
-        return ResultData.success((result != null) ? 1 : 0, result);
+
+        if (result != null) {
+            return ResultData.success(1, result);
+        } else {
+            return ResultData.fail();
+        }
     }
 }
