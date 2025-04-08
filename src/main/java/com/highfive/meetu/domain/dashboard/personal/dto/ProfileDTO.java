@@ -21,7 +21,7 @@ public class ProfileDTO {
         .educationLevel(profile.getEducationLevel())
         .skills(profile.getSkills())
         .desiredSalaryCode(profile.getDesiredSalaryCode())
-        .profileImageUrl(profile.getProfileImageUrl())
+        .profileImageUrl(profile.getProfileImageKey())
         .build();
   }
 }
