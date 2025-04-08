@@ -1,0 +1,38 @@
+package com.highfive.meetu.domain.community.personal.dto;
+
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CommunityPostDTO {
+
+  private Long id; // 게시글 ID
+
+  private Long accountId; // 작성자 계정 ID
+
+  private Long tagId; // 선택한 해시태그 ID
+
+  private String title; // 게시글 제목
+
+  private String content; // 게시글 본문
+
+  private String postImageKey; // S3에 저장된 대표 이미지 파일의 Key (예: communityPost/post123_abc.jpg)
+
+  private Integer likeCount; // 좋아요 수
+
+  private Integer commentCount; // 댓글 수
+
+  private Integer status; // 게시글 상태 (0: 게시 중, 1: 삭제됨)
+
+  private LocalDateTime createdAt; // 게시글 생성일
+
+  private LocalDateTime updatedAt; // 게시글 수정일
+}
+
+
+
