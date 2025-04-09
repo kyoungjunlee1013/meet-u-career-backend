@@ -44,25 +44,28 @@ public class Company extends BaseEntity {
     @Column(length = 20, nullable = false, unique = true)
     private String businessNumber;  // 사업자등록번호
 
+    @Column(length = 100)
+    private String representativeName;  // 대표자명
+
     @Column(length = 255, nullable = false)
     private String industry;  // 업종
 
-    @Column(nullable = false)
+    @Column
     private LocalDate foundedDate;  // 설립일
 
-    @Column(nullable = false)
+    @Column
     private Integer numEmployees;  // 직원 수
 
-    @Column(nullable = false)
+    @Column
     private Long revenue;  // 매출액
 
-    @Column(length = 500, nullable = false)
+    @Column(length = 500)
     private String website;  // 회사 웹사이트 URL
 
     @Column(length = 500)
-    private String logoUrl;  // 기업 로고 이미지 URL
+    private String logoKey;  // 기업 로고 이미지 URL
 
-    @Column(length = 500, nullable = false)
+    @Column(length = 500)
     private String address;  // 회사 주소
 
     @LastModifiedDate

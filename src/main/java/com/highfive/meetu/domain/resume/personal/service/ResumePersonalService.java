@@ -137,8 +137,6 @@ public class ResumePersonalService {
         resume.setTitle(dto.getTitle());
         resume.setOverview(dto.getOverview());
         resume.setResumeType(dto.getResumeType());
-        resume.setResumeFile(dto.getResumeFile());
-        resume.setResumeUrl(dto.getResumeUrl());
         resume.setExtraLink1(dto.getExtraLink1());
         resume.setExtraLink2(dto.getExtraLink2());
         resume.setStatus(dto.getStatus());
