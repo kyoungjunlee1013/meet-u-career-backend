@@ -35,7 +35,7 @@ public class JobPostingDetailDTO {
     private String companyIndustry;
     private String companyAddress;
     private String companyWebsite;
-    private String companyLogoUrl;
+    private String companyLogoKey;
     private LocalDate foundedDate;
     private Integer numEmployees;
     private Long revenue;
@@ -63,7 +63,7 @@ public class JobPostingDetailDTO {
             .companyIndustry(company.getIndustry())
             .companyAddress(company.getAddress())
             .companyWebsite(company.getWebsite())
-            .companyLogoUrl(company.getLogoUrl())
+            .companyLogoKey(company.getLogoKey())
             .foundedDate(company.getFoundedDate())
             .numEmployees(company.getNumEmployees())
             .revenue(company.getRevenue())
