@@ -3,6 +3,7 @@ package com.highfive.meetu.domain.application.personal.service;
 import com.highfive.meetu.domain.application.common.entity.InterviewReview;
 
 import com.highfive.meetu.domain.application.common.repository.InterviewReviewRepository;
+import com.highfive.meetu.domain.application.personal.dto.InterviewCompanySummaryDTO;
 import com.highfive.meetu.domain.application.personal.dto.InterviewReviewPersonalDTO;
 import com.highfive.meetu.global.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
