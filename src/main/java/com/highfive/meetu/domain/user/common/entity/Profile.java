@@ -70,7 +70,7 @@ public class Profile extends BaseEntity {
     private Integer desiredSalaryCode;  // 희망 연봉 코드
 
     @Column(length = 500)
-    private String profileImageUrl;  // 프로필 이미지 URL
+    private String profileImageKey;  // 프로필 이미지 URL
 
     @LastModifiedDate
     @Column(nullable = false)
@@ -83,23 +83,56 @@ public class Profile extends BaseEntity {
     private List<Resume> resumeList = new ArrayList<>();
 
     /**
-     * 경력 수준 코드
+     * 경력 코드 (사람인 기준)
+     * - 채용 공고 조건 또는 사용자 프로필의 경력 유형 표현
      */
-    public static class ExperienceLevel {
-        public static final int NEW_GRAD = 0;     // 신입
-        public static final int JUNIOR = 1;       // 1~3년차
-        public static final int MID_LEVEL = 2;    // 4~7년차
-        public static final int SENIOR = 3;       // 8년 이상
+    public static class ExperienceCode {
+        public static final int NEW = 1;          // 신입
+        public static final int EXPERIENCED = 2;  // 경력
+        public static final int BOTH = 3;         // 신입/경력
     }
 
     /**
-     * 학력 수준 코드
+     * 학력 수준 코드 (사람인 기준)
      */
     public static class EducationLevel {
-        public static final int HIGH_SCHOOL = 0;
-        public static final int ASSOCIATE = 1;
-        public static final int BACHELOR = 2;
-        public static final int MASTER = 3;
-        public static final int DOCTORAL = 4;
+        public static final int ANY = 0;              // 학력무관
+        public static final int HIGH_SCHOOL = 1;      // 고등학교졸업
+        public static final int COLLEGE = 2;          // 대학졸업(2,3년)
+        public static final int UNIVERSITY = 3;       // 대학교졸업(4년)
+        public static final int MASTER = 4;           // 석사졸업
+        public static final int DOCTOR = 5;           // 박사졸업
+        public static final int HIGH_SCHOOL_OR_MORE = 6;   // 고등학교졸업이상
+        public static final int COLLEGE_OR_MORE = 7;       // 대학졸업(2,3년)이상
+        public static final int UNIVERSITY_OR_MORE = 8;    // 대학교졸업(4년)이상
+        public static final int MASTER_OR_MORE = 9;        // 석사졸업이상
+    }
+
+
+    /**
+     * 희망 연봉 코드 (사람인 연동 기준)
+     */
+    public static class DesiredSalaryCode {
+        public static final int NEGOTIABLE = 0;             // 회사 내규에 따름
+        public static final int ABOVE_2600 = 9;             // 2,600만원 이상
+        public static final int ABOVE_2800 = 10;            // 2,800만원 이상
+        public static final int ABOVE_3000 = 11;            // 3,000만원 이상
+        public static final int ABOVE_3200 = 12;            // 3,200만원 이상
+        public static final int ABOVE_3400 = 13;            // 3,400만원 이상
+        public static final int ABOVE_3600 = 14;            // 3,600만원 이상
+        public static final int ABOVE_3800 = 15;            // 3,800만원 이상
+        public static final int ABOVE_4000 = 16;            // 4,000만원 이상
+        public static final int ABOVE_5000 = 17;            // 5,000만원 이상
+        public static final int ABOVE_6000 = 18;            // 6,000만원 이상
+        public static final int ABOVE_7000 = 19;            // 7,000만원 이상
+        public static final int RANGE_8000_9000 = 20;       // 8,000~9,000만원
+        public static final int RANGE_9000_10000 = 21;      // 9,000~1억원
+        public static final int ABOVE_10000 = 22;           // 1억원 이상
+        public static final int INTERVIEW = 99;             // 면접 후 결정
+        public static final int MONTHLY = 101;              // 월급
+        public static final int WEEKLY = 102;               // 주급
+        public static final int DAILY = 103;                // 일급
+        public static final int HOURLY = 104;               // 시급
+        public static final int PER_PROJECT = 105;          // 건당
     }
 }
