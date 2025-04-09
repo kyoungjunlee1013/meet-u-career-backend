@@ -28,7 +28,7 @@ public class BusinessSignUpRequestDTO {
     private Integer numEmployees;
     private Long revenue;
     private String website;
-    private String logoUrl;
+    private String logoKey;
     
     // 상태값
     private Integer status;
@@ -44,7 +44,7 @@ public class BusinessSignUpRequestDTO {
             .numEmployees(numEmployees)
             .revenue(revenue)
             .website(website)
-            .logoUrl(logoUrl)
+            .logoKey(logoKey)
             .status(status != null ? status : Status.WAITING)
             .build();
     }
@@ -78,7 +78,7 @@ public class BusinessSignUpRequestDTO {
             .numEmployees(company.getNumEmployees())
             .revenue(company.getRevenue())
             .website(company.getWebsite())
-            .logoUrl(company.getLogoUrl())
+            .logoKey(company.getLogoKey())
             .status(account.getStatus())
             .build();
     }
