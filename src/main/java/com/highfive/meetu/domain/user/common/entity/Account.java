@@ -72,7 +72,7 @@ public class Account extends BaseEntity {
     private Company company;  // 기업 계정의 경우 소속된 회사 (FK)
 
     @Column(length = 500)
-    private String businessFileUrl;  // 사업자등록증 이미지 파일의 URL 또는 경로
+    private String businessFileKey;  // 사업자등록증 이미지 파일의 URL 또는 경로
 
     @Column(length = 255)
     private String businessFileName;  // 업로드된 파일의 원본 이름

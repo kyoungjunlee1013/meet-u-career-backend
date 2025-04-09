@@ -50,7 +50,14 @@ public class Resume extends BaseEntity {
     private Integer resumeType;  // 이력서 유형 (CUSTOM, FILE, URL)
 
     @Column(length = 500)
-    private String resumeFile;  // 이력서 파일 첨부 (resumeType = FILE일 경우)
+    private String resumeFileKey; // S3 Key (예: resume/file_xxx.pdf)
+
+    @Column(length = 255)
+    private String resumeFileName; // 원본 파일명 (예: 홍길동_이력서.pdf)
+
+    @Column(length = 100)
+    private String resumeFileType; // 파일 타입 (예: application/pdf)
+
 
     @Column(length = 500)
     private String resumeUrl;  // 이력서 URL (resumeType = URL일 경우)
