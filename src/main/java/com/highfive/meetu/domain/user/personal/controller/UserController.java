@@ -19,10 +19,10 @@ public class UserController {
     @GetMapping("/me")
     public ResultData<UserInfoDTO> getMyInfo() {
         System.out.println("---------------------------------");
-        Long accountId = securityUtil.getCurrentAccountId();
+        Long accountId = securityUtil.getAccountId();
         System.out.println("accountId: " + accountId);
 
-        Long profileId = securityUtil.getProfileIdByAccountId();
+        Long profileId = securityUtil.getProfileId();
         System.out.println("profileId: " + profileId);
         System.out.println("---------------------------------");
 

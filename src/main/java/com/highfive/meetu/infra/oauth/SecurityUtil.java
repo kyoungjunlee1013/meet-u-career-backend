@@ -29,7 +29,7 @@ public class SecurityUtil {
     private final ProfileRepository profileRepository;
 
     // 현재 인증된 사용자의 accountId를 가져오는 메서드
-    public static Long getCurrentAccountId() {
+    public static Long getAccountId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         // 인증된 사용자가 존재하고, principal이 Long 타입인 경우
@@ -41,8 +41,8 @@ public class SecurityUtil {
     }
 
     // 현재 인증된 사용자의 accountId로 Profile 테이블에서 id를 가져오는 메서드
-    public Long getProfileIdByAccountId() {
-        Long accountId = getCurrentAccountId();
+    public Long getProfileId() {
+        Long accountId = getAccountId();
 
         // Try to find profile by accountId
         Profile profile = profileRepository.findByAccountId(accountId)
