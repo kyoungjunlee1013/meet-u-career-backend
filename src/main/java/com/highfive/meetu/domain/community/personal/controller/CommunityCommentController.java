@@ -14,6 +14,7 @@ import java.util.List;
 public class CommunityCommentController {
 
   private final CommunityCommentService commentService;
+  private final CommunityCommentService communityCommentService;
 
   /**
    * [POST] 댓글 등록
@@ -32,4 +33,27 @@ public class CommunityCommentController {
     List<CommunityCommentDTO> result = commentService.getCommentsByPost(postId);
     return ResultData.success(result.size(), result);
   }
+
+
+  /**
+   * [GET] 내가 쓴 게시글 댓글 목록 조회
+   */
+  @GetMapping("/my/{accountId}")
+  public ResultData<List<CommunityCommentDTO>> getMyComments(@PathVariable Long accountId) {
+    List<CommunityCommentDTO> result = communityCommentService.getMyComments(accountId);
+    return ResultData.success(result.size(), result);
+  }
+
+
+
+  /**
+   * [DELETE] 댓글 삭제
+   */
+  @DeleteMapping("/{commentId}")
+  public ResultData<String> deleteComment(@PathVariable Long commentId) {
+    communityCommentService.deleteComment(commentId);
+    return ResultData.success(1, "댓글이 삭제되었습니다.");
+  }
+
+
 }

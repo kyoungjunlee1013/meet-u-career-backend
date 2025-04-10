@@ -21,6 +21,7 @@ public class CommunityCommentService {
   private final CommunityCommentRepository commentRepository;
   private final CommunityPostRepository postRepository;
   private final AccountRepository accountRepository;
+  private final CommunityCommentRepository communityCommentRepository;
 
   /**
    * 댓글 등록
@@ -72,4 +73,38 @@ public class CommunityCommentService {
         .build()
     ).toList();
   }
+
+  /**
+   * 내가 쓴 댓글 조회
+   */
+  @Transactional(readOnly = true)
+  public List<CommunityCommentDTO> getMyComments(Long accountId) {
+    List<CommunityComment> comments = communityCommentRepository
+        .findAllByAccountIdAndStatusOrderByCreatedAtDesc(accountId, CommunityComment.Status.ACTIVE);
+
+    return comments.stream().map(c -> CommunityCommentDTO.builder()
+        .id(c.getId())
+        .postId(c.getPost().getId())
+        .accountId(c.getAccount().getId())
+        .content(c.getContent())
+        .status(c.getStatus())
+        .createdAt(c.getCreatedAt())
+        .updatedAt(c.getUpdatedAt())
+        .build()
+    ).toList();
+  }
+
+
+  /**
+   * 댓글 삭제
+   */
+  @Transactional
+  public void deleteComment(Long commentId) {
+    CommunityComment comment = communityCommentRepository.findById(commentId)
+        .filter(c -> c.getStatus() == CommunityComment.Status.ACTIVE)
+        .orElseThrow(() -> new NotFoundException("삭제할 댓글이 존재하지 않습니다."));
+
+    comment.setStatus(CommunityComment.Status.DELETED);
+  }
+
 }

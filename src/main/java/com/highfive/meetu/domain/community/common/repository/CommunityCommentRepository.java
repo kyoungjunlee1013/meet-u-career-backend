@@ -12,4 +12,7 @@ public interface CommunityCommentRepository extends JpaRepository<CommunityComme
   // 특정 게시글의 댓글 리스트 (정상 상태만)
   List<CommunityComment> findAllByPostIdAndStatusOrderByCreatedAtAsc(Long postId, Integer status);
 
+  List<CommunityComment> findAllByAccountIdAndStatusOrderByCreatedAtDesc(Long accountId, Integer status);
+
+
 }

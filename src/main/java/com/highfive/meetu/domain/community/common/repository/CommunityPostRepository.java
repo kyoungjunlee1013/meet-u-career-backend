@@ -11,5 +11,11 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
 
     // 상태가 게시 중인 게시글을 최신순으로 조회
     List<CommunityPost> findAllByStatusOrderByCreatedAtDesc(Integer status);
-    
+
+    List<CommunityPost> findAllByAccountIdAndStatusOrderByCreatedAtDesc(Long accountId, Integer status);
+
+    List<CommunityPost> findAllByTagIdAndStatusOrderByCreatedAtDesc(Long tagId, Integer status);
+
+
+
 }
