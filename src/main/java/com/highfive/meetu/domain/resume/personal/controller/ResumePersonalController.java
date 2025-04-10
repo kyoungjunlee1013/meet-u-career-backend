@@ -46,10 +46,10 @@ public class ResumePersonalController {
 
 
     // 기존 파일 이력서 수정 또는 init 이후 호출시
-    @PatchMapping("/{resumeId}/file")
+    @PostMapping("/{resumeId}/file")
     public ResultData<String> updateFileResume(
             @PathVariable Long resumeId,
-            @RequestPart("resumeFile") MultipartFile resumeFile
+            @RequestPart("file") MultipartFile resumeFile
     ) {
         resumePersonalService.updateFileResume(resumeId, resumeFile);
         return ResultData.success(1, "파일 이력서가 저장되었습니다.");
@@ -71,12 +71,21 @@ public class ResumePersonalController {
 
 
     // 이력서 기본 정보 저장
-    @PatchMapping("/{resumeId}/info")
+    @PostMapping("/{resumeId}/info")
     public ResultData<String> updateResumeBasicInfo(
             @PathVariable Long resumeId,
-            @RequestPart("data") ResumeBasicInfoDTO dto,
+            @RequestPart("data") String data, // String으로 받기
             @RequestPart(value = "resumeFile", required = false) MultipartFile resumeFile,
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+    ) throws JsonProcessingException {
+
+        // 수동 파싱
+        ResumeBasicInfoDTO dto = objectMapper.readValue(data, ResumeBasicInfoDTO.class);
+
+        // 디버깅 출력
+        System.out.println("title = " + dto.getTitle());
+        System.out.println("status = " + dto.getStatus());
+
 
         resumePersonalService.updateResumeBasicInfo(resumeId, dto, resumeFile, profileImage);
         return ResultData.success(1, "이력서 기본 정보가 저장되었습니다.");
@@ -87,8 +96,12 @@ public class ResumePersonalController {
     @PostMapping("/{resumeId}/content")
     public ResultData<Long> addResumeContent(
             @PathVariable Long resumeId,
-            @RequestPart("data") ResumeContentDTO dto,
-            @RequestPart(value = "file", required = false) MultipartFile file) {
+            @RequestPart("data") String data,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) throws JsonProcessingException {
+
+        ResumeContentDTO dto = objectMapper.readValue(data, ResumeContentDTO.class);
+        dto.setResumeId(resumeId);
 
         dto.setResumeId(resumeId);
         Long contentId = resumePersonalService.saveResumeContent(dto, file);
@@ -98,18 +111,22 @@ public class ResumePersonalController {
 
 
     // 항목 수정 메서드
-    @PatchMapping("/{resumeId}/content/{contentId}")
+    @PostMapping("/{resumeId}/content/{contentId}")
     public ResultData<Long> updateResumeContent(
             @PathVariable Long resumeId,
             @PathVariable Long contentId,
-            @RequestPart("data") ResumeContentDTO dto,
+            @RequestPart("data") String data,
             @RequestPart(value = "file", required = false) MultipartFile file
-    ) {
+    ) throws JsonProcessingException {
+
+        ResumeContentDTO dto = objectMapper.readValue(data, ResumeContentDTO.class);
         dto.setResumeId(resumeId);
         dto.setId(contentId);
+
         Long updatedId = resumePersonalService.updateResumeContent(dto, file);
         return ResultData.success(1, updatedId);
     }
+
 
 
     // 항목 삭제 메서드
@@ -127,11 +144,14 @@ public class ResumePersonalController {
     @PostMapping("/{resumeId}/saveall")
     public ResultData<String> finalSaveResume(
             @PathVariable Long resumeId,
-            @RequestPart("data") ResumeWriteRequestDTO dto,
+            @RequestPart("data") String data,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @RequestPart(value = "resumeFile", required = false) MultipartFile resumeFile,
             @RequestPart(value = "contentFiles", required = false) List<MultipartFile> contentFiles
-    ) {
+    ) throws JsonProcessingException {
+
+        ResumeWriteRequestDTO dto = objectMapper.readValue(data, ResumeWriteRequestDTO.class);
+
         // 파일들을 DTO에 주입
         dto.setProfileImage(profileImage);
         dto.setResumeFile(resumeFile);
@@ -140,6 +160,7 @@ public class ResumePersonalController {
         resumePersonalService.saveAllAtOnce(resumeId, dto);
         return ResultData.success(1, "이력서 전체 저장 완료");
     }
+
 
 
 
@@ -202,6 +223,56 @@ public class ResumePersonalController {
 
         return ResultData.success(1, resumeId);
     }
+
+
+
+    // -------------------------------
+
+    // 대표 이력서 설정 (isPrimary = true)
+    @PatchMapping("/{resumeId}/represent")
+    public ResultData<String> setPrimaryResume(@PathVariable Long resumeId) {
+        resumePersonalService.setAsPrimaryResume(resumeId);
+        return ResultData.success(1, "대표 이력서로 설정되었습니다.");
+    }
+
+    // 이력서 파일 다운로드 Presigned URL 발급
+    @GetMapping("/{resumeId}/file-url")
+    public ResultData<String> getResumeFileDownloadUrl(@PathVariable Long resumeId) {
+        String url = resumePersonalService.generateResumeFileDownloadUrl(resumeId);
+        return ResultData.success(1, url);
+    }
+
+    // 이력서 삭제 (Soft Delete 방식)
+    @DeleteMapping("/{resumeId}")
+    public ResultData<?> deleteResume(@PathVariable Long resumeId) {
+        resumePersonalService.softDeleteResume(resumeId);
+        return ResultData.success(1, null);
+    }
+
+    // 이력서 복제 기능 (복사본 생성)
+    @PostMapping("/{resumeId}/duplicate")
+    public ResultData<Long> duplicateResume(@PathVariable Long resumeId) {
+        Long newResumeId = resumePersonalService.duplicateResume(resumeId);
+        return ResultData.success(1, newResumeId);
+    }
+
+
+    // 이력서 상태 변경
+    @PatchMapping("/{resumeId}/status")
+    public ResultData<String> updateStatus(@PathVariable Long resumeId, @RequestBody Map<String, Integer> body) {
+        Integer status = body.get("status");
+        resumePersonalService.updateResumeStatus(resumeId, status);
+        return ResultData.success(1, "상태가 변경되었습니다.");
+    }
+
+
+    // 이력서 조회수 조회
+    @GetMapping("/{resumeId}/view-count")
+    public ResultData<Integer> getViewCount(@PathVariable Long resumeId) {
+        int count = resumePersonalService.getViewCount(resumeId);
+        return ResultData.success(1, count);
+    }
+
 
 
 }

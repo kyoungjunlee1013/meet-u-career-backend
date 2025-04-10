@@ -10,6 +10,7 @@ import com.highfive.meetu.domain.resume.common.entity.Resume;
 import com.highfive.meetu.domain.resume.common.entity.ResumeContent;
 import com.highfive.meetu.domain.resume.common.repository.ResumeContentRepository;
 import com.highfive.meetu.domain.resume.common.repository.ResumeRepository;
+import com.highfive.meetu.domain.resume.common.repository.ResumeViewLogRepository;
 import com.highfive.meetu.domain.resume.personal.dto.*;
 import com.highfive.meetu.domain.user.common.entity.Profile;
 import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
@@ -36,7 +37,7 @@ public class ResumePersonalService {
     private final S3Service s3Service;
     private final LocationRepository locationRepository;
     private final JobCategoryRepository jobCategoryRepository;
-
+    private final ResumeViewLogRepository resumeViewLogRepository;
 
 
     // 이력서 초기 생성 메서드 - "이력서 작성" 버튼을 눌러서 이력서 작성 페이지로 넘어갈 때 데이터 생성
@@ -156,12 +157,12 @@ public class ResumePersonalService {
         // 3. 이력서 관련 필드 업데이트
         resume.setTitle(dto.getTitle());
         resume.setOverview(dto.getOverview());
-        resume.setResumeType(dto.getResumeType());
+        resume.setResumeType(dto.getResumeType() != null ? dto.getResumeType() : 0);
         resume.setResumeUrl(dto.getResumeUrl());
         resume.setExtraLink1(dto.getExtraLink1());
         resume.setExtraLink2(dto.getExtraLink2());
         resume.setStatus(dto.getStatus());
-        resume.setIsPrimary(dto.getIsPrimary());
+        resume.setIsPrimary(dto.getIsPrimary() != null ? dto.getIsPrimary() : false);
 
         if (resumeFile != null && !resumeFile.isEmpty()) {
             String resumeFileKey = s3Service.uploadFile(resumeFile, "resume");
@@ -517,4 +518,125 @@ public class ResumePersonalService {
             resumeContentRepository.saveAll(contentList); // 항목 리스트를 DB에 일괄 저장
         }
     }
+
+    // -------------------------------
+    @Transactional
+    public void setAsPrimaryResume(Long resumeId) {
+        // 1. 대상 이력서 조회
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
+
+        // 2. 삭제된 이력서는 대표 설정 불가
+        if (resume.getStatus() == 3) {
+            throw new BadRequestException("삭제된 이력서는 대표로 설정할 수 없습니다.");
+        }
+
+        Long profileId = resume.getProfile().getId();
+
+        // 3. 동일 프로필의 기존 대표 이력서 모두 초기화
+        resumeRepository.clearPrimaryResume(profileId);
+
+        // 4. 현재 이력서를 대표로 설정
+        resume.setIsPrimary(true);
+    }
+
+
+    public String generateResumeFileDownloadUrl(Long resumeId) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
+
+        // 삭제되었거나 파일 타입이 아닌 경우 예외
+        if (resume.getStatus() == 3 || resume.getResumeType() != Resume.ResumeType.FILE_UPLOAD) {
+            throw new BadRequestException("파일 이력서가 아니거나 삭제된 이력서입니다.");
+        }
+
+        String fileKey = resume.getResumeFileKey();
+        if (fileKey == null || fileKey.isEmpty()) {
+            throw new NotFoundException("파일 이력서가 존재하지 않습니다.");
+        }
+
+        // S3 서비스로부터 presigned URL 생성
+        return s3Service.generatePresignedUrl(fileKey);
+    }
+
+    @Transactional
+    public void softDeleteResume(Long resumeId) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
+
+        // 이미 삭제된 이력서면 예외 처리
+        if (resume.getStatus() == Resume.Status.DELETED) {
+            throw new BadRequestException("이미 삭제된 이력서입니다.");
+        }
+
+        // 상태 변경만 수행 (Soft Delete)
+        resume.setStatus(Resume.Status.DELETED);
+    }
+
+
+    @Transactional
+    public Long duplicateResume(Long originalId) {
+        Resume original = resumeRepository.findById(originalId)
+                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
+
+        Resume copy = Resume.builder()
+                .profile(original.getProfile())
+                .title(original.getTitle() + " (복사본)")
+                .overview(original.getOverview())
+                .resumeType(original.getResumeType())
+                .resumeFileKey(original.getResumeFileKey())
+                .resumeUrl(original.getResumeUrl())
+                .extraLink1(original.getExtraLink1())
+                .extraLink2(original.getExtraLink2())
+                .coverLetter(original.getCoverLetter())
+                .status(0)  // 임시저장 상태
+                .isPrimary(false)
+                .build();
+
+        resumeRepository.save(copy);
+
+        // 항목 복사
+        List<ResumeContent> copiedContents = original.getResumeContentList().stream()
+                .map(c -> ResumeContent.builder()
+                        .resume(copy)
+                        .sectionType(c.getSectionType())
+                        .sectionTitle(c.getSectionTitle())
+                        .contentOrder(c.getContentOrder())
+                        .organization(c.getOrganization())
+                        .title(c.getTitle())
+                        .field(c.getField())
+                        .description(c.getDescription())
+                        .dateFrom(c.getDateFrom())
+                        .dateTo(c.getDateTo())
+                        .contentFileKey(c.getContentFileKey())
+                        .contentFileName(c.getContentFileName())
+                        .contentFileType(c.getContentFileType())
+                        .build())
+                .collect(Collectors.toList());
+
+
+        resumeContentRepository.saveAll(copiedContents);
+        return copy.getId();
+    }
+
+    @Transactional
+    public void updateResumeStatus(Long resumeId, Integer status) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
+
+        if (status < 0 || status > 2) {
+            throw new BadRequestException("올바르지 않은 상태값입니다.");
+        }
+
+        resume.setStatus(status);
+    }
+
+    public int getViewCount(Long resumeId) {
+        if (!resumeRepository.existsById(resumeId)) {
+            throw new NotFoundException("이력서를 찾을 수 없습니다.");
+        }
+        return resumeViewLogRepository.countByResumeId(resumeId);
+    }
+
+
 }
