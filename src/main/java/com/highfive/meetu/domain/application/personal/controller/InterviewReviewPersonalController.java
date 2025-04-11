@@ -26,7 +26,7 @@ public class InterviewReviewPersonalController {
    * @param dto 작성용 DTO
    * @return 생성된 후기 ID
    */
-  @PostMapping
+  @PostMapping("/create")
   public ResultData<Long> createInterviewReview(@RequestBody InterviewReviewCreateDTO dto) {
 
     // 임시 고정된 profileId
@@ -44,8 +44,9 @@ public class InterviewReviewPersonalController {
    * 특정 프로필이 작성한 면접 후기 목록 조회
    * 예: GET /api/personal/interview-reviews?profileId=1
    */
-  @GetMapping
-  public ResultData<List<InterviewReviewPersonalDTO>> findAllByProfileId(@RequestParam Long profileId) {
+  @GetMapping("/list")
+  public ResultData<List<InterviewReviewPersonalDTO>> findAllByProfileId() {
+    Long profileId = 1L;
     List<InterviewReviewPersonalDTO> result = interviewReviewPersonalService.findAllByProfileId(profileId);
     return ResultData.success(result.size(), result);
   }
