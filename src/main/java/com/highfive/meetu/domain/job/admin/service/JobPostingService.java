@@ -177,7 +177,7 @@ public class JobPostingService {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
                 LocalDate foundedDate;
                 if (estbDt == null || estbDt.isEmpty()) {
-                    System.out.println("설립일 정보가 없어 기본값(LocalDate.now())을 사용합니다.");
+//                    System.out.println("설립일 정보가 없어 기본값(LocalDate.now())을 사용합니다.");
                     foundedDate = LocalDate.now();
                 } else {
                     foundedDate = LocalDate.parse(estbDt, formatter);
@@ -199,14 +199,14 @@ public class JobPostingService {
                         .build();
 
                 Company savedCompany = companyRepository.save(newCompany);
-                System.out.println("새로운 회사 저장 완료: " + savedCompany.getName());
+//                System.out.println("새로운 회사 저장 완료: " + savedCompany.getName());
                 return savedCompany;
             } else {
-                System.out.println("금융위원회 API에 해당 기업 정보 없음: " + normalizedName);
+//                System.out.println("금융위원회 API에 해당 기업 정보 없음: " + normalizedName);
                 return null;
             }
         } catch (Exception e) {
-            System.out.println("금융위원회 API 호출 오류: " + e.getMessage());
+//            System.out.println("금융위원회 API 호출 오류: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
