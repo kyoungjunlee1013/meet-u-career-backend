@@ -4,6 +4,8 @@ package com.highfive.meetu.domain.offer.personal.service;
 import com.highfive.meetu.domain.offer.common.entity.Offer;
 import com.highfive.meetu.domain.offer.common.repository.OfferRepository;
 import com.highfive.meetu.domain.offer.personal.dto.MyOfferDTO;
+import com.highfive.meetu.global.common.exception.NotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,5 +23,15 @@ public class OfferService {
   public MyOfferDTO getMyOffers(Long personalAccountId) {
     List<Offer> offers = offerRepository.findByPersonalAccountId(personalAccountId);
     return MyOfferDTO.build(offers);
+  }
+
+  @Transactional
+  public void approveOffer(Long offerId) {
+    offerRepository.updateStatusToApproved(offerId);
+  }
+
+  @Transactional
+  public void rejectOffer(Long offerId) {
+    offerRepository.rejectOffer(offerId);
   }
 }
