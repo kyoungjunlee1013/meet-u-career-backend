@@ -14,7 +14,23 @@ services:
       - SPRING_DATASOURCE_USERNAME=${DB_USER}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=${JPA_HIBERNATE_DDL_AUTO}
+      - AI_SERVICE_URL=http://meet-u-career-ai:8000  # Spring에서 FastAPI 호출용 주소
+    depends_on:
+      - ai-service
     restart: always
+
+  ai-service:
+    build:
+      context: ../meet-u-career-ai  # FastAPI 경로
+      dockerfile: Dockerfile
+    container_name: meet-u-career-ai
+    networks:
+      - meetu_net
+    ports:
+      - "8000:8000"
+    restart: always
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000  # FastAPI 실행 커맨드
+
 networks:
   meetu_net:
     driver: bridge
