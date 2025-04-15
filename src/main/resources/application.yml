@@ -2,6 +2,10 @@ spring:
   profiles:
     active: dev            # 현재 사용할 프로파일 설정 (application-dev.yml 파일 사용)
     include: secret        # 민감 정보가 담긴 application-secret.yml 포함
+  servlet:
+    multipart:
+      max-file-size: 10MB     # 파일 하나의 최대 용량
+      max-request-size: 10MB  # 전체 요청의 최대 용량
 
   jpa:
     hibernate:
@@ -19,6 +23,13 @@ spring:
 logging:
   level:
     root: INFO               # 전체 로그 레벨 설정 (DEBUG, INFO, WARN, ERROR 등)
+
+
+
+
+
+
+
 
 
 

@@ -64,6 +64,12 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"  // QueryDSL APT
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"  // Jakarta Annotation API
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"  // Jakarta Persistence API
+
+    // ✅ Apache HttpClient 5 + 필수 모듈 (TLSSocketStrategy 포함)
+    // Apache HttpClient 5
+//    implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
+//    implementation 'org.apache.httpcomponents.core5:httpcore5:5.2.1'
+//    implementation 'org.apache.httpcomponents.core5:httpcore5-reactive:5.2.1' // ✅ 중요
 }
 
 tasks.named('test') {

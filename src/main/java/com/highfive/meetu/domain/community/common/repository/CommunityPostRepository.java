@@ -9,12 +9,14 @@ import java.util.List;
 @Repository
 public interface CommunityPostRepository extends JpaRepository<CommunityPost, Long> {
 
-    // 상태가 게시 중인 게시글을 최신순으로 조회
-    List<CommunityPost> findAllByStatusOrderByCreatedAtDesc(Integer status);
+  // 전체 게시글 조회 (최신순 정렬 / 중앙영역)
+  List<CommunityPost> findAllByStatusOrderByCreatedAtDesc(Integer status);
 
-    List<CommunityPost> findAllByAccountIdAndStatusOrderByCreatedAtDesc(Long accountId, Integer status);
+  // 내가 쓴 글 조회 (최신순 정렬)
+  List<CommunityPost> findAllByAccountIdAndStatusOrderByCreatedAtDesc(Long accountId, Integer status);
 
-    List<CommunityPost> findAllByTagIdAndStatusOrderByCreatedAtDesc(Long tagId, Integer status);
+  // 해시태그별 게시글 조회 (최신순 정렬 / 중앙영역)
+  List<CommunityPost> findAllByTagIdAndStatusOrderByCreatedAtDesc(Long tagId, Integer status);
 
 
 

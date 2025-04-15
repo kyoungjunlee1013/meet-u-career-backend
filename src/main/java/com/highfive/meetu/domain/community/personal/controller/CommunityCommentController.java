@@ -19,7 +19,7 @@ public class CommunityCommentController {
   /**
    * [POST] 댓글 등록
    */
-  @PostMapping
+  @PostMapping("/create")
   public ResultData<CommunityCommentDTO> create(@RequestBody CommunityCommentDTO dto) {
     CommunityCommentDTO result = commentService.createComment(dto);
     return ResultData.success(1, result);
@@ -49,7 +49,7 @@ public class CommunityCommentController {
   /**
    * [DELETE] 댓글 삭제
    */
-  @DeleteMapping("/{commentId}")
+  @PostMapping("/delete/{commentId}")
   public ResultData<String> deleteComment(@PathVariable Long commentId) {
     communityCommentService.deleteComment(commentId);
     return ResultData.success(1, "댓글이 삭제되었습니다.");
