@@ -16,6 +16,7 @@ public class MyPageDTO {
   private List<RecentApplicationDTO> recentApplications;
   private ApplicationSummaryDTO summary;
   private List<RecommendedJobPostingDTO> recommendedJobs;
+  private int profileCompleteness; // 추가된 필드
 
   public static MyPageDTO of(
       AccountDTO account,
@@ -25,7 +26,8 @@ public class MyPageDTO {
       int bookmarkCount,
       List<RecentApplicationDTO> recentApplications,
       ApplicationSummaryDTO summary,
-      List<RecommendedJobPostingDTO> recommendedJobs
+      List<RecommendedJobPostingDTO> recommendedJobs,
+      int profileCompleteness // 추가된 파라미터
   ) {
     return MyPageDTO.builder()
         .account(account)
@@ -36,6 +38,7 @@ public class MyPageDTO {
         .recentApplications(recentApplications)
         .summary(summary)
         .recommendedJobs(recommendedJobs)
+        .profileCompleteness(profileCompleteness)
         .build();
   }
 }

@@ -5,6 +5,7 @@ import com.highfive.meetu.domain.company.common.repository.CompanyRepository;
 import com.highfive.meetu.domain.dashboard.personal.dto.*;
 import com.highfive.meetu.domain.job.common.repository.BookmarkRepository;
 import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
+import com.highfive.meetu.domain.job.common.repository.LocationRepository;
 import com.highfive.meetu.domain.offer.common.repository.OfferRepository;
 import com.highfive.meetu.domain.resume.common.repository.ResumeRepository;
 import com.highfive.meetu.domain.resume.common.repository.ResumeViewLogRepository;
@@ -15,6 +16,7 @@ import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
 import com.highfive.meetu.global.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -54,7 +56,29 @@ public class MyPageService {
     // 5. 추천 공고
     List<RecommendedJobPostingDTO> recommendedJobs = jobPostingRepository.findRecommendedForProfile(profile);
 
-    // 6. DTO 조립
+
+
+    // 6. 프로필 완성도 계산 (Account의 5개 항목: 이름, 이메일, 전화번호, 생년월일, 주소정보 각 20%)
+    int profileCompleteness = 0;
+    if (StringUtils.hasText(account.getName())) {
+      profileCompleteness += 20;
+    }
+    if (StringUtils.hasText(account.getEmail())) {
+      profileCompleteness += 20;
+    }
+    if (StringUtils.hasText(account.getPhone())) {
+      profileCompleteness += 20;
+    }
+    if (account.getBirthday() != null) {
+      profileCompleteness += 20;
+    }
+    if (profile.getLocation() != null && StringUtils.hasText(profile.getLocation().getFullLocation())) {
+      profileCompleteness += 20;
+    }
+
+
+
+    // 7. DTO 조립 (프로필 완성도 값을 포함)
     return MyPageDTO.of(
         AccountDTO.from(account),
         ProfileDTO.from(profile),
@@ -63,7 +87,8 @@ public class MyPageService {
         bookmarkCount,
         recentApplications,
         summary,
-        recommendedJobs
+        recommendedJobs,
+        profileCompleteness
     );
   }
 }
