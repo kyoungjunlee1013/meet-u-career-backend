@@ -16,18 +16,14 @@ public class CommunityCommentController {
   private final CommunityCommentService commentService;
   private final CommunityCommentService communityCommentService;
 
-  /**
-   * [POST] 댓글 등록
-   */
+  // 댓글등록
   @PostMapping("/create")
   public ResultData<CommunityCommentDTO> create(@RequestBody CommunityCommentDTO dto) {
     CommunityCommentDTO result = commentService.createComment(dto);
     return ResultData.success(1, result);
   }
 
-  /**
-   * [GET] 게시글 댓글 목록 조회
-   */
+  // 댓글 목록조회
   @GetMapping("/{postId}")
   public ResultData<List<CommunityCommentDTO>> getList(@PathVariable Long postId) {
     List<CommunityCommentDTO> result = commentService.getCommentsByPost(postId);
@@ -35,9 +31,7 @@ public class CommunityCommentController {
   }
 
 
-  /**
-   * [GET] 내가 쓴 게시글 댓글 목록 조회
-   */
+  // 내가 쓴 게시글, 댓글 조회
   @GetMapping("/my/{accountId}")
   public ResultData<List<CommunityCommentDTO>> getMyComments(@PathVariable Long accountId) {
     List<CommunityCommentDTO> result = communityCommentService.getMyComments(accountId);
@@ -45,15 +39,20 @@ public class CommunityCommentController {
   }
 
 
+  //댓글 수정
+  @PostMapping("/update")
+  public ResultData<CommunityCommentDTO> updateComment(@RequestBody CommunityCommentDTO dto) {
+    CommunityCommentDTO result = communityCommentService.updateComment(dto);
+    return ResultData.success(1, result);
+  }
 
-  /**
-   * [DELETE] 댓글 삭제
-   */
+
+
+  // 댓글 삭제
   @PostMapping("/delete/{commentId}")
   public ResultData<String> deleteComment(@PathVariable Long commentId) {
     communityCommentService.deleteComment(commentId);
     return ResultData.success(1, "댓글이 삭제되었습니다.");
   }
-
 
 }

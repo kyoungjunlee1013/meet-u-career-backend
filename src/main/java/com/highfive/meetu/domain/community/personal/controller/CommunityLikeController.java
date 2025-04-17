@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 커뮤니티 좋아요 컨트롤러
- */
+
 @RestController
 @RequestMapping("/api/community/likes")
 @RequiredArgsConstructor
@@ -19,11 +17,7 @@ public class CommunityLikeController {
 
   private final CommunityLikeService communityLikeService;
 
-  /**
-   * [POST] 좋아요 토글
-   * @param dto accountId, postId 포함
-   * @return 생성된 좋아요 DTO or 해제 메시지
-   */
+// 좋아요, 좋아요 해제
   @PostMapping("/toggle")
   public ResultData<?> toggleLike(@RequestBody CommunityLikeDTO dto) {
     CommunityLikeDTO result = communityLikeService.toggleLike(dto.getAccountId(), dto.getPostId());

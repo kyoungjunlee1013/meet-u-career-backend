@@ -13,9 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * 커뮤니티 좋아요 서비스
- */
+
 @Service
 @RequiredArgsConstructor
 public class CommunityLikeService {
@@ -25,22 +23,19 @@ public class CommunityLikeService {
   private final AccountRepository accountRepository;
   private final EntityManager entityManager;
 
-  /**
-   * 좋아요 토글 처리
-   * - 존재 시 삭제, 없을 시 생성
-   */
+  // 좋아요 토글 처리, 존재 시 삭제, 없을 시 생성
   @Transactional
   public CommunityLikeDTO toggleLike(Long accountId, Long postId) {
 
-    // 1. 사용자 확인
+    // 사용자 확인
     Account account = accountRepository.findById(accountId)
         .orElseThrow(() -> new NotFoundException("사용자 정보를 찾을 수 없습니다."));
 
-    // 2. 게시글 확인
+    // 게시글 확인
     CommunityPost post = communityPostRepository.findById(postId)
         .orElseThrow(() -> new NotFoundException("게시글 정보를 찾을 수 없습니다."));
 
-    // 3. 좋아요 여부 확인
+    // 좋아요 여부 확인
     CommunityLike existingLike = communityLikeRepository.findByAccountIdAndPostId(accountId, postId).orElse(null);
 
     if (existingLike != null) {
@@ -50,7 +45,7 @@ public class CommunityLikeService {
       return null;
     }
 
-    // 4. 좋아요가 없으면 → 새로 등록
+    // 좋아요가 없으면 → 새로 등록
     CommunityLike like = CommunityLike.builder()
         .account(account)
         .post(post)
@@ -60,7 +55,7 @@ public class CommunityLikeService {
 
     post.setLikeCount(post.getLikeCount() + 1);
 
-    // 5. DTO 반환
+    // DTO 반환
     return CommunityLikeDTO.builder()
         .id(like.getId())
         .accountId(accountId)

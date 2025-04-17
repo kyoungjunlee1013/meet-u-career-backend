@@ -24,6 +24,7 @@ public class CommunityPostListDTO {
   private Integer likeCount;       // 좋아요 수
   private Integer commentCount;    // 댓글 수
   private LocalDateTime createdAt; // 작성일시
+  private String profileImageUrl; // 작성자 프로필 이미지 Url
 
   /**
    * QueryDSL에서 직접 조회할 수 있도록 생성자에 @QueryProjection 추가
@@ -41,7 +42,8 @@ public class CommunityPostListDTO {
       String postImageKey, // key를 받아서 나중에 URL로 변환
       Integer likeCount,
       Integer commentCount,
-      LocalDateTime createdAt
+      LocalDateTime createdAt,
+      String profileImageUrl
   ) {
     this.postId = postId;
     this.title = title;
@@ -54,5 +56,6 @@ public class CommunityPostListDTO {
     this.likeCount = likeCount;
     this.commentCount = commentCount;
     this.createdAt = createdAt;
+    this.profileImageUrl = profileImageUrl;
   }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.highfive.meetu.domain.community.personal.dto.CommunityNewsDTO;
 import com.highfive.meetu.domain.community.personal.dto.CommunityPostDTO;
 import com.highfive.meetu.domain.community.personal.dto.CommunityPostListDTO;
+import com.highfive.meetu.domain.community.personal.dto.CommunityPostSimpleDTO;
 import com.highfive.meetu.domain.community.personal.service.CommunityNewsService;
 import com.highfive.meetu.domain.community.personal.service.CommunityPostService;
 import com.highfive.meetu.global.common.exception.BadRequestException;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,9 +62,16 @@ public class CommunityPostController {
   public ResultData<Map<String, Object>> getAllActivePosts() {
     List<CommunityPostDTO> posts = communityPostService.getAllActivePosts();
 
+    // 기본 기간: 최근 7일로 설정
+    LocalDate now = LocalDate.now();
+    LocalDate from = now.minusDays(7);
+    LocalDate to = now;
+
+
     // tagId가 null이면 기본값 1 (면접) 사용
-    List<CommunityNewsDTO> news = communityNewsService.getNewsByTagId(1L);
+    List<CommunityNewsDTO> news = communityNewsService.getNewsByTagId(1L, from, to);
     System.out.println("news: " + news);
+
     // posts + news 를 하나의 Map으로 묶음
     Map<String, Object> response = new HashMap<>();
     response.put("posts", posts);
@@ -103,29 +112,31 @@ public class CommunityPostController {
   }
 
   //게시글 삭제 (Soft Delete)
-  @PostMapping("/{postId}")
-  public ResultData<String> deletePost(@PathVariable Long postId) {
-    communityPostService.deletePost(postId);
+  @PostMapping("/delete/{postId}")
+  public ResultData<String> deletePost(@PathVariable Long postId,
+                                       @RequestBody Map<String, Long> body) {
+    Long accountId = body.get("accountId");
+    communityPostService.deletePost(postId, accountId);
     return ResultData.success(1, "게시글이 삭제되었습니다.");
   }
 
 
   // 인기글 조회 (각 태그당 1개씩 뽑아와서 보여주는 기준)
   @GetMapping("/popular")
-  public ResultData<List<CommunityPostDTO>> getPopularPosts(
+  public ResultData<List<CommunityPostSimpleDTO>> getPopularPosts(
       @RequestParam(defaultValue = "7") int limit
   ) {
-    List<CommunityPostDTO> result = communityPostService.getPopularPosts(limit);
+    List<CommunityPostSimpleDTO> result = communityPostService.getPopularPosts(limit);
     return ResultData.success(result.size(), result);
   }
 
   // 인기글 조회 (각 해시태그 기준)
   @GetMapping("/popular/tag/{tagId}")
-  public ResultData<List<CommunityPostDTO>> getPopularPostsByTag(
+  public ResultData<List<CommunityPostSimpleDTO>> getPopularPostsByTag(
       @PathVariable Long tagId,
       @RequestParam(defaultValue = "7") int limit
   ) {
-    List<CommunityPostDTO> result = communityPostService.getPopularPostsByTag(tagId, limit);
+    List<CommunityPostSimpleDTO> result = communityPostService.getPopularPostsByTag(tagId, limit);
     return ResultData.success(result.size(), result);
   }
 

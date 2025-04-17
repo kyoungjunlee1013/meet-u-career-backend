@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,24 +34,27 @@ public class CommunityNewsService {
   private final RestTemplate restTemplate = new RestTemplate();
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  public List<CommunityNewsDTO> getNewsByTagId(Long tagId) {
-    // 1. 해시태그 조회
+  public List<CommunityNewsDTO> getNewsByTagId(Long tagId, LocalDate from, LocalDate to) {
+    // 해시태그 조회
     CommunityTag tag = communityTagRepository.findById(tagId)
         .orElseThrow(() -> new NotFoundException("해시태그 정보를 찾을 수 없습니다."));
 
-    // 2. 태그 이름에 맞는 키워드 리스트 가져오기
+    // 태그 이름에 맞는 키워드 리스트 가져오기
     List<String> keywords = CommunityTagDTO.getSearchKeywordsByTag(tag.getName());
     String query = String.join(" OR ", keywords);
 
     System.out.println("검색 키워드: " + keywords);
 
-    // 3. 뉴스 API URL 생성
-    String url = "https://newsapi.org/v2/everything?q=" + UriUtils.encode(query, StandardCharsets.UTF_8) +
-        "&pageSize=5&sortBy=publishedAt&language=ko&apiKey=" + newsApiKey;
+    // 뉴스 API URL 생성
+    String url = "https://newsapi.org/v2/everything?q=" + UriUtils.encode(query, StandardCharsets.UTF_8)
+        + "&from=" + from.toString()
+        + "&to=" + to.toString()
+        + "&pageSize=5&sortBy=publishedAt&language=ko&apiKey=" + newsApiKey;
+
 
     System.out.println("호출 URL: " + url);
 
-    // 4. 헤더 설정
+    // 헤더 설정
     HttpHeaders headers = new HttpHeaders();
     headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
     headers.set("Accept", "application/json");
@@ -59,7 +63,7 @@ public class CommunityNewsService {
 
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-    // 5. 원본 JSON 응답 받기 및 디버깅
+    // 원본 JSON 응답 받기 및 디버깅
     try {
       // 먼저 String으로 응답 받기
       ResponseEntity<String> rawResponse = restTemplate.exchange(

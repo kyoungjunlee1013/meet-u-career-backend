@@ -7,6 +7,7 @@ import com.highfive.meetu.domain.community.common.repository.CommunityPostReposi
 import com.highfive.meetu.domain.community.common.repository.CommunityTagRepository;
 import com.highfive.meetu.domain.community.personal.dto.CommunityPostDTO;
 import com.highfive.meetu.domain.community.personal.dto.CommunityPostListDTO;
+import com.highfive.meetu.domain.community.personal.dto.CommunityPostSimpleDTO;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.user.common.repository.AccountRepository;
 import com.highfive.meetu.global.common.exception.BadRequestException;
@@ -82,7 +83,8 @@ public class CommunityPostService {
             s3Service.getImageUrl(dto.getPostImageUrl()), // S3 Presigned URL 변환
             dto.getLikeCount(),
             dto.getCommentCount(),
-            dto.getCreatedAt()
+            dto.getCreatedAt(),
+            dto.getProfileImageUrl()
         ))
         .toList();
   }
@@ -90,16 +92,20 @@ public class CommunityPostService {
 
   // 전체 인기 게시글 조회 (해시태그별로 1개씩 뽑아서 조회 / 오른쪽 영역)
   @Transactional(readOnly = true)
-  public List<CommunityPostDTO> getPopularPosts(int limit) {
+  public List<CommunityPostSimpleDTO> getPopularPosts(int limit) {
     return communityPostQueryRepository.findPopularPostOnePerTag(limit)
-        .stream().map(this::convertToDTO).toList();
+        .stream()
+        .map(this::convertToSimpleDTO)
+        .toList();
   }
 
   // 해시태그별 인기 게시글 조회 (좋아요 순 / 오른쪽 인기글 영역)
   @Transactional(readOnly = true)
-  public List<CommunityPostDTO> getPopularPostsByTag(Long tagId, int limit) {
+  public List<CommunityPostSimpleDTO> getPopularPostsByTag(Long tagId, int limit) {
     return communityPostQueryRepository.findPopularPostsByTag(tagId, limit)
-        .stream().map(this::convertToDTO).toList();
+        .stream()
+        .map(this::convertToSimpleDTO)
+        .toList();
   }
 
   // 내가 쓴 게시글 조회 (최신순)
@@ -142,6 +148,11 @@ public class CommunityPostService {
         .filter(p -> p.getStatus() == CommunityPost.Status.ACTIVE)
         .orElseThrow(() -> new NotFoundException("수정할 게시글이 존재하지 않습니다."));
 
+    // 수정 권한 확인
+    if (!post.getAccount().getId().equals(dto.getAccountId())) {
+      throw new BadRequestException("게시글 수정 권한이 없습니다.");
+    }
+
     CommunityTag tag = communityTagRepository.findById(dto.getTagId())
         .orElseThrow(() -> new NotFoundException("해시태그 정보를 찾을 수 없습니다."));
 
@@ -155,10 +166,15 @@ public class CommunityPostService {
 
   // 게시글 삭제 (Soft Delete 방식)
   @Transactional
-  public void deletePost(Long postId) {
+  public void deletePost(Long postId, Long accountId) {
     CommunityPost post = communityPostRepository.findById(postId)
         .filter(p -> p.getStatus() == CommunityPost.Status.ACTIVE)
         .orElseThrow(() -> new NotFoundException("삭제할 게시글이 존재하지 않습니다."));
+
+    // 본인 확인
+    if (!post.getAccount().getId().equals(accountId)) {
+      throw new BadRequestException("게시글 삭제 권한이 없습니다.");
+    }
 
     post.setStatus(CommunityPost.Status.DELETED);
   }
@@ -180,4 +196,19 @@ public class CommunityPostService {
         .updatedAt(post.getUpdatedAt())
         .build();
   }
+
+  // 인기글 조회시 간단한 목록으로만 보여주기 위한 메서드
+  private CommunityPostSimpleDTO convertToSimpleDTO(CommunityPost post) {
+    return CommunityPostSimpleDTO.builder()
+        .id(post.getId())
+        .title(post.getTitle())
+        .likeCount(post.getLikeCount())
+        .commentCount(post.getCommentCount())
+        .createdAt(post.getCreatedAt())
+        .build();
+  }
+
+
+
+
 }
