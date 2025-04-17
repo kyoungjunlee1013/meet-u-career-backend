@@ -20,11 +20,10 @@ public class MainPageService {
     private final ResumeContentRepository resumeContentRepository;
 
     @Transactional(readOnly = true)
-    public MainPageResponseDTO getMainContent(Optional<Long> optionalAccountId, int page) {
+    public MainPageResponseDTO getMainContent(Long accountId, int page) {
         Pageable pageable = PageRequest.of(page, 8);
 
-        if (optionalAccountId.isPresent()) {
-            Long accountId = optionalAccountId.get();
+        if (accountId != null) {
             List<String> keywords = resumeContentRepository.findTop3KeywordsByUserId(accountId);
 
             String k1 = keywords.size() > 0 ? keywords.get(0) : "";

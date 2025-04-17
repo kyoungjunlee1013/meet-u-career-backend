@@ -1,11 +1,11 @@
 package com.highfive.meetu.infra.oauth;
 
-import com.highfive.meetu.domain.user.common.entity.Profile;
-import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
 import com.highfive.meetu.global.common.exception.NotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.highfive.meetu.domain.user.common.entity.Profile;
+import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -15,43 +15,25 @@ import java.util.Optional;
 public class SecurityUtil {
     private final ProfileRepository profileRepository;
 
-    /**
-     * 현재 인증된 사용자의 accountId 반환
-     * 인증되지 않은 경우 NotFoundException 발생
-     */
-    public Long getCurrentAccountId() {
+    // 현재 인증된 사용자의 accountId를 가져오는 메서드
+    public static Long getAccountId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
+        // 인증된 사용자가 존재하고, principal이 Long 타입인 경우
         return (Long) Optional.ofNullable(auth)
-            .map(Authentication::getPrincipal)
-            .filter(principal -> principal instanceof Long)
-            .map(Long.class::cast)
-            .orElseThrow(() -> new NotFoundException("인증 정보가 없습니다."));
+            .map(Authentication::getPrincipal)  // 인증된 사용자 정보 가져오기
+            .filter(principal -> principal instanceof Long) // principal이 Long 타입인지 확인
+            .map(Long.class::cast) // principal을 Long으로 캐스팅
+            .orElseThrow(() -> new NotFoundException("인증 정보가 없습니다.")); // 인증 정보가 없으면 NotFoundException 발생
     }
 
-    /**
-     * 인증된 accountId를 기반으로 해당 사용자의 profileId 반환
-     * 프로필이 존재하지 않으면 NotFoundException 발생
-     */
-    public Long getProfileIdByAccountId() {
-        Long accountId = getCurrentAccountId();
+    // 현재 인증된 사용자의 accountId로 Profile 테이블에서 id를 가져오는 메서드
+    public Long getProfileId() {
+        Long accountId = getAccountId();
 
         Profile profile = profileRepository.findByAccountId(accountId)
             .orElseThrow(() -> new NotFoundException("해당 accountId에 해당하는 프로필을 찾을 수 없습니다."));
 
         return profile.getId();
-    }
-
-    /**
-     * 인증 정보가 있을 경우 accountId 반환, 없으면 Optional.empty()
-     * -> 메인 페이지 등 로그인 필수가 아닌 곳에서 사용
-     */
-    public Optional<Long> getOptionalAccountId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        return Optional.ofNullable(auth)
-            .map(Authentication::getPrincipal)
-            .filter(p -> p instanceof Long)
-            .map(Long.class::cast);
     }
 }

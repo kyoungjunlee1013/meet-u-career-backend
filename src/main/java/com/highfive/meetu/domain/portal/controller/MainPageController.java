@@ -17,8 +17,19 @@ public class MainPageController {
     private final MainPageService mainPageService;
     private final SecurityUtil securityUtil;
 
-    @GetMapping
+    /*
+        기본 메인
+     */
+    @GetMapping("/default")
+    public ResultData<MainPageResponseDTO> getDefaultMainPage(@RequestParam(defaultValue = "0") int page) {
+        return ResultData.success(1, mainPageService.getMainContent(null, page));
+    }
+
+    /*
+        로그인 후 메인(회원 맞춤)
+     */
+    @GetMapping("/custom")
     public ResultData<MainPageResponseDTO> getMainPage(@RequestParam(defaultValue = "0") int page) {
-        return ResultData.success(1, mainPageService.getMainContent(securityUtil.getOptionalAccountId(), page));
+        return ResultData.success(1, mainPageService.getMainContent(securityUtil.getAccountId(), page));
     }
 }
