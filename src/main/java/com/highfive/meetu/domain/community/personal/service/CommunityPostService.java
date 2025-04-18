@@ -46,12 +46,17 @@ public class CommunityPostService {
     CommunityTag tag = communityTagRepository.findById(dto.getTagId())
         .orElseThrow(() -> new NotFoundException("해시태그 정보를 찾을 수 없습니다."));
 
+    String uploadedKey = null;
+    if (image != null && !image.isEmpty()) {
+      uploadedKey = s3Service.uploadFile(image, "community");
+    }
+
     CommunityPost post = CommunityPost.builder()
         .account(account)
         .tag(tag)
         .title(dto.getTitle())
         .content(dto.getContent())
-        .postImageKey(s3Service.uploadFile(image, "community"))
+        .postImageKey(uploadedKey)
         .likeCount(0)
         .commentCount(0)
         .status(CommunityPost.Status.ACTIVE)
@@ -60,6 +65,7 @@ public class CommunityPostService {
     communityPostRepository.save(post);
     return convertToDTO(post);
   }
+
 
   // 전체 게시글 조회 (최신순 / 중앙영역)
   @Transactional(readOnly = true)
@@ -148,7 +154,6 @@ public class CommunityPostService {
         .filter(p -> p.getStatus() == CommunityPost.Status.ACTIVE)
         .orElseThrow(() -> new NotFoundException("수정할 게시글이 존재하지 않습니다."));
 
-    // 수정 권한 확인
     if (!post.getAccount().getId().equals(dto.getAccountId())) {
       throw new BadRequestException("게시글 수정 권한이 없습니다.");
     }
@@ -158,22 +163,64 @@ public class CommunityPostService {
 
     post.setTitle(dto.getTitle());
     post.setContent(dto.getContent());
-    // post.setPostImageKey(dto.getPostImageKey());
     post.setTag(tag);
 
     if (image != null && !image.isEmpty()) {
-      // 새 이미지가 들어온 경우 새로 업로드
+      // ✅ 새 이미지 업로드했을 때만 새로 저장
       String uploadedKey = s3Service.uploadFile(image, "community");
       post.setPostImageKey(uploadedKey);
-    } else if (dto.getPostImageKey() == null) {
-      // 기존 이미지 삭제 요청이 있는 경우
-      post.setPostImageKey(null);
+    } else if (dto.getExistingImageUrl() != null) {
+      // ✅ 기존 이미지 Presigned URL로부터 S3 Key 추출
+      String existingKey = extractKeyFromUrl(dto.getExistingImageUrl());
+      post.setPostImageKey(existingKey);
+    } else {
+      // ❌ 이 부분을 고쳐야 해!
+      // 기존 postImageKey가 있었으면 유지해야 하고, 없으면 null로 해야 해
+      if (post.getPostImageKey() != null) {
+        // 기존 이미지 유지
+        post.setPostImageKey(post.getPostImageKey());
+      } else {
+        // 원래도 이미지 없던 글이면 null
+        post.setPostImageKey(null);
+      }
     }
-    // dto.getPostImageKey() != null 이고, image == null이면 (이미지 유지) → 아무것도 하지 않는다.
-
 
     return convertToDTO(post);
   }
+
+
+  private String extractKeyFromUrl(String url) {
+    if (url == null) return null;
+
+    // 이미 키 형태라면 그대로 반환
+    if (!url.startsWith("http")) {
+      return url;
+    }
+
+    try {
+      // URL에서 경로 추출
+      java.net.URL parsedUrl = new java.net.URL(url);
+      String path = parsedUrl.getPath();
+
+      // 형식: /bucket-name/community/image.jpg
+      // community/image.jpg만 필요
+      String[] pathParts = path.split("/");
+      if (pathParts.length >= 3) {
+        // 경로에서 버킷 이름 이후 부분만 사용
+        return String.join("/", java.util.Arrays.copyOfRange(pathParts, 2, pathParts.length));
+      }
+
+      return path.startsWith("/") ? path.substring(1) : path;
+    } catch (Exception e) {
+      System.err.println("URL 파싱 오류: " + e.getMessage() + " for URL: " + url);
+      // 파싱 실패 시 null 대신 원래 URL 반환 (안전 조치)
+      return url;
+    }
+  }
+
+
+
+
 
   // 게시글 삭제 (Soft Delete 방식)
   @Transactional
@@ -190,13 +237,18 @@ public class CommunityPostService {
     post.setStatus(CommunityPost.Status.DELETED);
   }
 
-  // Entity → DTO 변환 + 이미지 URL 변환 포함
+  // Entity → DTO 변환 + Presigned URL 변환 포함
   private CommunityPostDTO convertToDTO(CommunityPost post) {
-    String postImageUrl = s3Service.getImageUrl(post.getPostImageKey());
+    // 게시글 이미지 Presigned URL 생성
+    String postImageUrl = null;
+    if (post.getPostImageKey() != null) {
+      postImageUrl = s3Service.generatePresignedUrl(post.getPostImageKey());
+    }
 
+    // 작성자 프로필 이미지 Presigned URL 생성
     String profileImageUrl = null;
-    if (post.getAccount().getProfile() != null && post.getAccount().getProfile().getProfileImageKey() != null) {
-      profileImageUrl = s3Service.getImageUrl(post.getAccount().getProfile().getProfileImageKey());
+    if (post.getAccount() != null && post.getAccount().getProfile() != null && post.getAccount().getProfile().getProfileImageKey() != null) {
+      profileImageUrl = s3Service.generatePresignedUrl(post.getAccount().getProfile().getProfileImageKey());
     }
 
     return CommunityPostDTO.builder()
@@ -205,16 +257,19 @@ public class CommunityPostService {
         .tagId(post.getTag().getId())
         .title(post.getTitle())
         .content(post.getContent())
-        .postImageKey(post.getPostImageKey())
-        .postImageUrl(postImageUrl)               // 게시글 이미지 URL
-        .profileImageUrl(profileImageUrl)         // 작성자 프로필 이미지 URL
+        .postImageKey(post.getPostImageKey()) // ✅ 무조건 세팅
+        .postImageUrl(postImageUrl) // ✅ URL
+        .profileImageUrl(profileImageUrl) // ✅ URL
         .likeCount(post.getLikeCount())
         .commentCount(post.getCommentCount())
-        .status(post.getStatus())
+        .status(post.getStatus()) // ✅ 여기 그냥 바로 넣기 (getValue() 필요없음)
         .createdAt(post.getCreatedAt())
         .updatedAt(post.getUpdatedAt())
         .build();
   }
+
+
+
 
 
   // 인기글 조회시 간단한 목록으로만 보여주기 위한 메서드

@@ -100,6 +100,8 @@ public class CommunityPostController {
       @RequestPart("data") CommunityPostDTO dto, // JSON 부분
       @RequestPart(value = "image", required = false) MultipartFile image // 이미지 파일
   ) {
+    System.out.println("받은 existingImageUrl: " + dto.getExistingImageUrl());
+
     CommunityPostDTO result = communityPostService.updatePost(dto, image);
     return ResultData.success(1, result);
   }
