@@ -143,7 +143,7 @@ public class CommunityPostService {
 
   // 게시글 수정
   @Transactional
-  public CommunityPostDTO updatePost(CommunityPostDTO dto) {
+  public CommunityPostDTO updatePost(CommunityPostDTO dto, MultipartFile image) {
     CommunityPost post = communityPostRepository.findById(dto.getId())
         .filter(p -> p.getStatus() == CommunityPost.Status.ACTIVE)
         .orElseThrow(() -> new NotFoundException("수정할 게시글이 존재하지 않습니다."));
@@ -158,8 +158,19 @@ public class CommunityPostService {
 
     post.setTitle(dto.getTitle());
     post.setContent(dto.getContent());
-    post.setPostImageKey(dto.getPostImageKey());
+    // post.setPostImageKey(dto.getPostImageKey());
     post.setTag(tag);
+
+    if (image != null && !image.isEmpty()) {
+      // 새 이미지가 들어온 경우 새로 업로드
+      String uploadedKey = s3Service.uploadFile(image, "community");
+      post.setPostImageKey(uploadedKey);
+    } else if (dto.getPostImageKey() == null) {
+      // 기존 이미지 삭제 요청이 있는 경우
+      post.setPostImageKey(null);
+    }
+    // dto.getPostImageKey() != null 이고, image == null이면 (이미지 유지) → 아무것도 하지 않는다.
+
 
     return convertToDTO(post);
   }
@@ -181,6 +192,13 @@ public class CommunityPostService {
 
   // Entity → DTO 변환 + 이미지 URL 변환 포함
   private CommunityPostDTO convertToDTO(CommunityPost post) {
+    String postImageUrl = s3Service.getImageUrl(post.getPostImageKey());
+
+    String profileImageUrl = null;
+    if (post.getAccount().getProfile() != null && post.getAccount().getProfile().getProfileImageKey() != null) {
+      profileImageUrl = s3Service.getImageUrl(post.getAccount().getProfile().getProfileImageKey());
+    }
+
     return CommunityPostDTO.builder()
         .id(post.getId())
         .accountId(post.getAccount().getId())
@@ -188,7 +206,8 @@ public class CommunityPostService {
         .title(post.getTitle())
         .content(post.getContent())
         .postImageKey(post.getPostImageKey())
-        .postImageUrl(s3Service.getImageUrl(post.getPostImageKey()))  // presigned URL 변환
+        .postImageUrl(postImageUrl)               // 게시글 이미지 URL
+        .profileImageUrl(profileImageUrl)         // 작성자 프로필 이미지 URL
         .likeCount(post.getLikeCount())
         .commentCount(post.getCommentCount())
         .status(post.getStatus())
@@ -196,6 +215,7 @@ public class CommunityPostService {
         .updatedAt(post.getUpdatedAt())
         .build();
   }
+
 
   // 인기글 조회시 간단한 목록으로만 보여주기 위한 메서드
   private CommunityPostSimpleDTO convertToSimpleDTO(CommunityPost post) {

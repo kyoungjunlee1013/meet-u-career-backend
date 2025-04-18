@@ -18,7 +18,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/personal/community/posts")
 @RequiredArgsConstructor
@@ -29,20 +29,10 @@ public class CommunityPostController {
 
   //커뮤니티 게시글 등록
   @PostMapping("/create")
-  // JSON 문자열을 DTO로 수동 파싱
   public ResultData<CommunityPostDTO> createPost(
-      @RequestParam("data") String dataJson, // 문자열로 받기
+      @RequestPart("data") CommunityPostDTO dto,
       @RequestPart(value = "image", required = false) MultipartFile image
   ) {
-
-    ObjectMapper objectMapper = new ObjectMapper();
-    CommunityPostDTO dto;
-    try {
-      dto = objectMapper.readValue(dataJson, CommunityPostDTO.class);
-    } catch (JsonProcessingException e) {
-      throw new BadRequestException("data 파싱 실패: " + e.getMessage());
-    }
-
     CommunityPostDTO result = communityPostService.createPost(dto, image);
     return ResultData.success(1, result);
   }
@@ -106,10 +96,14 @@ public class CommunityPostController {
 
   // 게시글 수정
   @PostMapping("/edit")
-  public ResultData<CommunityPostDTO> updatePost(@RequestBody CommunityPostDTO dto) {
-    CommunityPostDTO result = communityPostService.updatePost(dto);
+  public ResultData<CommunityPostDTO> updatePost(
+      @RequestPart("data") CommunityPostDTO dto, // JSON 부분
+      @RequestPart(value = "image", required = false) MultipartFile image // 이미지 파일
+  ) {
+    CommunityPostDTO result = communityPostService.updatePost(dto, image);
     return ResultData.success(1, result);
   }
+
 
   //게시글 삭제 (Soft Delete)
   @PostMapping("/delete/{postId}")

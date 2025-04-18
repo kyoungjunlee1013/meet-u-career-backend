@@ -23,6 +23,7 @@ public class CommunityPostDTO {
   private String content; // 게시글 본문
   private String postImageKey; // S3에 저장된 대표 이미지 파일의 Key (예: communityPost/post123_abc.jpg)
   private String postImageUrl; // postImageKey 를 Url로 변경해주어야야 프론트에서 출력이 가능
+  private String profileImageUrl; // 작성자 프로필 이미지 Presigned URL 추가
   private Integer likeCount; // 좋아요 수
   private Integer commentCount; // 댓글 수
   private Integer status; // 게시글 상태 (0: 게시 중, 1: 삭제됨)
