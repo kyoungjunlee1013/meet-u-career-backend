@@ -45,6 +45,7 @@ public class CommunityLikeService {
       // 좋아요가 이미 존재하면 → 삭제
       communityLikeRepository.delete(existingLike);
       post.setLikeCount(Math.max(0, post.getLikeCount() - 1));  // 음수 방지
+      communityPostRepository.save(post);
       return null;
     }
 
@@ -54,9 +55,10 @@ public class CommunityLikeService {
         .post(post)
         .build();
     communityLikeRepository.save(like);
-    entityManager.flush(); // createdAt 보장
-
     post.setLikeCount(post.getLikeCount() + 1);
+
+    communityPostRepository.save(post);
+    entityManager.flush(); // createdAt 보장
 
     // DTO 반환
     return CommunityLikeDTO.builder()

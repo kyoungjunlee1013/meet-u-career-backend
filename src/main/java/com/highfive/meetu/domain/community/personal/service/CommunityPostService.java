@@ -166,16 +166,15 @@ public class CommunityPostService {
     post.setTag(tag);
 
     if (image != null && !image.isEmpty()) {
-      // ✅ 새 이미지 업로드했을 때만 새로 저장
+      // 새 이미지 업로드했을 때만 새로 저장
       String uploadedKey = s3Service.uploadFile(image, "community");
       post.setPostImageKey(uploadedKey);
-    } else if (dto.getExistingImageUrl() != null) {
-      // ✅ 기존 이미지 Presigned URL로부터 S3 Key 추출
+    } else if (dto.getExistingImageUrl() != null && !dto.getExistingImageUrl().isBlank()) {
+      // 기존 이미지 Presigned URL로부터 S3 Key 추출
       String existingKey = extractKeyFromUrl(dto.getExistingImageUrl());
       post.setPostImageKey(existingKey);
     } else {
-      // ❌ 이 부분을 고쳐야 해!
-      // 기존 postImageKey가 있었으면 유지해야 하고, 없으면 null로 해야 해
+      // 기존 postImageKey가 있었으면 유지해야 하고, 없으면 null
       if (post.getPostImageKey() != null) {
         // 기존 이미지 유지
         post.setPostImageKey(post.getPostImageKey());
@@ -220,8 +219,6 @@ public class CommunityPostService {
 
 
 
-
-
   // 게시글 삭제 (Soft Delete 방식)
   @Transactional
   public void deletePost(Long postId, Long accountId) {
@@ -257,18 +254,16 @@ public class CommunityPostService {
         .tagId(post.getTag().getId())
         .title(post.getTitle())
         .content(post.getContent())
-        .postImageKey(post.getPostImageKey()) // ✅ 무조건 세팅
-        .postImageUrl(postImageUrl) // ✅ URL
-        .profileImageUrl(profileImageUrl) // ✅ URL
+        .postImageKey(post.getPostImageKey())
+        .postImageUrl(postImageUrl)
+        .profileImageUrl(profileImageUrl)
         .likeCount(post.getLikeCount())
         .commentCount(post.getCommentCount())
-        .status(post.getStatus()) // ✅ 여기 그냥 바로 넣기 (getValue() 필요없음)
+        .status(post.getStatus())
         .createdAt(post.getCreatedAt())
         .updatedAt(post.getUpdatedAt())
         .build();
   }
-
-
 
 
 
@@ -282,8 +277,5 @@ public class CommunityPostService {
         .createdAt(post.getCreatedAt())
         .build();
   }
-
-
-
 
 }
