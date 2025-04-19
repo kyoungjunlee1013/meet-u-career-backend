@@ -41,7 +41,7 @@ public class NaverLoginService {
         String email = user.getResponse().getEmail();
         String name = user.getResponse().getName();
 
-        Account account = accountRepository.findByEmail(email)
+        Account account = accountRepository.findByEmailAndAccountType(email, 0)
             .orElseGet(() -> {
                 Account newAccount = Account.builder()
                     .email(email)

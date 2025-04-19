@@ -29,7 +29,7 @@ public class GoogleLoginService {
         String email = payload.getEmail();
         String name = (String) payload.get("name");
 
-        Account account = accountRepository.findByEmail(email)
+        Account account = accountRepository.findByEmailAndAccountType(email, 0)
             .orElseGet(() -> {
                 Account newAccount = Account.builder()
                     .email(email)
