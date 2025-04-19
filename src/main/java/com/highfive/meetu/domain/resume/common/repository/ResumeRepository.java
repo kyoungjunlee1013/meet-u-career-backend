@@ -35,7 +35,7 @@ public interface ResumeRepository extends JpaRepository<Resume, Long> {
      * LEFT JOIN resume_content c ON r.id = c.resume_id
      * WHERE r.id = ?
      */
-    @Query("SELECT r FROM resume r JOIN FETCH r.resumeContentList WHERE r.id = :resumeId")
+    @Query("SELECT r FROM resume r LEFT JOIN FETCH r.resumeContentList WHERE r.id = :resumeId")
     Optional<Resume> findWithContentsById(@Param("resumeId") Long resumeId);
 
 

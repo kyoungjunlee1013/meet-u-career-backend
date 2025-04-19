@@ -168,11 +168,13 @@ public class ResumePersonalController {
     /**
      * 내 이력서 목록 조회
      *
-     * @param profileId 로그인한 사용자의 프로필 ID
+     * @param //profileId 로그인한 사용자의 프로필 ID
      * @return ResultData (count, data)
      */
-    @GetMapping("/list/{profileId}")
-    public ResultData<List<ResumePersonalDTO>> getMyResumeList(@PathVariable Long profileId) {
+    @GetMapping("/list")
+    public ResultData<List<ResumePersonalDTO>> getMyResumeList() {
+
+        Long profileId = 1L;
 
         // 서비스 단에서 profileId를 기반으로 해당 사용자의 이력서 리스트를 조회
         List<ResumePersonalDTO> resumeList = resumePersonalService.getResumeListByProfileId(profileId);
@@ -190,7 +192,7 @@ public class ResumePersonalController {
      */
     @GetMapping("/view/{resumeId}")
     public ResultData<ResumePersonalDTO> getResumeDetail(@PathVariable Long resumeId) {
-
+        System.out.println("resumeId = " + resumeId);
         ResumePersonalDTO resumeDetail = resumePersonalService.getResumeDetail(resumeId);
         return ResultData.success(1, resumeDetail);
     }
