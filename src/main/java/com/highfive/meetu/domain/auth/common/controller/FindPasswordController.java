@@ -1,4 +1,4 @@
-package com.highfive.meetu.domain.auth.common.controller.password;
+package com.highfive.meetu.domain.auth.common.controller;
 
 import com.highfive.meetu.domain.auth.common.dto.password.FindPasswordRequestDTO;
 import com.highfive.meetu.domain.auth.common.dto.password.FindPasswordResponseDTO;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/password")
 @RequiredArgsConstructor
-public class PasswordController {
+public class FindPasswordController {
 
   private final PasswordService passwordService;
 
