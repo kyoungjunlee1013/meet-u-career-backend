@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface CommunityLikeRepository extends JpaRepository<CommunityLike, Long> {
 
   // 사용자 + 게시글로 좋아요 여부 조회
-  Optional<CommunityLike> findByProfileIdAndPostId(Long profileId, Long postId);
+  Optional<CommunityLike> findByAccountIdAndPostId(Long accountId, Long postId);
     
 }
