@@ -1,11 +1,10 @@
 package com.highfive.meetu.domain.auth.common.dto.password;
 
 import lombok.*;
-import java.time.LocalDate;
 
 /**
  * 비밀번호 찾기 요청 DTO
- * 이메일, 이름, 생년월일을 받아 사용자 존재 여부를 확인합니다.
+ * 이메일, 이름, 아이디를 받아 사용자 존재 여부를 확인합니다.
  */
 @Getter
 @Setter
@@ -17,6 +16,6 @@ public class FindPasswordRequestDTO {
   private String email;
   // 사용자 이름
   private String name;
-  // 사용자 생년월일 (yyyy-MM-dd)
-  private LocalDate birthday;
+  // 사용자 아이디
+  private String userId;
 }

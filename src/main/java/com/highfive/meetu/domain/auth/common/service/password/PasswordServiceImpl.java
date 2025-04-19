@@ -16,8 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-
 /**
  * 비밀번호 재설정 로직 구현체
  */
@@ -25,17 +23,17 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class PasswordServiceImpl implements PasswordService {
 
-  private final AccountRepository accountRepository;         // 사용자 조회/저장
-  private final TokenService tokenService;                   // JWT 토큰 생성·검증
-  private final EmailService emailService;                   // 인증 코드 이메일 전송
-  private final PasswordEncoder passwordEncoder;             // 비밀번호 해시
+  private final AccountRepository accountRepository; // 사용자 조회/저장
+  private final TokenService tokenService; // JWT 토큰 생성·검증
+  private final EmailService emailService; // 인증 코드 이메일 전송
+  private final PasswordEncoder passwordEncoder; // 비밀번호 해시
 
   @Override
   @Transactional(readOnly = true)
   public FindPasswordResponseDTO requestPasswordReset(FindPasswordRequestDTO dto) {
-    // 1) 사용자 조회 (email, name, birthday 일치)
+    // 1) 사용자 조회 (email, name, userId 일치)
     Account account = accountRepository
-        .findByEmailAndNameAndBirthdayAndStatus(dto.getEmail(), dto.getName(), dto.getBirthday(), Account.Status.ACTIVE)
+        .findByEmailAndNameAndUserIdAndStatus(dto.getEmail(), dto.getName(), dto.getUserId(), Account.Status.ACTIVE)
         .orElseThrow(() -> new NotFoundException("일치하는 사용자를 찾을 수 없습니다."));
 
     // 2) OAuth 계정 처리
@@ -48,7 +46,7 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     // 3) 일반 계정: 코드 생성 → 이메일 전송 → 토큰 생성
-    String code = String.format("%06d", (int)(Math.random() * 1_000_000));
+    String code = String.format("%06d", (int) (Math.random() * 1_000_000));
     emailService.sendPasswordResetCode(account.getEmail(), code);
 
     String token = tokenService.generatePasswordResetToken(account.getEmail(), code);
