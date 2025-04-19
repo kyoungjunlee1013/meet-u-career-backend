@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class CommunityLikeDTO {
 
   private Long id;             // 좋아요 ID
-  private Long accountId;      // 사용자 ID
+  private Long profileId;      // 사용자 ID
   private Long postId;         // 게시글 ID
   private LocalDateTime createdAt; // 좋아요 생성일
 

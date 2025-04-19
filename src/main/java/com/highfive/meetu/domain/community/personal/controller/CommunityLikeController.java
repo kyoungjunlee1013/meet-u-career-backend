@@ -20,7 +20,7 @@ public class CommunityLikeController {
 // 좋아요, 좋아요 해제
   @PostMapping("/toggle")
   public ResultData<?> toggleLike(@RequestBody CommunityLikeDTO dto) {
-    CommunityLikeDTO result = communityLikeService.toggleLike(dto.getAccountId(), dto.getPostId());
+    CommunityLikeDTO result = communityLikeService.toggleLike(dto.getProfileId(), dto.getPostId());
 
     if (result == null) {
       return ResultData.success(0, "좋아요가 해제되었습니다.");
