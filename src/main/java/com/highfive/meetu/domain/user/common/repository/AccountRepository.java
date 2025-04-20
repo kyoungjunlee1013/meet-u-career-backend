@@ -54,4 +54,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     // 아이디 로그인용
     Optional<Account> findByUserIdAndAccountType(String userId, int accountType);
+
+    // 소셜 로그인용
+    Optional<Account> findByEmailAndAccountType(String email, int accountType);
 }
