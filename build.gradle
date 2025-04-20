@@ -68,6 +68,9 @@ dependencies {
     // SMTP 관련 의존성(email)
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+    // WebClient 관련 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-webflux' // For WebClient and reactive support
+
 }
 
 tasks.named('test') {

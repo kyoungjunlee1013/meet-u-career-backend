@@ -1,11 +1,11 @@
-package com.highfive.meetu.domain.auth.common.service.password;
+package com.highfive.meetu.domain.auth.common.service.findpassword;
 
-import com.highfive.meetu.domain.auth.common.dto.password.FindPasswordRequestDTO;
-import com.highfive.meetu.domain.auth.common.dto.password.FindPasswordResponseDTO;
-import com.highfive.meetu.domain.auth.common.dto.password.ResetPasswordRequestDTO;
-import com.highfive.meetu.domain.auth.common.dto.password.ResetPasswordResponseDTO;
-import com.highfive.meetu.domain.auth.common.dto.password.VerifyCodeRequestDTO;
-import com.highfive.meetu.domain.auth.common.dto.password.VerifyCodeResponseDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.FindPasswordRequestDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.FindPasswordResponseDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.ResetPasswordRequestDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.ResetPasswordResponseDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.VerifyCodeRequestDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.VerifyCodeResponseDTO;
 import com.highfive.meetu.domain.auth.common.service.email.EmailService;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.user.common.repository.AccountRepository;

@@ -1,15 +1,11 @@
-package com.highfive.meetu.domain.auth.common.service.password;
+package com.highfive.meetu.domain.auth.common.service.findpassword;
 
-import com.highfive.meetu.domain.auth.common.dto.password.FindPasswordRequestDTO;
-import com.highfive.meetu.domain.auth.common.dto.password.FindPasswordResponseDTO;
-import com.highfive.meetu.domain.auth.common.dto.password.ResetPasswordRequestDTO;
-import com.highfive.meetu.domain.auth.common.dto.password.ResetPasswordResponseDTO;
-import com.highfive.meetu.domain.auth.common.dto.password.VerifyCodeRequestDTO;
-import com.highfive.meetu.domain.auth.common.dto.password.VerifyCodeResponseDTO;
-import com.highfive.meetu.domain.user.common.entity.Account;
-
-import java.time.LocalDate;
-import java.util.Optional;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.FindPasswordRequestDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.FindPasswordResponseDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.ResetPasswordRequestDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.ResetPasswordResponseDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.VerifyCodeRequestDTO;
+import com.highfive.meetu.domain.auth.common.dto.findpassword.VerifyCodeResponseDTO;
 
 /**
  * 비밀번호 재설정 요청 → 코드 발송 → 검증 → 재설정 전체 흐름을 담당합니다.

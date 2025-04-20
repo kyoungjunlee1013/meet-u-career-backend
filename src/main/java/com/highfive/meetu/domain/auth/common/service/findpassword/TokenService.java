@@ -1,4 +1,4 @@
-package com.highfive.meetu.domain.auth.common.service.password;
+package com.highfive.meetu.domain.auth.common.service.findpassword;
 
 /**
  * JWT 기반 비밀번호 재설정 토큰 생성·검증 서비스

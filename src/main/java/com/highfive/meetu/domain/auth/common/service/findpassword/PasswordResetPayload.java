@@ -1,4 +1,4 @@
-package com.highfive.meetu.domain.auth.common.service.password;
+package com.highfive.meetu.domain.auth.common.service.findpassword;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

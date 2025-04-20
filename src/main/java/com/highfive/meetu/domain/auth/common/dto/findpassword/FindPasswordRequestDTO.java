@@ -1,4 +1,4 @@
-package com.highfive.meetu.domain.auth.common.dto.password;
+package com.highfive.meetu.domain.auth.common.dto.findpassword;
 
 import lombok.*;
 

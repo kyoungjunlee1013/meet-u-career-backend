@@ -1,4 +1,4 @@
-package com.highfive.meetu.domain.auth.common.service.password;
+package com.highfive.meetu.domain.auth.common.service.findpassword;
 
 import com.highfive.meetu.global.common.exception.BadRequestException;
 import io.jsonwebtoken.*;

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/find-id")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000") // <-- Add this line!
 public class FindIdController {
 
   private final FindIdService findIdService;
