@@ -20,12 +20,15 @@ public class LocationQueryRepositoryImpl implements LocationQueryRepository {
 
         return queryFactory
                 .select(Projections.constructor(LocationOptionDTO.class,
-                        location.locationCode.min(), // 대표 locationCode 하나만
-                        location.province))
+                        location.id.min(),      // 대표 id
+                        location.province       // province -> label
+                ))
                 .from(location)
                 .where(location.province.isNotNull()
                         .and(location.province.notIn("전국", "베트남", "인도")))
-                .groupBy(location.province) // province 단위로 하나씩만
+                .groupBy(location.province)
+                .orderBy(location.province.asc())
                 .fetch();
+
     }
 }

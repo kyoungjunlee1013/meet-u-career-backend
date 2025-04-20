@@ -14,6 +14,7 @@ import com.highfive.meetu.domain.resume.common.repository.ResumeViewLogRepositor
 import com.highfive.meetu.domain.resume.personal.dto.*;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.user.common.entity.Profile;
+import com.highfive.meetu.domain.user.common.repository.AccountRepository;
 import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
 import com.highfive.meetu.domain.user.personal.dto.ProfilePersonalDTO;
 import com.highfive.meetu.global.common.exception.BadRequestException;
@@ -38,9 +39,10 @@ public class ResumePersonalService {
     private final CoverLetterRepository coverLetterRepository;
     private final ResumeContentRepository resumeContentRepository;
     private final S3Service s3Service;
+    private final ResumeViewLogRepository resumeViewLogRepository;
+    private final AccountRepository accountRepository;
     private final LocationRepository locationRepository;
     private final JobCategoryRepository jobCategoryRepository;
-    private final ResumeViewLogRepository resumeViewLogRepository;
 
 
     // 이력서 초기 생성 메서드 - "이력서 작성" 버튼을 눌러서 이력서 작성 페이지로 넘어갈 때 데이터 생성
@@ -144,168 +146,168 @@ public class ResumePersonalService {
 
 
 
-
-    // 이력서 기본 정보 저장
-    @Transactional
-    public void updateResumeBasicInfo(Long resumeId, ResumeBasicInfoDTO dto, MultipartFile resumeFile, MultipartFile profileImage) {
-
-        // 1. Resume 조회
-        Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
-
-        // 2. Profile 조회
-        Profile profile = profileRepository.findById(dto.getProfileId())
-                .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
-
-        // 3. 이력서 관련 필드 업데이트
-        resume.setTitle(dto.getTitle());
-        resume.setOverview(dto.getOverview());
-        resume.setResumeType(dto.getResumeType() != null ? dto.getResumeType() : 0);
-        resume.setResumeUrl(dto.getResumeUrl());
-        resume.setExtraLink1(dto.getExtraLink1());
-        resume.setExtraLink2(dto.getExtraLink2());
-        resume.setStatus(dto.getStatus());
-        resume.setIsPrimary(dto.getIsPrimary() != null ? dto.getIsPrimary() : false);
-
-        if (resumeFile != null && !resumeFile.isEmpty()) {
-            String resumeFileKey = s3Service.uploadFile(resumeFile, "resume");
-            resume.setResumeFileKey(resumeFileKey);
-            resume.setResumeFileName(resumeFile.getOriginalFilename());
-            resume.setResumeFileType(resumeFile.getContentType());
-        }
-
-        // 4. 프로필 관련 필드 업데이트
-        profile.setExperienceLevel(dto.getExperienceLevel());
-        profile.setEducationLevel(dto.getEducationLevel());
-        profile.setDesiredSalaryCode(dto.getDesiredSalaryCode());
-        profile.setSkills(dto.getSkills());
-
-        if (dto.getLocationId() != null) {
-            Location location = locationRepository.findById(dto.getLocationId())
-                    .orElseThrow(() -> new NotFoundException("거주 지역을 찾을 수 없습니다."));
-            profile.setLocation(location);
-        }
-
-        if (dto.getDesiredJobCategoryId() != null) {
-            JobCategory jobCategory = jobCategoryRepository.findById(dto.getDesiredJobCategoryId())
-                    .orElseThrow(() -> new NotFoundException("희망 직무를 찾을 수 없습니다."));
-            profile.setDesiredJobCategory(jobCategory);
-        }
-
-        if (profileImage != null && !profileImage.isEmpty()) {
-            String profileImageKey = s3Service.uploadFile(profileImage, "profile");
-            profile.setProfileImageKey(profileImageKey);
-        }
-
-        // 저장은 변경 감지로 처리됨
-    }
-
-
-    // 항목 추가 메서드
-    @Transactional
-    public Long saveResumeContent(ResumeContentDTO dto, MultipartFile file) {
-
-        // 1. 이력서 존재 여부 확인
-        Resume resume = resumeRepository.findById(dto.getResumeId())
-                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
-
-        // 2. 파일 업로드 처리 (선택)
-        String contentFileKey = null;
-        String contentFileName = null;
-        String contentFileType = null;
-
-        if (file != null && !file.isEmpty()) {
-            contentFileKey = s3Service.uploadFile(file, "resume-content");
-            contentFileName = file.getOriginalFilename();
-            contentFileType = file.getContentType();
-        }
-
-        // 3. sectionType 필수 값 체크 (0~3 또는 4~6)
-        if (dto.getSectionType() == null) {
-            throw new BadRequestException("항목 유형(sectionType)은 필수입니다.");
-        }
-
-        // 4. ResumeContent 생성
-        ResumeContent content = ResumeContent.builder()
-                .resume(resume)
-                .sectionType(dto.getSectionType())
-                .sectionTitle(dto.getSectionTitle())
-                .organization(dto.getOrganization())
-                .title(dto.getTitle())
-                .field(dto.getField())
-                .dateFrom(dto.getDateFrom())
-                .dateTo(dto.getDateTo())
-                .description(dto.getDescription())
-                .contentOrder(dto.getContentOrder() != null ? dto.getContentOrder() : 0)
-                .contentFileKey(contentFileKey)
-                .contentFileName(contentFileName)
-                .contentFileType(contentFileType)
-                .build();
-
-        // 5. 저장
-        resumeContentRepository.save(content);
-
-        return content.getId();
-    }
-
-
-    // 항목 수정 메서드
-    @Transactional
-    public Long updateResumeContent(ResumeContentDTO dto, MultipartFile file) {
-        // null 체크 추가
-        if (dto == null) {
-            throw new BadRequestException("이력서 항목 데이터는 필수입니다.");
-        }
-        if (dto.getId() == null) {
-            throw new BadRequestException("이력서 항목 ID는 필수입니다.");
-        }
-    
-        ResumeContent content = resumeContentRepository.findById(dto.getId())
-                .orElseThrow(() -> new NotFoundException("이력서 항목을 찾을 수 없습니다."));
-    
-        // 파일이 전달된 경우 → S3 업로드 후 교체
-        if (file != null && !file.isEmpty()) {
-            String newKey = s3Service.uploadFile(file, "resume-content");
-            content.setContentFileKey(newKey);
-            content.setContentFileName(file.getOriginalFilename());
-            content.setContentFileType(file.getContentType());
-        }
-    
-        // 항목 정보 수정 - null 체크 추가
-        content.setSectionType(dto.getSectionType() != null ? dto.getSectionType() : content.getSectionType());
-        content.setSectionTitle(dto.getSectionTitle());
-        content.setOrganization(dto.getOrganization());
-        content.setTitle(dto.getTitle());
-        content.setField(dto.getField());
-        content.setDescription(dto.getDescription());
-        content.setDateFrom(dto.getDateFrom());
-        content.setDateTo(dto.getDateTo());
-        content.setContentOrder(dto.getContentOrder() != null ? dto.getContentOrder() : content.getContentOrder());
-
-        return content.getId();
-    }
-
-
-    // 항목 삭제 메서드
-    @Transactional
-    public void deleteResumeContent(Long resumeId, Long contentId) {
-        // null 체크 추가
-        if (resumeId == null) {
-            throw new BadRequestException("이력서 ID는 필수입니다.");
-        }
-        if (contentId == null) {
-            throw new BadRequestException("이력서 항목 ID는 필수입니다.");
-        }
-        
-        ResumeContent content = resumeContentRepository.findById(contentId)
-                .orElseThrow(() -> new NotFoundException("이력서 항목을 찾을 수 없습니다."));
-
-        if (!content.getResume().getId().equals(resumeId)) {
-            throw new BadRequestException("해당 이력서에 속한 항목이 아닙니다.");
-        }
-
-        resumeContentRepository.delete(content);
-    }
+//
+//    // 이력서 기본 정보 저장
+//    @Transactional
+//    public void updateResumeBasicInfo(Long resumeId, ResumeBasicInfoDTO dto, MultipartFile resumeFile, MultipartFile profileImage) {
+//
+//        // 1. Resume 조회
+//        Resume resume = resumeRepository.findById(resumeId)
+//                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
+//
+//        // 2. Profile 조회
+//        Profile profile = profileRepository.findById(dto.getProfileId())
+//                .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
+//
+//        // 3. 이력서 관련 필드 업데이트
+//        resume.setTitle(dto.getTitle());
+//        resume.setOverview(dto.getOverview());
+//        resume.setResumeType(dto.getResumeType() != null ? dto.getResumeType() : 0);
+//        resume.setResumeUrl(dto.getResumeUrl());
+//        resume.setExtraLink1(dto.getExtraLink1());
+//        resume.setExtraLink2(dto.getExtraLink2());
+//        resume.setStatus(dto.getStatus());
+//        resume.setIsPrimary(dto.getIsPrimary() != null ? dto.getIsPrimary() : false);
+//
+//        if (resumeFile != null && !resumeFile.isEmpty()) {
+//            String resumeFileKey = s3Service.uploadFile(resumeFile, "resume");
+//            resume.setResumeFileKey(resumeFileKey);
+//            resume.setResumeFileName(resumeFile.getOriginalFilename());
+//            resume.setResumeFileType(resumeFile.getContentType());
+//        }
+//
+//        // 4. 프로필 관련 필드 업데이트
+//        profile.setExperienceLevel(dto.getExperienceLevel());
+//        profile.setEducationLevel(dto.getEducationLevel());
+//        profile.setDesiredSalaryCode(dto.getDesiredSalaryCode());
+//        profile.setSkills(dto.getSkills());
+//
+//        if (dto.getLocationId() != null) {
+//            Location location = locationRepository.findById(dto.getLocationId())
+//                    .orElseThrow(() -> new NotFoundException("거주 지역을 찾을 수 없습니다."));
+//            profile.setLocation(location);
+//        }
+//
+//        if (dto.getDesiredJobCategoryId() != null) {
+//            JobCategory jobCategory = jobCategoryRepository.findById(dto.getDesiredJobCategoryId())
+//                    .orElseThrow(() -> new NotFoundException("희망 직무를 찾을 수 없습니다."));
+//            profile.setDesiredJobCategory(jobCategory);
+//        }
+//
+//        if (profileImage != null && !profileImage.isEmpty()) {
+//            String profileImageKey = s3Service.uploadFile(profileImage, "profile");
+//            profile.setProfileImageKey(profileImageKey);
+//        }
+//
+//        // 저장은 변경 감지로 처리됨
+//    }
+//
+//
+//    // 항목 추가 메서드
+//    @Transactional
+//    public Long saveResumeContent(ResumeContentDTO dto, MultipartFile file) {
+//
+//        // 1. 이력서 존재 여부 확인
+//        Resume resume = resumeRepository.findById(dto.getResumeId())
+//                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
+//
+//        // 2. 파일 업로드 처리 (선택)
+//        String contentFileKey = null;
+//        String contentFileName = null;
+//        String contentFileType = null;
+//
+//        if (file != null && !file.isEmpty()) {
+//            contentFileKey = s3Service.uploadFile(file, "resume-content");
+//            contentFileName = file.getOriginalFilename();
+//            contentFileType = file.getContentType();
+//        }
+//
+//        // 3. sectionType 필수 값 체크 (0~3 또는 4~6)
+//        if (dto.getSectionType() == null) {
+//            throw new BadRequestException("항목 유형(sectionType)은 필수입니다.");
+//        }
+//
+//        // 4. ResumeContent 생성
+//        ResumeContent content = ResumeContent.builder()
+//                .resume(resume)
+//                .sectionType(dto.getSectionType())
+//                .sectionTitle(dto.getSectionTitle())
+//                .organization(dto.getOrganization())
+//                .title(dto.getTitle())
+//                .field(dto.getField())
+//                .dateFrom(dto.getDateFrom())
+//                .dateTo(dto.getDateTo())
+//                .description(dto.getDescription())
+//                .contentOrder(dto.getContentOrder() != null ? dto.getContentOrder() : 0)
+//                .contentFileKey(contentFileKey)
+//                .contentFileName(contentFileName)
+//                .contentFileType(contentFileType)
+//                .build();
+//
+//        // 5. 저장
+//        resumeContentRepository.save(content);
+//
+//        return content.getId();
+//    }
+//
+//
+//    // 항목 수정 메서드
+//    @Transactional
+//    public Long updateResumeContent(ResumeContentDTO dto, MultipartFile file) {
+//        // null 체크 추가
+//        if (dto == null) {
+//            throw new BadRequestException("이력서 항목 데이터는 필수입니다.");
+//        }
+//        if (dto.getId() == null) {
+//            throw new BadRequestException("이력서 항목 ID는 필수입니다.");
+//        }
+//
+//        ResumeContent content = resumeContentRepository.findById(dto.getId())
+//                .orElseThrow(() -> new NotFoundException("이력서 항목을 찾을 수 없습니다."));
+//
+//        // 파일이 전달된 경우 → S3 업로드 후 교체
+//        if (file != null && !file.isEmpty()) {
+//            String newKey = s3Service.uploadFile(file, "resume-content");
+//            content.setContentFileKey(newKey);
+//            content.setContentFileName(file.getOriginalFilename());
+//            content.setContentFileType(file.getContentType());
+//        }
+//
+//        // 항목 정보 수정 - null 체크 추가
+//        content.setSectionType(dto.getSectionType() != null ? dto.getSectionType() : content.getSectionType());
+//        content.setSectionTitle(dto.getSectionTitle());
+//        content.setOrganization(dto.getOrganization());
+//        content.setTitle(dto.getTitle());
+//        content.setField(dto.getField());
+//        content.setDescription(dto.getDescription());
+//        content.setDateFrom(dto.getDateFrom());
+//        content.setDateTo(dto.getDateTo());
+//        content.setContentOrder(dto.getContentOrder() != null ? dto.getContentOrder() : content.getContentOrder());
+//
+//        return content.getId();
+//    }
+//
+//
+//    // 항목 삭제 메서드
+//    @Transactional
+//    public void deleteResumeContent(Long resumeId, Long contentId) {
+//        // null 체크 추가
+//        if (resumeId == null) {
+//            throw new BadRequestException("이력서 ID는 필수입니다.");
+//        }
+//        if (contentId == null) {
+//            throw new BadRequestException("이력서 항목 ID는 필수입니다.");
+//        }
+//
+//        ResumeContent content = resumeContentRepository.findById(contentId)
+//                .orElseThrow(() -> new NotFoundException("이력서 항목을 찾을 수 없습니다."));
+//
+//        if (!content.getResume().getId().equals(resumeId)) {
+//            throw new BadRequestException("해당 이력서에 속한 항목이 아닙니다.");
+//        }
+//
+//        resumeContentRepository.delete(content);
+//    }
 
 
     // 전체 이력서 저장
@@ -314,50 +316,109 @@ public class ResumePersonalService {
      */
     @Transactional
     public void saveAllAtOnce(ResumeWriteRequestDTO dto) {
-        // === 1. 프로필 처리 ===
-        Profile profile = dto.getProfile().toEntity();
+
+        System.out.println("skills" + dto.getProfile().getSkills());
+        System.out.println("profileImage: " + dto.getProfileImage());
+        System.out.println("filename: " + (dto.getProfileImage() != null ? dto.getProfileImage().getOriginalFilename() : "null"));
+
+
+        // 1. 프로필 처리
+        Profile profile = profileRepository.findById(dto.getProfile().getId())
+                .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
+
+        // Account
+//        Account account = accountRepository.findById(SecurityUtil.getAccountId())
+//                .orElseThrow(() -> new NotFoundException("계정을 찾을 수 없습니다."));
+        Account account = accountRepository.findById(1L)
+                .orElseThrow(() -> new NotFoundException("계정을 찾을 수 없습니다."));
+
+        profile.setAccount(account);
+
+        // 연관 엔티티 주입
+        if (dto.getProfile().getLocationId() != null) {
+            Location location = locationRepository.findById(dto.getProfile().getLocationId())
+                    .orElseThrow(() -> new NotFoundException("존재하지 않는 지역입니다."));
+            profile.setLocation(location);
+        }
+        if (dto.getProfile().getDesiredJobCategoryId() != null) {
+            JobCategory jobCategory = jobCategoryRepository.findById(dto.getProfile().getDesiredJobCategoryId())
+                    .orElseThrow(() -> new NotFoundException("존재하지 않는 직무입니다."));
+            profile.setDesiredJobCategory(jobCategory);
+        }
 
         if (dto.getProfileImage() != null) {
             String profileImageKey = s3Service.uploadFile(dto.getProfileImage(), "profile");
             profile.setProfileImageKey(profileImageKey);
         }
 
-        profileRepository.save(profile);
 
-        // === 2. 이력서 저장 ===
-        Resume resume = dto.getResume().toEntity();
-        resume.setProfile(profile);
+        // ===== 2. 이력서 처리 =====
+        ResumeDTO resumeDTO = dto.getResume();
+        Resume resume;
 
-        if (dto.getResumeFile() != null) {
-            MultipartFile resumeFile = dto.getResumeFile();
-            String resumeFileKey = s3Service.uploadFile(resumeFile, "resume");
-            resume.setResumeFileKey(resumeFileKey);
-            resume.setResumeFileName(resumeFile.getOriginalFilename());
-            resume.setResumeFileType(resumeFile.getContentType());
+        if (resumeDTO.getId() == null) {
+            // 신규 생성
+            resume = resumeDTO.toEntity();
+            resume.setProfile(profile);
+
+            System.out.println("resumeDTO.getId() = " + resumeDTO.getId());
+
+        } else {
+            // 수정
+            resume = resumeRepository.findById(resumeDTO.getId())
+                    .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
+
+            // 수정 가능한 필드만 덮어쓰기
+            resume.setTitle(resumeDTO.getTitle());
+            resume.setOverview(resumeDTO.getOverview());
+            resume.setResumeType(resumeDTO.getResumeType());
+            resume.setExtraLink1(resumeDTO.getExtraLink1());
+            resume.setExtraLink2(resumeDTO.getExtraLink2());
+            resume.setResumeUrl(resumeDTO.getResumeUrl());
+            resume.setStatus(resumeDTO.getStatus());
+
+            // 기존 첨부파일 덮어쓰기
+            if (dto.getResumeFile() != null) {
+                String resumeFileKey = s3Service.uploadFile(dto.getResumeFile(), "resume");
+                resume.setResumeFileKey(resumeFileKey);
+                resume.setResumeFileName(dto.getResumeFile().getOriginalFilename());
+                resume.setResumeFileType(dto.getResumeFile().getContentType());
+            }
+
+            // 기존 항목 삭제
+            resumeContentRepository.deleteByResumeId(resume.getId());
         }
 
         resumeRepository.save(resume);
 
-        // === 3. 이력서 항목(섹션) 저장 ===
+        // ===== 3. 항목 저장 =====
         List<ResumeContentDTO> contentDTOs = dto.getResumeContents();
         List<MultipartFile> contentFiles = dto.getContentFiles();
+        int fileIndex = 0; // 포트폴리오 파일 인덱스
 
-        for (int i = 0; i < contentDTOs.size(); i++) {
-            ResumeContentDTO contentDTO = contentDTOs.get(i);
-            ResumeContent content = contentDTO.toEntity();
-            content.setResume(resume);
+        if (contentDTOs != null && !contentDTOs.isEmpty()) {
+            for (ResumeContentDTO contentDTO : contentDTOs) {
+                ResumeContent content = contentDTO.toEntity();
+                content.setResume(resume);
 
-            // 파일이 존재할 경우 (index 기반 매칭)
-            if (contentFiles != null && contentFiles.size() > i && contentFiles.get(i) != null) {
-                MultipartFile file = contentFiles.get(i);
-                String fileKey = s3Service.uploadFile(file, "resumeContent");
-                content.setContentFileKey(fileKey);
-                content.setContentFileName(file.getOriginalFilename());
-                content.setContentFileType(file.getContentType());
+                // 포트폴리오 항목에만 파일 처리
+                if (contentDTO.getSectionType() == ResumeContent.SectionType.PORTFOLIO) {
+                    if (contentFiles != null && fileIndex < contentFiles.size()) {
+                        MultipartFile file = contentFiles.get(fileIndex++);
+                        if (file != null && !file.isEmpty()) {
+                            String fileKey = s3Service.uploadFile(file, "resumeContent");
+                            content.setContentFileKey(fileKey);
+                            content.setContentFileName(file.getOriginalFilename());
+                            content.setContentFileType(file.getContentType());
+                        }
+                    }
+                }
+
+                resumeContentRepository.save(content);
             }
-
-            resumeContentRepository.save(content);
         }
+
+
     }
 
 
@@ -438,95 +499,99 @@ public class ResumePersonalService {
     }
 
 
-    /**
-     * 이력서 생성 서비스
-     * - 이력서만 먼저 생성하고 ID 반환 (임시저장용 또는 초안)
-     *
-     * @param dto 작성 요청 DTO
-     * @return 생성된 이력서 ID
-     */
-    @Transactional
-    public Long createResume(ResumePersonalDTO dto) {
-
-        // 1. 필수 값 검증
-        if (dto.getTitle() == null || dto.getProfileId() == null) {
-            throw new BadRequestException("이력서 제목 또는 프로필 ID는 필수입니다.");
-        }
-
-        // 2. 연관 프로필 조회
-        Profile profile = profileRepository.findById(dto.getProfileId())
-                .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
-
-        // 3. 자기소개서가 선택된 경우 조회
-        CoverLetter coverLetter = null;
-        if (dto.getCoverLetterId() != null) {
-            coverLetter = coverLetterRepository.findById(dto.getCoverLetterId())
-                    .orElseThrow(() -> new NotFoundException("자기소개서를 찾을 수 없습니다."));
-        }
-
-        // 4. 이력서 엔티티 생성
-        Resume resume = dto.toEntity(profile, coverLetter);
-
-        // 5. 저장 (ID 생성됨)
-        resumeRepository.save(resume);
-
-        // 6. 항목이 있는 경우 content 리스트도 저장
-        if (dto.getContents() != null && !dto.getContents().isEmpty()) {
-
-            List<ResumeContent> contentList = dto.getContents().stream()
-                    .map(content -> content.toEntity(resume))
-                    .collect(Collectors.toList());
-
-            resumeContentRepository.saveAll(contentList);
-        }
-
-        // 7. 생성된 ID만 반환
-        return resume.getId();
-    }
-
-
-    /**
-     * 이력서 전체 수정 서비스
-     * - 이력서 기본 정보 + 항목 리스트 전체 갱신
-     * - 기존 항목들은 모두 삭제 후 새로 저장
-     */
-    @Transactional
-    public void updateResumeAll(Long resumeId, ResumePersonalDTO dto) {
-        // null 체크 추가
-        if (resumeId == null) {
-            throw new BadRequestException("이력서 ID는 필수입니다.");
-        }
-        if (dto == null) {
-            throw new BadRequestException("이력서 데이터는 필수입니다.");
-        }
-    
-        // 1. 수정 대상 이력서 조회
-        Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
-    
-        // 2. 이력서 기본 정보 수정 (setter 대신 update 메서드 분리 가능)
-        resume.setTitle(dto.getTitle());
-        resume.setOverview(dto.getOverview());
-        resume.setResumeType(dto.getResumeType());
-        resume.setExtraLink1(dto.getExtraLink1());
-        resume.setExtraLink2(dto.getExtraLink2());
-        resume.setStatus(dto.getStatus());
-    
-        // 3. 기존 항목 전체 삭제
-        resumeContentRepository.deleteAllByResumeId(resumeId);
-    
-        // 4. 새 항목 리스트 저장
-        if (dto.getContents() != null && !dto.getContents().isEmpty()) { // 항목 리스트가 null이 아니고 비어 있지 않은 경우에만 처리
-            List<ResumeContent> contentList = dto.getContents().stream()
-                    .filter(content -> content != null) // null 항목 필터링
-                    .map(content -> content.toEntity(resume))
-                    .collect(Collectors.toList());
-    
-            if (!contentList.isEmpty()) {
-                resumeContentRepository.saveAll(contentList); // 항목 리스트를 DB에 일괄 저장
-            }
-        }
-    }
+//    /**
+//     * 이력서 생성 서비스
+//     * - 이력서만 먼저 생성하고 ID 반환 (임시저장용 또는 초안)
+//     *
+//     * @param dto 작성 요청 DTO
+//     * @return 생성된 이력서 ID
+//     */
+//    @Transactional
+//    public Long createResume(ResumePersonalDTO dto) {
+//
+//
+//
+//        // 1. 필수 값 검증
+//        if (dto.getTitle() == null || dto.getProfileId() == null) {
+//            throw new BadRequestException("이력서 제목 또는 프로필 ID는 필수입니다.");
+//        }
+//
+//        // 2. 연관 프로필 조회
+//        Profile profile = profileRepository.findById(dto.getProfileId())
+//                .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
+//
+//        // 3. 자기소개서가 선택된 경우 조회
+//        CoverLetter coverLetter = null;
+//        if (dto.getCoverLetterId() != null) {
+//            coverLetter = coverLetterRepository.findById(dto.getCoverLetterId())
+//                    .orElseThrow(() -> new NotFoundException("자기소개서를 찾을 수 없습니다."));
+//        }
+//
+//        // 4. 이력서 엔티티 생성
+//        Resume resume = dto.toEntity(profile, coverLetter);
+//
+//        // 5. 저장 (ID 생성됨)
+//        resumeRepository.save(resume);
+//
+//        // 6. 항목이 있는 경우 content 리스트도 저장
+//        if (dto.getContents() != null && !dto.getContents().isEmpty()) {
+//
+//            List<ResumeContent> contentList = dto.getContents().stream()
+//                    .map(content -> content.toEntity(resume))
+//                    .collect(Collectors.toList());
+//
+//            resumeContentRepository.saveAll(contentList);
+//        }
+//
+//
+//
+//        // 7. 생성된 ID만 반환
+//        return resume.getId();
+//    }
+//
+//
+//    /**
+//     * 이력서 전체 수정 서비스
+//     * - 이력서 기본 정보 + 항목 리스트 전체 갱신
+//     * - 기존 항목들은 모두 삭제 후 새로 저장
+//     */
+//    @Transactional
+//    public void updateResumeAll(Long resumeId, ResumePersonalDTO dto) {
+//        // null 체크 추가
+//        if (resumeId == null) {
+//            throw new BadRequestException("이력서 ID는 필수입니다.");
+//        }
+//        if (dto == null) {
+//            throw new BadRequestException("이력서 데이터는 필수입니다.");
+//        }
+//
+//        // 1. 수정 대상 이력서 조회
+//        Resume resume = resumeRepository.findById(resumeId)
+//                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
+//
+//        // 2. 이력서 기본 정보 수정 (setter 대신 update 메서드 분리 가능)
+//        resume.setTitle(dto.getTitle());
+//        resume.setOverview(dto.getOverview());
+//        resume.setResumeType(dto.getResumeType());
+//        resume.setExtraLink1(dto.getExtraLink1());
+//        resume.setExtraLink2(dto.getExtraLink2());
+//        resume.setStatus(dto.getStatus());
+//
+//        // 3. 기존 항목 전체 삭제
+//        resumeContentRepository.deleteAllByResumeId(resumeId);
+//
+//        // 4. 새 항목 리스트 저장
+//        if (dto.getContents() != null && !dto.getContents().isEmpty()) { // 항목 리스트가 null이 아니고 비어 있지 않은 경우에만 처리
+//            List<ResumeContent> contentList = dto.getContents().stream()
+//                    .filter(content -> content != null) // null 항목 필터링
+//                    .map(content -> content.toEntity(resume))
+//                    .collect(Collectors.toList());
+//
+//            if (!contentList.isEmpty()) {
+//                resumeContentRepository.saveAll(contentList); // 항목 리스트를 DB에 일괄 저장
+//            }
+//        }
+//    }
 
     // -------------------------------
     @Transactional

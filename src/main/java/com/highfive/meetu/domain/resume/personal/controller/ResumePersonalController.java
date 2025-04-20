@@ -22,36 +22,36 @@ public class ResumePersonalController {
     private final ResumePersonalService resumePersonalService;
     private final ObjectMapper objectMapper;
 
-    // 이력서 초기 생성 메서드 - "이력서 작성" 버튼을 눌러서 이력서 작성 페이지로 넘어갈 때 데이터 생성
-    @PostMapping("/init")
-    public ResultData<Long> initResume(@RequestBody Map<String, Object> request) {
-        // 필수 파라미터 검사
-        if (request.get("profileId") == null) {
-            throw new BadRequestException("필수 입력값(profileId)이 누락되었습니다.");
-        }
-        if (request.get("resumeType") == null) {
-            throw new BadRequestException("필수 입력값(resumeType)이 누락되었습니다.");
-        }
-        
-        Long profileId = Long.valueOf(request.get("profileId").toString());
-        Integer resumeType = Integer.valueOf(request.get("resumeType").toString());
-
-        Long resumeId = resumePersonalService.initResume(profileId, resumeType);
-        return ResultData.success(1, resumeId);
-    }
-
-    // 이력서 유형: 파일 (resumeType = 1) 한 번에 생성
-    // POST /api/personal/resume/file
-    @PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResultData<Long> saveFileResume(
-            @RequestPart("data") String data,
-            @RequestPart("file") MultipartFile file
-    ) throws JsonProcessingException {
-        // JSON 문자열 → DTO 수동 파싱
-        ResumeFileDTO dto = objectMapper.readValue(data, ResumeFileDTO.class);
-        Long resumeId = resumePersonalService.saveFileResume(dto, file);
-        return ResultData.success(1, resumeId);
-    }
+//    // 이력서 초기 생성 메서드 - "이력서 작성" 버튼을 눌러서 이력서 작성 페이지로 넘어갈 때 데이터 생성
+//    @PostMapping("/init")
+//    public ResultData<Long> initResume(@RequestBody Map<String, Object> request) {
+//        // 필수 파라미터 검사
+//        if (request.get("profileId") == null) {
+//            throw new BadRequestException("필수 입력값(profileId)이 누락되었습니다.");
+//        }
+//        if (request.get("resumeType") == null) {
+//            throw new BadRequestException("필수 입력값(resumeType)이 누락되었습니다.");
+//        }
+//
+//        Long profileId = Long.valueOf(request.get("profileId").toString());
+//        Integer resumeType = Integer.valueOf(request.get("resumeType").toString());
+//
+//        Long resumeId = resumePersonalService.initResume(profileId, resumeType);
+//        return ResultData.success(1, resumeId);
+//    }
+//
+//    // 이력서 유형: 파일 (resumeType = 1) 한 번에 생성
+//    // POST /api/personal/resume/file
+//    @PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResultData<Long> saveFileResume(
+//            @RequestPart("data") String data,
+//            @RequestPart("file") MultipartFile file
+//    ) throws JsonProcessingException {
+//        // JSON 문자열 → DTO 수동 파싱
+//        ResumeFileDTO dto = objectMapper.readValue(data, ResumeFileDTO.class);
+//        Long resumeId = resumePersonalService.saveFileResume(dto, file);
+//        return ResultData.success(1, resumeId);
+//    }
 
 
 //    // 기존 파일 이력서 수정 또는 init 이후 호출시
@@ -66,15 +66,15 @@ public class ResumePersonalController {
 
 
 
-    // 이력서 유형: URL (resumeType = 2)
-    // POST /api/personal/resume/url
-    @PostMapping("/url")
-    public ResultData<Long> saveUrlResume(
-            @RequestBody ResumeUrlDTO dto
-    ) {
-        Long resumeId = resumePersonalService.saveUrlResume(dto);
-        return ResultData.success(1, resumeId);
-    }
+//    // 이력서 유형: URL (resumeType = 2)
+//    // POST /api/personal/resume/url
+//    @PostMapping("/url")
+//    public ResultData<Long> saveUrlResume(
+//            @RequestBody ResumeUrlDTO dto
+//    ) {
+//        Long resumeId = resumePersonalService.saveUrlResume(dto);
+//        return ResultData.success(1, resumeId);
+//    }
 
 
 
@@ -155,20 +155,26 @@ public class ResumePersonalController {
      */
     @PostMapping("/saveall")
     public ResultData<String> finalSaveResume(
-            @RequestPart("data") ResumeWriteRequestDTO dto,
+            @RequestPart("data") String data, // 프론트는 문자열로 보내므로 이렇게 받아야 함
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @RequestPart(value = "resumeFile", required = false) MultipartFile resumeFile,
             @RequestPart(value = "contentFiles", required = false) List<MultipartFile> contentFiles
-    ) {
-        // 파일들을 DTO에 주입
+    ) throws JsonProcessingException {
+
+        // 문자열 → DTO 수동 파싱
+        ResumeWriteRequestDTO dto = objectMapper.readValue(data, ResumeWriteRequestDTO.class);
+
+        // 파일 주입
         dto.setProfileImage(profileImage);
         dto.setResumeFile(resumeFile);
         dto.setContentFiles(contentFiles);
 
+        // 실제 저장
         resumePersonalService.saveAllAtOnce(dto);
 
         return ResultData.success(1, "이력서 전체 저장 완료");
     }
+
 
 
 
@@ -201,7 +207,6 @@ public class ResumePersonalController {
      */
     @GetMapping("/view/{resumeId}")
     public ResultData<ResumePersonalDTO> getResumeDetail(@PathVariable Long resumeId) {
-        System.out.println("resumeId = " + resumeId);
         ResumePersonalDTO resumeDetail = resumePersonalService.getResumeDetail(resumeId);
         return ResultData.success(1, resumeDetail);
     }
@@ -260,34 +265,34 @@ public class ResumePersonalController {
         return ResultData.success(1, null);
     }
 
-    // 이력서 복제 기능 (복사본 생성)
-    @PostMapping("/{resumeId}/duplicate")
-    public ResultData<Long> duplicateResume(@PathVariable Long resumeId) {
-        Long newResumeId = resumePersonalService.duplicateResume(resumeId);
-        return ResultData.success(1, newResumeId);
-    }
+//    // 이력서 복제 기능 (복사본 생성)
+//    @PostMapping("/{resumeId}/duplicate")
+//    public ResultData<Long> duplicateResume(@PathVariable Long resumeId) {
+//        Long newResumeId = resumePersonalService.duplicateResume(resumeId);
+//        return ResultData.success(1, newResumeId);
+//    }
 
 
-    // 이력서 상태 변경
-    @PatchMapping("/{resumeId}/status")
-    public ResultData<String> updateStatus(@PathVariable Long resumeId, @RequestBody Map<String, Integer> body) {
-        // 상태 값 존재 확인
-        if (body.get("status") == null) {
-            throw new BadRequestException("필수 입력값(status)이 누락되었습니다.");
-        }
-        
-        Integer status = body.get("status");
-        resumePersonalService.updateResumeStatus(resumeId, status);
-        return ResultData.success(1, "상태가 변경되었습니다.");
-    }
+//    // 이력서 상태 변경
+//    @PatchMapping("/{resumeId}/status")
+//    public ResultData<String> updateStatus(@PathVariable Long resumeId, @RequestBody Map<String, Integer> body) {
+//        // 상태 값 존재 확인
+//        if (body.get("status") == null) {
+//            throw new BadRequestException("필수 입력값(status)이 누락되었습니다.");
+//        }
+//
+//        Integer status = body.get("status");
+//        resumePersonalService.updateResumeStatus(resumeId, status);
+//        return ResultData.success(1, "상태가 변경되었습니다.");
+//    }
 
 
-    // 이력서 조회수 조회
-    @GetMapping("/{resumeId}/view-count")
-    public ResultData<Integer> getViewCount(@PathVariable Long resumeId) {
-        int count = resumePersonalService.getViewCount(resumeId);
-        return ResultData.success(1, count);
-    }
+//    // 이력서 조회수 조회
+//    @GetMapping("/{resumeId}/view-count")
+//    public ResultData<Integer> getViewCount(@PathVariable Long resumeId) {
+//        int count = resumePersonalService.getViewCount(resumeId);
+//        return ResultData.success(1, count);
+//    }
 
 
 

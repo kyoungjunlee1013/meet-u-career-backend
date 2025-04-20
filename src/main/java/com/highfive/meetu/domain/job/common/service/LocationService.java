@@ -20,7 +20,7 @@ public class LocationService {
         // 사용자 친화적 표기 변경
         List<LocationOptionDTO> refined = rawList.stream()
                 .map(item -> new LocationOptionDTO(
-                        item.getValue(),
+                        item.getId(),
                         convertProvinceName(item.getLabel())
                 ))
                 .toList();

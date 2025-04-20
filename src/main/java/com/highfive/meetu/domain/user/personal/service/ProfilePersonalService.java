@@ -5,6 +5,7 @@ import com.highfive.meetu.domain.user.common.entity.Profile;
 import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
 import com.highfive.meetu.domain.user.personal.dto.ProfilePersonalDTO;
 import com.highfive.meetu.global.common.exception.NotFoundException;
+import com.highfive.meetu.infra.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class ProfilePersonalService {
 
     private final ProfileRepository profileRepository;
+    private final S3Service s3Service;
 
     /**
      * profileId로 Profile + Account 정보 DTO 반환
@@ -29,6 +31,14 @@ public class ProfilePersonalService {
         }
 
         // 3. Profile + Account 정보 DTO로 변환
-        return ProfilePersonalDTO.fromEntities(profile, account);
+        ProfilePersonalDTO dto = ProfilePersonalDTO.fromEntities(profile, account);
+
+        // S3 key → 실제 접근가능 URL로 변환
+        if (dto.getProfileImageKey() != null) {
+            String url = s3Service.generatePresignedUrl(dto.getProfileImageKey());
+            dto.setProfileImageUrl(url);
+        }
+        return dto;
+
     }
 }

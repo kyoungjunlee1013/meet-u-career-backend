@@ -20,7 +20,9 @@ public class ProfilePersonalDTO {
     private String phone;
 
     private String profileImageKey;        // 프로필 이미지 S3 Key
+    private Long desiredJobCategoryId;     // 희망 직무 ID(PK)
     private String desiredJobCategoryName; // 희망 직무 이름
+    private Long desiredLocationId;        // 희망 근무 지역 ID(PK)
     private String desiredLocationName;    // 희망 근무 지역 이름
     private Integer experienceLevel;       // 경력 수준
     private Integer educationLevel;        // 학력 수준
@@ -36,8 +38,12 @@ public class ProfilePersonalDTO {
                 .email(account.getEmail())
                 .phone(account.getPhone())
                 .profileImageKey(profile.getProfileImageKey())
+                .desiredJobCategoryId(profile.getDesiredJobCategory() != null
+                        ? profile.getDesiredJobCategory().getId() : null)
                 .desiredJobCategoryName(profile.getDesiredJobCategory() != null
                         ? profile.getDesiredJobCategory().getJobName() : null)
+                .desiredLocationId(profile.getDesiredLocation() != null
+                        ? profile.getDesiredLocation().getId() : null)
                 .desiredLocationName(profile.getDesiredLocation() != null
                         ? profile.getDesiredLocation().getProvince() : null)
                 .experienceLevel(profile.getExperienceLevel())

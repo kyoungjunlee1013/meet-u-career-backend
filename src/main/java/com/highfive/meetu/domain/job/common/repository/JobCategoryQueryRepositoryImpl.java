@@ -26,6 +26,7 @@ public class JobCategoryQueryRepositoryImpl implements JobCategoryQueryRepositor
 
         return queryFactory
                 .select(Projections.constructor(JobCategoryOptionDTO.class,
+                        job.id,
                         job.jobCode,
                         job.jobName))
                 .from(job)

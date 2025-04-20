@@ -9,6 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 public class LocationOptionDTO {
 
-    private String value;   // locationCode
-    private String label; // province
+    private Long id;        // 고유 식별자(PK)
+    private String label;   // province
 }
