@@ -23,8 +23,6 @@ public class BusinessAccountService {
 
     // 기업회원 회원가입
     public BusinessSignUpRequestDTO save(BusinessSignUpRequestDTO dto) {
-        System.out.println("dto = " + dto);
-
         // Company
         Company company = companyRepository.save(dto.toCompany());
 
