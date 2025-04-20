@@ -8,7 +8,10 @@ import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
-    // 이메일(아이디) 중복 체크
+    // 아이디 중복 체크
+    boolean existsByUserId(String userId);
+    
+    // 이메일 중복 체크
     boolean existsByEmail(String email);
 
     // 아이디 로그인용

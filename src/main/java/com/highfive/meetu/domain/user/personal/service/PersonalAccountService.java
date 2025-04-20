@@ -16,7 +16,12 @@ public class PersonalAccountService {
     private final ProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // 이메일(아이디) 중복 체크
+    // 아이디 중복 체크
+    public boolean findByUserId(String userId) {
+        return accountRepository.existsByUserId(userId);
+    }
+
+    // 이메일 중복 체크
     public boolean findByEmail(String email) {
         return accountRepository.existsByEmail(email);
     }

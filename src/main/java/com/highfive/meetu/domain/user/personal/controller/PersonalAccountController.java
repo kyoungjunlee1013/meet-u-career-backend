@@ -9,9 +9,21 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/account/personal")
+@RequestMapping("/api/personal/account")
 public class PersonalAccountController {
     private final PersonalAccountService accountService;
+
+    // 이메일(아이디) 중복 체크
+    @PostMapping("/check/userid")
+    public ResultData<Boolean> findByUserId(String userId) {
+        boolean result = accountService.findByUserId(userId);
+
+        if (result) {
+            return ResultData.of(1, "이미 존재하는 아이디입니다.", null);
+        } else {
+            return ResultData.of(0, "사용 가능한 아이디입니다.", null);
+        }
+    }
 
     // 이메일(아이디) 중복 체크
     @PostMapping("/check/email")
