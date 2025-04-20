@@ -14,13 +14,22 @@ import java.util.Optional;
 public interface ResumeRepository extends JpaRepository<Resume, Long> {
 
     /**
-     * 특정 프로필의 상태가 ACTIVE(0)인 이력서를 수정일 기준으로 내림차순 조회
+     * 특정 프로필의 지정된 상태인 이력서를 수정일 기준으로 내림차순 조회
      *
      * @param profileId 프로필 ID
-     * @param status 이력서 상태 (0: 활성, 1: 임시저장, 2: 삭제)
+     * @param status 이력서 상태 (0: 임시저장, 1: 비공개, 2: 공개, 3: 삭제)
      * @return 조건에 맞는 이력서 리스트
      */
     List<Resume> findAllByProfileIdAndStatusOrderByUpdatedAtDesc(Long profileId, Integer status);
+    
+    /**
+     * 특정 프로필의 여러 상태에 해당하는 이력서를 수정일 기준으로 내림차순 조회
+     *
+     * @param profileId 프로필 ID
+     * @param statuses 이력서 상태 리스트 (0: 임시저장, 1: 비공개, 2: 공개, 3: 삭제)
+     * @return 조건에 맞는 이력서 리스트
+     */
+    List<Resume> findAllByProfileIdAndStatusInOrderByUpdatedAtDesc(Long profileId, List<Integer> statuses);
 
 
     /**

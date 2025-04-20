@@ -47,6 +47,9 @@ public class ResumePersonalDTO {
     // 프로필 정보
     private Long profileId;             // 프로필 ID
 
+    // 프로필 상세 정보 (상세 조회 시 필요)
+    private com.highfive.meetu.domain.user.personal.dto.ProfilePersonalDTO profileInfo; // 프로필 상세 정보
+
     private Boolean isPrimary;  // 대표 이력서 여부
 
     // 이력서 항목 리스트
@@ -76,6 +79,7 @@ public class ResumePersonalDTO {
      * 엔티티 → DTO 변환 메서드
      * - 이력서 상세 조회 시 사용
      * - ResumeContentPersonalDTO 리스트는 사전에 변환된 결과를 전달
+     * - 프로필 정보는 별도로 설정되어야 함
      */
     public static ResumePersonalDTO fromEntity(Resume resume, List<ResumeContentPersonalDTO> contentDTOs) {
         return ResumePersonalDTO.builder()
