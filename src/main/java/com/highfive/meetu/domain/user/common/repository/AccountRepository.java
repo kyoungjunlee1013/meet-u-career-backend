@@ -14,12 +14,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
    * Account 엔티티에 대한 CRUD 및 커스텀 조회 기능 제공
    * ------------------------------------------------------
    */
-
-  /**
-   * ------------------------------------------------------
-   * Account 엔티티에 대한 CRUD 및 커스텀 조회 기능 제공
-   * ------------------------------------------------------
-   */
     // 이메일(아이디) 중복 체크
     boolean existsByEmail(String email);
 
