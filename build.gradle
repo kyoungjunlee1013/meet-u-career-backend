@@ -32,6 +32,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 
+    // AWS S3
+    implementation 'software.amazon.awssdk:s3:2.20.91' // 최신 AWS SDK v2
+    implementation 'software.amazon.awssdk:auth'
+
     // Lombok 관련
     compileOnly 'org.projectlombok:lombok'  // Lombok을 컴파일 타임에만 사용
 

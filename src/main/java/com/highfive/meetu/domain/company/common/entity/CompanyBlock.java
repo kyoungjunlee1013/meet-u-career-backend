@@ -7,17 +7,17 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 관심 기업 엔티티
+ * 기업 차단 엔티티
  *
  * 연관관계:
- * - Profile(1) : CompanyFollow(N) - CompanyFollow가 주인, @JoinColumn 사용
- * - Company(1) : CompanyFollow(N) - CompanyFollow가 주인, @JoinColumn 사용
+ * - Profile(1) : CompanyBlock(N) - CompanyBlock이 주인, @JoinColumn 사용
+ * - Company(1) : CompanyBlock(N) - CompanyBlock이 주인, @JoinColumn 사용
  */
-@Entity(name = "companyFollow")
+@Entity(name = "companyBlock")
 @Table(
         indexes = {
-                @Index(name = "idx_company_follow_profileId", columnList = "profileId"),
-                @Index(name = "idx_company_follow_companyId", columnList = "companyId")
+                @Index(name = "idx_company_block_profileId", columnList = "profileId"),
+                @Index(name = "idx_company_block_companyId", columnList = "companyId")
         },
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_profile_company", columnNames = {"profileId", "companyId"})
@@ -29,13 +29,13 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"profile", "company"})
-public class CompanyFollow extends BaseEntity {
+public class CompanyBlock extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profileId", nullable = false)
-    private Profile profile;  // 팔로우한 사용자 (Profile 기준)
+    private Profile profile;  // 차단한 구직자 프로필
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "companyId", nullable = false)
-    private Company company;  // 팔로우한 기업
+    private Company company;  // 차단된 기업
 }
