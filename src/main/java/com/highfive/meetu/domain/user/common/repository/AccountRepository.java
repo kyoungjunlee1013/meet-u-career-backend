@@ -63,31 +63,5 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     // 소셜 로그인용
     Optional<Account> findByEmailAndAccountType(String email, int accountType);
-    // 아이디 로그인용
-    Optional<Account> findByUserIdAndAccountType(String userId, int accountType);
-
-  /**
-   * 비밀번호 찾기
-   * 이메일, 이름, 생년월일, 상태(ACTIVE)로 계정 조회
-   *
-   * @param email  사용자 이메일
-   * @param name   사용자 이름
-   * @param userId 사용자 userId
-   * @param status 계정 상태 (0: ACTIVE)
-   * @return 일치하는 Account가 있으면 Optional 반환
-   */
-  Optional<Account> findByEmailAndNameAndUserIdAndStatus(
-      String email,
-      String name,
-      String userId,
-      Integer status);
-
-  /**
-   * 이메일로 계정 단건 조회
-   *
-   * @param email 사용자 이메일
-   * @return Optional<Account>
-   */
-  Optional<Account> findByEmail(String email);
 
 }
