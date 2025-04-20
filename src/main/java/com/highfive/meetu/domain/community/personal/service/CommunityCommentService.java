@@ -61,12 +61,16 @@ public class CommunityCommentService {
   @Transactional(readOnly = true)
   public List<CommunityCommentDTO> getCommentsByPost(Long postId) {
     List<CommunityComment> comments = commentRepository
-        .findAllByPostIdAndStatusOrderByCreatedAtAsc(postId, CommunityComment.Status.ACTIVE);
+        .findAllByPostIdWithAccountAndProfile(postId); // 🔥 fetch join 메서드 사용
 
     return comments.stream().map(c -> CommunityCommentDTO.builder()
         .id(c.getId())
         .postId(c.getPost().getId())
         .accountId(c.getAccount().getId())
+        .authorName(c.getAccount().getName()) // 🔥 작성자 이름
+        .authorAvatar(c.getAccount().getProfile() != null
+            ? c.getAccount().getProfile().getProfileImageKey()
+            : "/profile.png") // 🔥 작성자 프로필
         .content(c.getContent())
         .status(c.getStatus())
         .createdAt(c.getCreatedAt())
@@ -74,6 +78,7 @@ public class CommunityCommentService {
         .build()
     ).toList();
   }
+
 
   // 내가 쓴 댓글 조회
   @Transactional(readOnly = true)
