@@ -19,11 +19,11 @@ import java.util.Date;
 public class TokenServiceImpl implements TokenService {
 
   // application.yml에 설정한 비밀키
-  @Value("${jwt.secret}")
+  @Value("${api.jwt.secret}")
   private String jwtSecret;
 
   // 비밀번호 재설정 토큰 만료 시간(ms)
-  @Value("${jwt.passwordReset.expiration}")
+  @Value("${api.jwt.passwordReset.expiration}")
   private long expirationMillis;
 
   private Key signingKey;
@@ -40,11 +40,11 @@ public class TokenServiceImpl implements TokenService {
     Date exp = new Date(now.getTime() + expirationMillis);
 
     return Jwts.builder()
-        .setSubject(email)                             // sub: 이메일
-        .claim("code", code)                           // custom claim: 인증 코드
-        .claim("type", "PASSWORD_RESET")               // custom claim: 토큰 용도
-        .setIssuedAt(now)                              // iat
-        .setExpiration(exp)                            // exp
+        .setSubject(email) // sub: 이메일
+        .claim("code", code) // custom claim: 인증 코드
+        .claim("type", "PASSWORD_RESET") // custom claim: 토큰 용도
+        .setIssuedAt(now) // iat
+        .setExpiration(exp) // exp
         .signWith(signingKey, SignatureAlgorithm.HS256)// 서명
         .compact();
   }
@@ -52,7 +52,7 @@ public class TokenServiceImpl implements TokenService {
   @Override
   public PasswordResetPayload parseAndValidatePasswordResetToken(String token) {
     try {
-      Jws<Claims> parsed = Jwts.parser()
+      Jws<Claims> parsed = Jwts.parserBuilder()
           .setSigningKey(signingKey)
           .build()
           .parseClaimsJws(token);

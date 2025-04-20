@@ -27,124 +27,125 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtProvider {
 
-    private final ProfileRepository profileRepository;
-    private final AccountRepository accountRepository;
-    private final AdminRepository adminRepository;
+  private final ProfileRepository profileRepository;
+  private final AccountRepository accountRepository;
+  private final AdminRepository adminRepository;
 
-    @Value("${jwt.secret-key}")
-    private String secretKey;
+  @Value("${api.jwt.secret}")
+  private String secretKey;
 
-    @Value("${jwt.access-token-expiration}")
-    private long accessTokenExpiration;
+  @Value("${api.jwt.access-token-expiration}")
+  private long accessTokenExpiration;
 
-    @Value("${jwt.refresh-token-expiration}")
-    private long refreshTokenExpiration;
+  @Value("${api.jwt.refresh-token-expiration}")
+  private long refreshTokenExpiration;
 
-    // JWT 서명용 Key 생성
-    private Key getSigningKey() {
-        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
-        return Keys.hmacShaKeyFor(keyBytes);
+  // JWT 서명용 Key 생성
+  private Key getSigningKey() {
+    byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+    return Keys.hmacShaKeyFor(keyBytes);
+  }
+
+  /**
+   * Access Token 발급
+   */
+  public String generateAccessToken(Long accountId) {
+    return generateToken(accountId, accessTokenExpiration);
+  }
+
+  /**
+   * Refresh Token 발급
+   */
+  public String generateRefreshToken(Long accountId) {
+    return generateToken(accountId, refreshTokenExpiration);
+  }
+
+  /**
+   * 공통 토큰 생성 로직
+   */
+  private String generateToken(Long accountId, long expiration) {
+    Account account = accountRepository.findById(accountId)
+        .orElseThrow(() -> new NotFoundException("계정을 찾을 수 없습니다."));
+
+    String role = getRoleForAccount(account);
+    Long profileId = getProfileIdForAccount(account);
+
+    return Jwts.builder()
+        .setSubject(accountId.toString())
+        .claim("accountId", accountId)
+        .claim("profileId", profileId)
+        .claim("role", role)
+        .setIssuedAt(new Date())
+        .setExpiration(new Date(System.currentTimeMillis() + expiration))
+        .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+        .compact();
+  }
+
+  // 회원의 Role 확인
+  private String getRoleForAccount(Account account) {
+    if (account.getAccountType() == Account.AccountType.PERSONAL) {
+      return Role.PERSONAL.name();
+    } else if (account.getAccountType() == Account.AccountType.BUSINESS) {
+      return Role.BUSINESS.name();
+    } else {
+      // 관리자(Admin 테이블) 조회
+      Admin admin = adminRepository.findByEmail(account.getEmail())
+          .orElseThrow(() -> new NotFoundException("관리자 계정을 찾을 수 없습니다."));
+
+      if (admin.getRole() == Admin.Role.SUPER) {
+        return Role.SUPER.name();
+      } else if (admin.getRole() == Admin.Role.ADMIN) {
+        return Role.ADMIN.name();
+      } else {
+        throw new IllegalStateException("알 수 없는 관리자 권한입니다.");
+      }
     }
+  }
 
-    /**
-     * Access Token 발급
-     */
-    public String generateAccessToken(Long accountId) {
-        return generateToken(accountId, accessTokenExpiration);
-    }
+  // 개인회원만 profileId 반환
+  private Long getProfileIdForAccount(Account account) {
+    if (account.getAccountType() != Account.AccountType.PERSONAL)
+      return null;
 
-    /**
-     * Refresh Token 발급
-     */
-    public String generateRefreshToken(Long accountId) {
-        return generateToken(accountId, refreshTokenExpiration);
-    }
+    Profile profile = profileRepository.findByAccountId(account.getId())
+        .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
+    return profile.getId();
+  }
 
-    /**
-     * 공통 토큰 생성 로직
-     */
-    private String generateToken(Long accountId, long expiration) {
-        Account account = accountRepository.findById(accountId)
-            .orElseThrow(() -> new NotFoundException("계정을 찾을 수 없습니다."));
+  /**
+   * 토큰에서 단순 accountId 추출
+   */
+  public Long parseToken(String token) {
+    return Long.valueOf(Jwts.parserBuilder()
+        .setSigningKey(getSigningKey())
+        .build()
+        .parseClaimsJws(token)
+        .getBody()
+        .getSubject());
+  }
 
-        String role = getRoleForAccount(account);
-        Long profileId = getProfileIdForAccount(account);
+  /**
+   * 토큰에서 Claims 전체 추출
+   */
+  public Claims parseClaims(String token) {
+    return Jwts.parserBuilder()
+        .setSigningKey(getSigningKey())
+        .build()
+        .parseClaimsJws(token)
+        .getBody();
+  }
 
-        return Jwts.builder()
-            .setSubject(accountId.toString())
-            .claim("accountId", accountId)
-            .claim("profileId", profileId)
-            .claim("role", role)
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + expiration))
-            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-            .compact();
-    }
+  /**
+   * AccessToken 유효기간 조회
+   */
+  public long getAccessTokenExpiration() {
+    return accessTokenExpiration;
+  }
 
-    // 회원의 Role 확인
-    private String getRoleForAccount(Account account) {
-        if (account.getAccountType() == Account.AccountType.PERSONAL) {
-            return Role.PERSONAL.name();
-        } else if (account.getAccountType() == Account.AccountType.BUSINESS) {
-            return Role.BUSINESS.name();
-        } else {
-            // 관리자(Admin 테이블) 조회
-            Admin admin = adminRepository.findByEmail(account.getEmail())
-                .orElseThrow(() -> new NotFoundException("관리자 계정을 찾을 수 없습니다."));
-
-            if (admin.getRole() == Admin.Role.SUPER) {
-                return Role.SUPER.name();
-            } else if (admin.getRole() == Admin.Role.ADMIN) {
-                return Role.ADMIN.name();
-            } else {
-                throw new IllegalStateException("알 수 없는 관리자 권한입니다.");
-            }
-        }
-    }
-
-    // 개인회원만 profileId 반환
-    private Long getProfileIdForAccount(Account account) {
-        if (account.getAccountType() != Account.AccountType.PERSONAL) return null;
-
-        Profile profile = profileRepository.findByAccountId(account.getId())
-            .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
-        return profile.getId();
-    }
-
-    /**
-     * 토큰에서 단순 accountId 추출
-     */
-    public Long parseToken(String token) {
-        return Long.valueOf(Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
-            .parseClaimsJws(token)
-            .getBody()
-            .getSubject());
-    }
-
-    /**
-     * 토큰에서 Claims 전체 추출
-     */
-    public Claims parseClaims(String token) {
-        return Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
-    }
-
-    /**
-     * AccessToken 유효기간 조회
-     */
-    public long getAccessTokenExpiration() {
-        return accessTokenExpiration;
-    }
-
-    /**
-     * RefreshToken 유효기간 조회
-     */
-    public long getRefreshTokenExpiration() {
-        return refreshTokenExpiration;
-    }
+  /**
+   * RefreshToken 유효기간 조회
+   */
+  public long getRefreshTokenExpiration() {
+    return refreshTokenExpiration;
+  }
 }
