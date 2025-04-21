@@ -1,3 +1,4 @@
+
 package com.highfive.meetu.infra.jwt;
 
 import com.highfive.meetu.domain.auth.personal.type.Role;
