@@ -5,15 +5,20 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 public class NaverUserResponse {
+    private Long id;
     private NaverAccount response;
 
     @Getter
     @NoArgsConstructor
     public static class NaverAccount {
-        private String email;
         private String name;
-        private String nickname;
-        private String profile_image;
-        private String id;
+        private String email;
+        private Profile profile;
+
+        @Getter @Setter
+        public static class Profile {
+            private String nickname;
+            private String profile_image;
+        }
     }
 }
