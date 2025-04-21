@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class PersonalSignUpRequestDTO {
+    private String userId;
     private String email;
     private String password;
     private String phone;
@@ -20,6 +21,7 @@ public class PersonalSignUpRequestDTO {
 
     public Account toEntity(String encodedPassword) {
         return Account.builder()
+            .userId(userId)
             .email(email)
             .password(encodedPassword)
             .phone(phone)
@@ -32,6 +34,7 @@ public class PersonalSignUpRequestDTO {
 
     public static PersonalSignUpRequestDTO fromEntity(Account account) {
         return PersonalSignUpRequestDTO.builder()
+            .userId(account.getUserId())
             .email(account.getEmail())
             .phone(account.getPhone())
             .name(account.getName())

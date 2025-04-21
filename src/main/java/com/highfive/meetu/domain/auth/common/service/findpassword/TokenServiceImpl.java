@@ -19,11 +19,11 @@ import java.util.Date;
 public class TokenServiceImpl implements TokenService {
 
   // application.yml에 설정한 비밀키
-  @Value("${api.jwt.secret}")
+  @Value("${jwt.secret-key}")
   private String jwtSecret;
 
   // 비밀번호 재설정 토큰 만료 시간(ms)
-  @Value("${api.jwt.passwordReset.expiration}")
+  @Value("${jwt.passwordReset.expiration}")
   private long expirationMillis;
 
   private Key signingKey;
