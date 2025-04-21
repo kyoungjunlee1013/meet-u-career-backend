@@ -13,10 +13,6 @@ import lombok.experimental.SuperBuilder;
    * - Application(N) : JobPosting(1) - Application이 주인, @JoinColumn 사용
  */
 import com.highfive.meetu.domain.user.common.entity.Profile;
-import com.highfive.meetu.global.common.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 /**
  * 지원서 엔티티
