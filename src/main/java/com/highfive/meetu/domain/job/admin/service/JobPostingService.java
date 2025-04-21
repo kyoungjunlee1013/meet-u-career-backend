@@ -192,7 +192,7 @@ public class JobPostingService {
                         .numEmployees(firstItem.path("enpEmpeCnt").asInt())
                         .revenue(0L)
                         .website(firstItem.path("enpHmpgUrl").asText())
-                        .logoUrl(null)
+                        .logoKey(null)
                         .address(firstItem.path("enpBsadr").asText())
                         .updatedAt(LocalDateTime.now())
                         .status(Company.Status.ACTIVE)
