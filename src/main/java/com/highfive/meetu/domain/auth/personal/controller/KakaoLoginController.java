@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping("/api/personal/auth")
 public class KakaoLoginController {
     private final KakaoLoginService kakaoLoginService;
 
     @GetMapping("/kakao/callback")
-    public ResultData<LoginResponseDTO> kakaoCallback(@RequestParam("code") String code) {
-        LoginResponseDTO loginResponse = kakaoLoginService.kakaoLogin(code);
+    public ResultData<LoginResponseDTO> loginWithKakao(@RequestParam("code") String code) {
+        LoginResponseDTO loginResponse = kakaoLoginService.kakaoLoginOrSignup(code);
         return ResultData.success(1, loginResponse);
     }
 }
