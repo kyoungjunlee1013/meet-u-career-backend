@@ -112,7 +112,8 @@ public class JobPosting extends BaseEntity {
     private LocalDateTime updatedAt;  // 공고 수정일
 
     @Column(nullable = false)
-    private Integer status;  // 공고 상태 (INACTIVE, PENDING, ACTIVE)
+    private Integer status;  // 공고 상태 (DRAFT, PENDING, REJECTED, APPROVED, ACTIVE, INACTIVE)
+
 
     @BatchSize(size = 20)
     @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -179,9 +180,16 @@ public class JobPosting extends BaseEntity {
     }
 
     public static class Status {
-        public static final int INACTIVE = 0;
-        public static final int PENDING = 1;
-        public static final int ACTIVE = 2;
+
+        public static final int DRAFT = 0;        // 임시 저장 (작성 완료, 아직 미제출)
+        public static final int PENDING = 1;      // 승인 대기 (기업이 제출 → 관리자 검토 중)
+        public static final int REJECTED = 2;     // 반려됨 (관리자가 승인 거절)
+
+        public static final int APPROVED = 3;     // 승인 완료 (게시 예정 상태)
+        public static final int ACTIVE = 4;       // 게시 중 (현재 날짜가 게시 시작~마감 사이)
+        public static final int INACTIVE = 5;     // 게시 종료 (마감일 지나거나 수동 종료)
+
     }
+
 
 }

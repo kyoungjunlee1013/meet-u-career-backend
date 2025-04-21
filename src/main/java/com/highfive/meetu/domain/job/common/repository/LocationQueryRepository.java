@@ -7,4 +7,6 @@ import java.util.List;
 public interface LocationQueryRepository {
 
     List<LocationOptionDTO> findProvincesForDropdown();
+
+    List<LocationOptionDTO> findCitiesByProvince(String province);
 }

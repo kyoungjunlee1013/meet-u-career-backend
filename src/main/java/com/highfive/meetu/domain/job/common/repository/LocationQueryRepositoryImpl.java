@@ -31,4 +31,22 @@ public class LocationQueryRepositoryImpl implements LocationQueryRepository {
                 .fetch();
 
     }
+
+    @Override
+    public List<LocationOptionDTO> findCitiesByProvince(String province) {
+        return queryFactory
+                .select(Projections.constructor(LocationOptionDTO.class,
+                        location.id,
+                        location.city  // label로 들어갈 값
+                ))
+                .from(location)
+                .where(
+                        location.province.eq(province),
+                        location.city.isNotNull()
+                )
+                .orderBy(location.city.asc())
+                .fetch();
+    }
+
+
 }
