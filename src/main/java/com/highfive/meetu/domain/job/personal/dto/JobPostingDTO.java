@@ -15,6 +15,7 @@ public class JobPostingDTO {
     private Long companyId;
     private Long businessAccountId; // Account의 id를 저장
     private String title;
+    private String name;
     private String jobUrl;
     private String industry;
     private String jobType;
