@@ -31,13 +31,13 @@ public class JwtProvider {
   private final AccountRepository accountRepository;
   private final AdminRepository adminRepository;
 
-  @Value("${api.jwt.secret}")
+  @Value("${jwt.secret-key}")
   private String secretKey;
 
-  @Value("${api.jwt.access-token-expiration}")
+  @Value("${jwt.access-token-expiration}")
   private long accessTokenExpiration;
 
-  @Value("${api.jwt.refresh-token-expiration}")
+  @Value("${jwt.refresh-token-expiration}")
   private long refreshTokenExpiration;
 
   // JWT 서명용 Key 생성
