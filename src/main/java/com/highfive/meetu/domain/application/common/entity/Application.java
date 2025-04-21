@@ -3,6 +3,15 @@ package com.highfive.meetu.domain.application.common.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
 import com.highfive.meetu.domain.resume.common.entity.Resume;
+import com.highfive.meetu.global.common.entity.BaseEntity;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+ /*
+     * 연관관계:
+    * - Application(N) : Profile(1) - Application이 주인, @JoinColumn 사용
+    * - Application(N) : JobPosting(1) - Application이 주인, @JoinColumn 사용
+  */
 import com.highfive.meetu.domain.user.common.entity.Profile;
 import com.highfive.meetu.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -11,10 +20,6 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * 지원서 엔티티
- *
- * 연관관계:
- * - Application(N) : Profile(1) - Application이 주인, @JoinColumn 사용
- * - Application(N) : JobPosting(1) - Application이 주인, @JoinColumn 사용
  * - Application(N) : Resume(1) - Application이 주인, @JoinColumn 사용
  */
 @Entity(name = "application")

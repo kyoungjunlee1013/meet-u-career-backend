@@ -44,9 +44,6 @@ public class Company extends BaseEntity {
     @Column(length = 20, nullable = false, unique = true)
     private String businessNumber;  // 사업자등록번호
 
-    @Column(length = 100)
-    private String representativeName;
-
     @Column(length = 255, nullable = false)
     private String industry;  // 업종
 
