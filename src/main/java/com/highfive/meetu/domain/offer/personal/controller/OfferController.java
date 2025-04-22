@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/personal/mypage/offers")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:3003", allowCredentials = "true")
 @RequiredArgsConstructor
 public class OfferController {
 
@@ -33,5 +33,11 @@ public class OfferController {
   public ResultData<MyOfferDTO> rejectOffer(@PathVariable Long offerId) {
     offerService.rejectOffer(offerId);
     return ResultData.success(1, null);
+  }
+
+  @GetMapping("/list/all/{accountId}")
+  public ResultData<MyOfferDTO> getAllOffers(@PathVariable Long accountId) {
+    MyOfferDTO dto = offerService.getMyOffers(accountId); // status 관계없이 전부 조회
+    return ResultData.success(1, dto);
   }
 }

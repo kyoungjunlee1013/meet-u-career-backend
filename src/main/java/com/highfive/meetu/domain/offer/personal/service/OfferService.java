@@ -20,10 +20,6 @@ public class OfferService {
   /**
    * 개인 계정 기준으로 받은 오퍼 목록을 조회하여 DTO로 반환합니다.
    */
-  public MyOfferDTO getMyOffers(Long accountId) {
-    List<Offer> offers = offerRepository.findByPersonalAccountId(accountId);
-    return MyOfferDTO.build(offers);
-  }
 
   @Transactional
   public void approveOffer(Long offerId) {
@@ -33,6 +29,10 @@ public class OfferService {
   @Transactional
   public void rejectOffer(Long offerId) {
     offerRepository.rejectOffer(offerId);
+  }
+  public MyOfferDTO getMyOffers(Long accountId) {
+    List<Offer> offers = offerRepository.findAllOffersByPersonalAccountId(accountId);
+    return MyOfferDTO.build(offers);
   }
 
 }

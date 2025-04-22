@@ -12,9 +12,8 @@ import java.util.List;
 @Repository
 public interface OfferRepository extends JpaRepository<Offer, Long> {
 
-  int countByPersonalAccountId(Long accountId);
-
-  List<Offer> findByPersonalAccountId(Long accountId);
+  @Query("SELECT o FROM offer o WHERE o.personalAccount.id = :accountId")
+  List<Offer> findAllOffersByPersonalAccountId(@Param("accountId") Long accountId);
 
   @Modifying
   @Query("UPDATE offer o SET o.status = 1 WHERE o.id = :offerId")

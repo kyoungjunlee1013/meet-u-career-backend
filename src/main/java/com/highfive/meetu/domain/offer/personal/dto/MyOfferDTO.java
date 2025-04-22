@@ -27,7 +27,8 @@ public class MyOfferDTO {
   @NoArgsConstructor
   @AllArgsConstructor
   public static class OfferDetail {
-    private Long id; // ✅ offer.getId() 포함
+    private int status;
+    private Long id; // Offer ID
     private String companyName;
     private LocalDateTime offerDate;
     private String message;
@@ -35,6 +36,7 @@ public class MyOfferDTO {
 
     public static OfferDetail from(Offer offer) {
       return new OfferDetail(
+          offer.getStatus(),
           offer.getId(),
           offer.getCompany().getName(),
           offer.getCreatedAt(),
