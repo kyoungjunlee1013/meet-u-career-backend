@@ -58,8 +58,13 @@ public class InterviewReviewPersonalService {
     JobCategory jobCategory = jobCategoryRepository.findById(dto.getJobCategoryId())
         .orElseThrow(() -> new NotFoundException("직무를 찾을 수 없습니다."));
 
-    Application application = applicationRepository.findById(dto.getApplicationId())
-        .orElseThrow(() -> new NotFoundException("지원 이력을 찾을 수 없습니다."));
+    // 지원서 ID가 있을 경우만 조회 (선택사항)
+    Application application = null;
+    if (dto.getApplicationId() != null) {
+      application = applicationRepository.findById(dto.getApplicationId())
+          .orElseThrow(() -> new NotFoundException("해당 지원서를 찾을 수 없습니다."));
+    }
+
 
 
     // 2. InterviewReview 엔티티 생성
@@ -83,6 +88,12 @@ public class InterviewReviewPersonalService {
 
     // 3. 저장 및 ID 반환
     InterviewReview saved = interviewReviewRepository.save(review);
+
+    // // Application(지원이력)의 hasReview를 true로 수정
+    // application.setHasReview(true);
+    // applicationRepository.save(application);
+
+
     return saved.getId();
   }
 
