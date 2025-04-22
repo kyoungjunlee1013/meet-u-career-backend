@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class LocationDTO {
+    private Long id;
     private String locationCode;
     private String province;
     private String city;

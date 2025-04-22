@@ -8,9 +8,8 @@ import java.util.List;
 
 @Repository
 public interface JobPostingRepository extends JpaRepository<JobPosting, Long>, JobPostingCustomRepository {
-    /**
-     * 생성일(createdAt) 기준 내림차순으로 전체 채용공고 목록 조회
-     */
-    List<JobPosting> findAllByOrderByCreatedAtDesc();
+    List<JobPosting> findAllByOrderByCreatedAtDesc();      // 최신순
+    List<JobPosting> findAllByOrderByViewCountDesc();     // 인기순(viewCount)
+    List<JobPosting> findAllByOrderByApplyCountDesc();    // 추천순(applyCount)
 
 }

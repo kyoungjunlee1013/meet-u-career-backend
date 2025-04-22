@@ -49,6 +49,8 @@ public class JobPostingDTO {
                 // businessAccount에 null 체크 추가!
                 .businessAccountId(job.getBusinessAccount() != null ? job.getBusinessAccount().getId() : null)
                 .title(job.getTitle())
+                // company name 가져오기
+                .name(job.getCompany() != null ? job.getCompany().getName() : null)
                 .jobUrl(job.getJobUrl())
                 .industry(job.getIndustry())
                 .jobType(job.getJobType())

@@ -1,7 +1,5 @@
 package com.highfive.meetu.domain.job.personal.service;
 
-
-
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
 import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
 import com.highfive.meetu.domain.job.personal.dto.JobPostingDTO;
@@ -20,35 +18,56 @@ public class JobPostingService {
     private final JobPostingRepository jobPostingRepository;
 
     /**
-     * 필터 조건에 따른 채용공고 목록 조회
+     * 통합 검색(필터+키워드+정렬)
      *
-     * @param jobType         채용 형태 (예: "백엔드", "프론트엔드" 등)
-     * @param experienceLevel 경력 수준 (정수값, 예: 0은 신입, 1은 경력)
-     * @param educationLevel  학력 수준 (정수값)
-     * @param locationCode    지역 코드 (문자열 형태로 전달, 예: "101100")
-     * @return 조건에 맞는 채용공고 DTO 리스트
+     * @param industry        산업(직무) 필터 (예: "개발", "마케팅"…)
+     * @param experienceLevel 경력 필터 (예: 0=신입, 1=경력)
+     * @param educationLevel  학력 필터 (예: 0=학력무관, 2=전문대졸…)
+     * @param locationCode    지역코드 필터
+     * @param keyword         키워드 포함 검색 (job.keyword 컬럼)
+     * @param sort            정렬 기준 ("newest"|"popular"|"recommended")
      */
     @Transactional(readOnly = true)
-    public List<JobPostingDTO> filterJobPostings(String jobType, Integer experienceLevel, Integer educationLevel, String locationCode) {
-        List<JobPosting> postings = jobPostingRepository.searchByFilters(jobType, experienceLevel, educationLevel, locationCode);
+    public List<JobPostingDTO> searchJobPostings(
+            String industry,
+            Integer experienceLevel,
+            Integer educationLevel,
+            String locationCode,
+            String keyword,
+            String sort
+    ) {
+        List<JobPosting> postings = jobPostingRepository.searchByFilters(
+                industry,
+                experienceLevel,
+                educationLevel,
+                locationCode,
+                keyword,
+                sort
+        );
         return postings.stream()
                 .map(JobPostingDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
-    // 기존에 구현된 목록, 상세 조회 메서드도 그대로 둘 수 있습니다.
+    /**
+     * 전체 목록(기본: 최신순) 조회
+     */
     @Transactional(readOnly = true)
     public List<JobPostingDTO> getJobPostingList() {
-        List<JobPosting> jobPostings = jobPostingRepository.findAllByOrderByCreatedAtDesc();
-        return jobPostings.stream()
-                .map(JobPostingDTO::fromEntity)
-                .collect(Collectors.toList());
+        // 모두 null + sort=newest 로 호출
+        return searchJobPostings(
+                null, null, null, null,
+                null, "newest"
+        );
     }
 
+    /**
+     * 단일 상세 조회
+     */
     @Transactional(readOnly = true)
     public JobPostingDTO getJobPostingDetail(Long jobPostingId) {
         JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
-                .orElseThrow(() -> new RuntimeException("채용공고를 찾을 수 없습니다. id: " + jobPostingId));
+                .orElseThrow(() -> new NotFoundException("채용공고를 찾을 수 없습니다. id: " + jobPostingId));
         return JobPostingDTO.fromEntity(jobPosting);
     }
 }
