@@ -40,7 +40,7 @@ public class JwtProvider {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    // JWT 서명에 사용할 키
+    // JWT 서명용 Key 생성
     private Key getSigningKey() {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
