@@ -15,6 +15,7 @@ import com.highfive.meetu.domain.user.common.repository.AccountRepository;
 import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
 import com.highfive.meetu.global.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -54,7 +55,7 @@ public class MyPageService {
     ApplicationSummaryDTO summary = applicationRepository.aggregateStatusSummary(profile.getId());
 
     // 5. 추천 공고
-    List<RecommendedJobPostingDTO> recommendedJobs = jobPostingRepository.findRecommendedForProfile(profile);
+    List<RecommendedJobPostingDTO> recommendedJobs = jobPostingRepository.findRecommendedForProfile(profile, PageRequest.of(0, 6));
 
 
 

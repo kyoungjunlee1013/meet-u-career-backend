@@ -13,12 +13,13 @@ public class MyPageController {
 
   private final MyPageService myPageService;
 
-
+  @CrossOrigin(
+      origins = "http://localhost:3000", // 실제 프론트엔드 주소로 변경 필요
+      allowCredentials = "true"
+  )
   @GetMapping("/{accountId}")
   public ResultData<MyPageDTO> getMyPageTest(@PathVariable Long accountId) {
-    MyPageDTO dto =myPageService.getMyPageInfo(accountId);
-    return ResultData.success(1,dto);
+    MyPageDTO dto = myPageService.getMyPageInfo(accountId);
+    return ResultData.success(1, dto);
   }
-
 }
-

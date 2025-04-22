@@ -19,7 +19,7 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
       "JOIN jp.location l " +
       "WHERE jp.status = 2 " +
       "ORDER BY jp.expirationDate ASC")
-  List<RecommendedJobPostingDTO> findRecommendedForProfile(@Param("profile") Profile profile);
+  List<RecommendedJobPostingDTO> findRecommendedForProfile(@Param("profile") Profile profile, org.springframework.data.domain.Pageable pageable);
 
 
 
