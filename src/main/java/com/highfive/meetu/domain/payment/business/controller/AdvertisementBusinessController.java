@@ -16,6 +16,7 @@ public class AdvertisementBusinessController {
 
     private final AdvertisementBusinessService advertisementBusinessService;
 
+    // 결제 처리(토스페이먼츠), 결제내역 저장, 광고내역 저장을 한 번에 처리
     @PostMapping("/register")
     public ResultData<Long> registerAdWithPayment(@RequestBody AdvertisementRegisterRequest request) {
         //Long companyId = SecurityUtil.getCompanyId();

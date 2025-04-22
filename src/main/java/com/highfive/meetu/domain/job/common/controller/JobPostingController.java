@@ -18,12 +18,5 @@ public class JobPostingController {
 
     private final JobPostingService jobPostingService;
 
-    /**
-     * 산업 분야 자동완성 검색
-     * @param keyword 입력된 키워드 (2글자 이상)
-     */
-    @GetMapping("/search")
-    public ResultData<List<IndustryOptionDTO>> searchIndustries(@RequestParam String keyword) {
-        return jobPostingService.searchIndustries(keyword);
-    }
+
 }

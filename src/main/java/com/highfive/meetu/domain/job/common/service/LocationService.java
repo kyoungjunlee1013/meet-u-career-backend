@@ -48,9 +48,12 @@ public class LocationService {
                         item.getLabel(),    // label: 시/군/구
                         province,           // province: 요청에서 받은 값
                         item.getLabel()     // city: label = 시/군/구 그대로 사용
+
                 ))
                 .toList();
 
+
+        System.out.println(refined.size());
         return ResultData.success(refined.size(), refined);
     }
 

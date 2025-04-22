@@ -34,16 +34,16 @@ public class PaymentBusinessService {
 
     @Value("${api.toss.secretKey}")
     private String secretKey;
+
+    @Value("${api.toss.uri")
+    private String uri;
+
     private final PaymentRepository paymentRepository;
     private final AccountRepository accountRepository;
 
     public String confirmPayment(TossPaymentConfirmRequest request) {
         String encodedAuth = Base64.getEncoder().encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
-        String toEncode = secretKey + ":";
-        System.out.println("🔐 원본: " + toEncode);
-        System.out.println("🔐 인코딩: " + Base64.getEncoder().encodeToString(toEncode.getBytes(StandardCharsets.UTF_8)));
 
-        System.out.println(secretKey);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Basic " + encodedAuth);
@@ -56,7 +56,7 @@ public class PaymentBusinessService {
 
         try {
             ResponseEntity<TossPaymentResponse> response = new RestTemplate().exchange(
-                    "https://api.tosspayments.com/v1/payments/" + request.getPaymentKey(),
+                    uri + request.getPaymentKey(),
                     HttpMethod.POST,
                     entity,
                     TossPaymentResponse.class

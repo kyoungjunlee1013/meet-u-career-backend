@@ -81,12 +81,12 @@ public class JobPostingBusinessDTO {
 
     private static String convertStatus(Integer status) {
         return switch (status) {
-            case 0 -> "임시저장";
-            case 1 -> "승인대기";
-            case 2 -> "반려됨";
-            case 3 -> "승인됨(게시 전)";
-            case 4 -> "게시중";
-            case 5 -> "마감됨";
+            case 0 -> "임시 저장";
+            case 1 -> "승인 대기";
+            case 2 -> "게시 중";
+            case 3 -> "반려됨";
+            case 4 -> "승인 완료";
+            case 5 -> "게시 종료";
             default -> "알 수 없음";
         };
     }

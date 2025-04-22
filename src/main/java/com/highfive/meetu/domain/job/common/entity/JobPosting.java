@@ -183,13 +183,13 @@ public class JobPosting extends BaseEntity {
 
         public static final int DRAFT = 0;        // 임시 저장 (작성 완료, 아직 미제출)
         public static final int PENDING = 1;      // 승인 대기 (기업이 제출 → 관리자 검토 중)
-        public static final int REJECTED = 2;     // 반려됨 (관리자가 승인 거절)
 
-        public static final int APPROVED = 3;     // 승인 완료 (게시 예정 상태)
-        public static final int ACTIVE = 4;       // 게시 중 (현재 날짜가 게시 시작~마감 사이)
+        public static final int ACTIVE = 2;     // 게시 중 (현재 날짜가 게시 시작~마감 사이)
+
+        public static final int REJECTED = 3;     // 반려됨 (관리자가 승인 거절)
+
+        public static final int APPROVED = 4;       // 승인 완료 (게시 예정 상태)
         public static final int INACTIVE = 5;     // 게시 종료 (마감일 지나거나 수동 종료)
 
     }
-
-
 }

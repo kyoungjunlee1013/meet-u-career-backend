@@ -20,12 +20,12 @@ public class PaymentBusinessController {
 
     private final PaymentBusinessService paymentBusinessService;
 
-    // Toss 결제 승인 요청
-    @PostMapping("/confirm")
-    public ResultData<String> confirmPayment(@RequestBody TossPaymentConfirmRequest request) {
-        String result = paymentBusinessService.confirmPayment(request);
-        return ResultData.success(1, result);
-    }
+//    // Toss 결제 승인 요청
+//    @PostMapping("/confirm")
+//    public ResultData<String> confirmPayment(@RequestBody TossPaymentConfirmRequest request) {
+//        String result = paymentBusinessService.confirmPayment(request);
+//        return ResultData.success(1, result);
+//    }
 
     // 기업회원 결제 목록
     @GetMapping("/history")

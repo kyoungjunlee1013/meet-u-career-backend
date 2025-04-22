@@ -5,6 +5,7 @@ import com.highfive.meetu.domain.job.business.service.JobBusinessService;
 import com.highfive.meetu.global.common.response.ResultData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +24,15 @@ public class JobBusinessController {
      */
     @GetMapping("/my-list")
     public ResultData<List<JobPostingBusinessDTO>> getMyJobPostings() {
-        Long companyId = 1L;  // SecurityUtil.getCompanyId()로 대체
+        Long companyId = 2L;  // SecurityUtil.getCompanyId()로 대체
         return jobBusinessService.getJobPostingsByCompany(companyId);
+    }
+
+    /**
+     * 공고 상세 조회 (결제 등에서 사용)
+     */
+    @GetMapping("/view/{id}")
+    public ResultData<JobPostingBusinessDTO> getJobPostingById(@PathVariable Long id) {
+        return jobBusinessService.getJobPostingById(id);
     }
 }
