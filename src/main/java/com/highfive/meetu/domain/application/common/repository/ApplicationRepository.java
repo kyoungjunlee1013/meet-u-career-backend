@@ -2,8 +2,20 @@ package com.highfive.meetu.domain.application.common.repository;
 
 import com.highfive.meetu.domain.application.common.entity.Application;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long>, ApplicationRepositoryCustom {
+    @Query("""
+        SELECT a
+        FROM application a
+        JOIN FETCH a.profile p
+        WHERE a.jobPosting.id = :jobPostingId
+          AND a.status != 4
+    """)
+    List<Application> findAllByJobPostingId(@Param("jobPostingId") Long jobPostingId);
 }
