@@ -8,8 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
+/**
+ * JobPosting (채용 공고) Repository
+ * - 인기 공고, 최신 공고, 지원자 많은 공고 등 조회
+ * - 추천 공고 조회
+ * - 기업별 공고 조회
+ */
 @Repository
 public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
 
@@ -53,13 +60,8 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
     Page<JobPosting> findMostApplied(Pageable pageable);
 
     /**
-     * 추천 공고 조회 (키워드 기준 검색, 최신순 정렬)
+     * 키워드를 기반으로 추천 공고 조회 (최대 3개 키워드)
      *
-     * @param k1 추천 키워드1
-     * @param k2 추천 키워드2
-     * @param k3 추천 키워드3
-     * @param pageable 페이징 정보
-     * @return 추천 공고 목록
      */
     @Query("""
         SELECT DISTINCT j FROM jobPosting j
@@ -71,20 +73,30 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
         ORDER BY j.createdAt DESC
     """)
     Page<JobPosting> findRecommended(
-        @Param("keyword1") String k1,
-        @Param("keyword2") String k2,
-        @Param("keyword3") String k3,
+        @Param("keyword1") String keyword1,
+        @Param("keyword2") String keyword2,
+        @Param("keyword3") String keyword3,
         Pageable pageable
     );
 
     /**
-     * JobId를 기반으로 공고 조회
+     * 외부 고유 ID (jobId)로 공고 조회
      *
      * @param jobId 외부 시스템 연동용 공고 ID
      * @return 채용 공고 Optional
      */
     Optional<JobPosting> findByJobId(String jobId);
 
+    /**
+     * 특정 기업(companyId)의 전체 채용 공고 조회 (등록일 내림차순)
+     */
+    @Query("""
+        SELECT j FROM jobPosting j
+        WHERE j.company.id = :companyId
+        ORDER BY j.createdAt DESC
+    """)
+    List<JobPosting> findAllByCompanyId(@Param("companyId") Long companyId);
+    
     /**
      * 기업 ID와 공고 상태를 기반으로 해당 기업의 공고 개수 조회
      *
