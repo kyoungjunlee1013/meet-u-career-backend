@@ -10,8 +10,6 @@ import java.util.List;
 
 @Repository
 public interface ResumeContentRepository extends JpaRepository<ResumeContent, Long> {
-
-
     void deleteAllByResumeId(Long resumeId);
 
     @Query("SELECT rc.field FROM resumeContent rc JOIN rc.resume r WHERE r.profile.id = :userId GROUP BY rc.field ORDER BY COUNT(rc.id) DESC")
