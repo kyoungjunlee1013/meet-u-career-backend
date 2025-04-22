@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
     @Query("""
@@ -44,4 +46,5 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
         @Param("keyword3") String k3,
         Pageable pageable
     );
+    Optional<JobPosting> findByJobId(String jobId);
 }
