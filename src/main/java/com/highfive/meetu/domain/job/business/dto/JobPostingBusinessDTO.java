@@ -1,9 +1,11 @@
 package com.highfive.meetu.domain.job.business.dto;
 
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
+import com.highfive.meetu.domain.payment.business.dto.AdvertisementDTO;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -46,6 +48,16 @@ public class JobPostingBusinessDTO {
     private Integer applyCount;
     private String companyLogoKey;           // ✅ 조회에만 필요 (선택)
 
+    // 광고 관련 필드
+    private Boolean isAdvertised;     // 현재 광고 진행 중 여부 (현재 시간이 startDate와 endDate 사이)
+    private Integer adType;           // 광고 유형 (1: BASIC, 2: STANDARD, 3: PREMIUM)
+    private String adTypeLabel;       // 광고 유형 라벨
+    private LocalDateTime adStartDate; // 광고 시작일
+    private LocalDateTime adEndDate;   // 광고 종료일
+    
+    // 모든 광고 정보를 담는 리스트
+    @Builder.Default
+    private List<AdvertisementDTO> advertisements = new ArrayList<>();
 
     public static JobPostingBusinessDTO fromEntity(JobPosting jobPosting, List<Long> jobCategoryIds) {
         return JobPostingBusinessDTO.builder()
@@ -90,7 +102,4 @@ public class JobPostingBusinessDTO {
             default -> "알 수 없음";
         };
     }
-
-
-
 }

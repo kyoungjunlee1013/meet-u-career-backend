@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,7 @@ public class PaymentBusinessService {
     @Value("${api.toss.secretKey}")
     private String secretKey;
 
-    @Value("${api.toss.uri")
+    @Value("${api.toss.uri}")
     private String uri;
 
     private final PaymentRepository paymentRepository;
@@ -68,6 +69,10 @@ public class PaymentBusinessService {
             Account account = accountRepository.findById(1L)
                     .orElseThrow(() -> new NotFoundException("계정이 존재하지 않습니다."));
 
+            if (toss == null || toss.getAmount() == null) {
+                throw new BadRequestException("Toss 결제 응답이 유효하지 않습니다.");
+            }
+
             Payment payment = Payment.builder()
                     .account(account)
                     .amount(BigDecimal.valueOf(toss.getAmount()))
@@ -75,7 +80,7 @@ public class PaymentBusinessService {
                     .provider(Payment.Provider.TOSS)
                     .method(Payment.Method.CARD)  // 우선 CARD 고정
                     .transactionId(toss.getPaymentKey())
-                    .updatedAt(LocalDateTime.parse(toss.getApprovedAt()))
+                    .updatedAt(OffsetDateTime.parse(toss.getApprovedAt()).toLocalDateTime())
                     .build();
 
             paymentRepository.save(payment);
