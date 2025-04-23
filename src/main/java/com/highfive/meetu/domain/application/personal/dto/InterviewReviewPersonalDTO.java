@@ -15,12 +15,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class InterviewReviewPersonalDTO {
+
   private Long id;
   private String companyName;
   private String jobCategoryName;
   private String interviewYearMonth;
   private Integer rating;
   private LocalDateTime createdAt;
+
   private Integer careerLevel;
   private Integer difficulty;
   private Integer interviewType;
@@ -35,23 +37,27 @@ public class InterviewReviewPersonalDTO {
   private Long jobCategoryId;
   private Integer status;
 
-  public InterviewReview toEntity(Profile profile, Company company, JobCategory jobCategory, Application application) {
-    return InterviewReview.builder()
-        .profile(profile)
-        .company(company)
-        .jobCategory(jobCategory)
-        .application(application)
-        .careerLevel(careerLevel)
-        .interviewYearMonth(interviewYearMonth)
-        .rating(rating)
-        .difficulty(difficulty)
-        .interviewType(interviewType)
-        .interviewParticipants(interviewParticipants)
-        .hasFrequentQuestions(hasFrequentQuestions)
-        .questionsAsked(questionsAsked)
-        .interviewTip(interviewTip)
-        .result(result)
-        .status(0)
+  // DTO 변환용 메서드
+  public static InterviewReviewPersonalDTO from(InterviewReview review) {
+    return InterviewReviewPersonalDTO.builder()
+        .id(review.getId())
+        .companyName(review.getCompany().getName())
+        .jobCategoryName(review.getJobCategory().getJobName())
+        .interviewYearMonth(review.getInterviewYearMonth())
+        .rating(review.getRating())
+        .createdAt(review.getCreatedAt())
+        .careerLevel(review.getCareerLevel())
+        .difficulty(review.getDifficulty())
+        .interviewType(review.getInterviewType())
+        .interviewParticipants(review.getInterviewParticipants())
+        .hasFrequentQuestions(review.getHasFrequentQuestions())
+        .questionsAsked(review.getQuestionsAsked())
+        .interviewTip(review.getInterviewTip())
+        .result(review.getResult())
+        .applicationId(review.getApplication().getId())
+        .companyId(review.getCompany().getId())
+        .jobCategoryId(review.getJobCategory().getId())
+        .status(review.getStatus())
         .build();
   }
 }

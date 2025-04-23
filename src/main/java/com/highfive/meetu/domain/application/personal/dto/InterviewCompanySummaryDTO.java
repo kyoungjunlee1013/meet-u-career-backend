@@ -18,6 +18,9 @@ public class InterviewCompanySummaryDTO {
   private String logoUrl;
   private String address;
 
+  private String businessNumber; // ✅ 추가됨
+  private String website;        // ✅ 추가됨
+
   /**
    * 정적 생성자 (Entity 기반 변환)
    */
@@ -29,6 +32,18 @@ public class InterviewCompanySummaryDTO {
         .industry(company.getIndustry())
         .logoUrl(company.getLogoKey())
         .address(company.getAddress())
+        .businessNumber(company.getBusinessNumber())  // ✅
+        .website(company.getWebsite())                // ✅
         .build();
   }
+  public InterviewCompanySummaryDTO(Long companyId, String companyName, Long reviewCount,
+                                    String industry, String logoUrl, String address) {
+    this.companyId = companyId;
+    this.companyName = companyName;
+    this.reviewCount = reviewCount;
+    this.industry = industry;
+    this.logoUrl = logoUrl;
+    this.address = address;
+  }
+
 }

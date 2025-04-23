@@ -1,12 +1,13 @@
 package com.highfive.meetu.domain.application.personal.service;
 
 import com.highfive.meetu.domain.application.common.entity.InterviewReview;
-
 import com.highfive.meetu.domain.application.common.repository.InterviewReviewRepository;
 import com.highfive.meetu.domain.application.personal.dto.InterviewCompanySummaryDTO;
 import com.highfive.meetu.domain.application.personal.dto.InterviewReviewPersonalDTO;
-import com.highfive.meetu.global.common.exception.NotFoundException;
+import com.highfive.meetu.domain.company.common.entity.Company;
+import com.highfive.meetu.domain.company.common.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,43 +17,38 @@ import java.util.List;
 public class InterviewReviewPersonalService {
 
   private final InterviewReviewRepository interviewReviewRepository;
-
+  private final CompanyRepository companyRepository;
   public List<InterviewReviewPersonalDTO> findAllByProfileId(Long profileId) {
-    List<InterviewReview> entities = interviewReviewRepository.findAllByProfileIdAndStatus(profileId, 0);
-
-    return entities.stream()
-        .map(review -> InterviewReviewPersonalDTO.builder()
-            .id(review.getId())
-            .companyName(review.getCompany().getName())
-            .jobCategoryName(review.getJobCategory().getJobName())
-            .interviewYearMonth(review.getInterviewYearMonth())
-            .rating(review.getRating())
-            .createdAt(review.getCreatedAt())
-            .build())
+    return interviewReviewRepository.findAllByProfileIdAndStatus(profileId, 0).stream()
+        .map(InterviewReviewPersonalDTO::from)
         .toList();
   }
 
-  public InterviewReviewPersonalDTO findById(Long reviewId) {
-    InterviewReview review = interviewReviewRepository.findByIdAndStatus(reviewId, 0)
-        .orElseThrow(() -> new NotFoundException("작성된 면접 후기를 찾을 수 없습니다."));
-
-    return InterviewReviewPersonalDTO.builder()
-        .id(review.getId())
-        .companyName(review.getCompany().getName())
-        .jobCategoryName(review.getJobCategory().getJobName())
-        .interviewYearMonth(review.getInterviewYearMonth())
-        .rating(review.getRating())
-        .createdAt(review.getCreatedAt())
-        .careerLevel(review.getCareerLevel())
-        .difficulty(review.getDifficulty())
-        .interviewType(review.getInterviewType())
-        .interviewParticipants(review.getInterviewParticipants())
-        .hasFrequentQuestions(review.getHasFrequentQuestions())
-        .questionsAsked(review.getQuestionsAsked())
-        .interviewTip(review.getInterviewTip())
-        .result(review.getResult())
-        .status(review.getStatus())
-        .build();
+  public List<InterviewCompanySummaryDTO> getCompaniesWithReview() {
+    return interviewReviewRepository.findCompaniesWithReviews();
   }
 
+  public List<InterviewCompanySummaryDTO> searchCompaniesWithReview(String keyword) {
+    return interviewReviewRepository.searchCompaniesWithReview(keyword);
+  }
+
+  public InterviewCompanySummaryDTO getCompanySummary(Long companyId) {
+    Company company = companyRepository.findById(companyId)
+        .orElseThrow(() -> new IllegalArgumentException("해당 기업이 존재하지 않습니다."));
+
+    Long reviewCount = interviewReviewRepository.countByCompanyIdAndStatus(companyId, 0);
+
+    return InterviewCompanySummaryDTO.of(company, reviewCount);
+  }
+
+
+  public List<InterviewReviewPersonalDTO> getTop10RecentReviews() {
+    return interviewReviewRepository.findTop10RecentReviews(PageRequest.of(0, 10));
+  }
+
+  public List<InterviewReviewPersonalDTO> findByCompanyId(Long companyId) {
+    return interviewReviewRepository.findEntitiesByCompanyId(companyId).stream()
+        .map(InterviewReviewPersonalDTO::from)
+        .toList();
+  }
 }
