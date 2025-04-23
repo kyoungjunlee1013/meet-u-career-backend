@@ -19,7 +19,7 @@ public class LocationController {
 
     @GetMapping("/locations")
     public List<LocationDTO> allLocations() {
-        return locationRepository.findAllByOrderByProvinceAscCityAsc()
+        return locationRepository.findAllByOrderByIdAsc()
                 .stream()
                 .map(LocationDTO::fromEntity)        // Entity → DTO 변환
                 .collect(Collectors.toList());       // Stream → List

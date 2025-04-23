@@ -32,7 +32,7 @@ public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepositor
             String industry,
             Integer exp,
             Integer edu,
-            String locationCode,
+            List<String> locationCodes,
             String keyword,
             String sort
     ) {
@@ -44,7 +44,7 @@ public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepositor
                 .and(eqIndustry(industry, job))
                 .and(eqExperience(exp, job))
                 .and(eqEducation(edu, job))
-                .and(eqLocation(locationCode, loc))
+                .and(eqLocation(locationCodes, loc))
                 .and(eqKeyword(keyword, job));
 
         // 정렬 지정
@@ -86,9 +86,9 @@ public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepositor
                 : null;
     }
 
-    private BooleanExpression eqLocation(String code, QLocation loc) {
-        return code != null && !code.isBlank()
-                ? loc.locationCode.eq(code)
+    private BooleanExpression eqLocation(List<String> codes, QLocation loc) {
+        return (codes != null && !codes.isEmpty())
+                ? loc.locationCode.in(codes)
                 : null;
     }
 

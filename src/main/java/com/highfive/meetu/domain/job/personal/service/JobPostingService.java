@@ -2,12 +2,14 @@ package com.highfive.meetu.domain.job.personal.service;
 
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
 import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
+import com.highfive.meetu.domain.job.common.repository.LocationRepository;
 import com.highfive.meetu.domain.job.personal.dto.JobPostingDTO;
 import com.highfive.meetu.global.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 public class JobPostingService {
 
     private final JobPostingRepository jobPostingRepository;
+    private final LocationRepository locationRepository;
 
     /**
      * 통합 검색(필터+키워드+정렬)
@@ -32,21 +35,47 @@ public class JobPostingService {
             String industry,
             Integer experienceLevel,
             Integer educationLevel,
-            String locationCode,
+            List<String> locationCode,
             String keyword,
             String sort
     ) {
+        List<String> expandedLocationCodes = expandLocationCodes(locationCode);
+
         List<JobPosting> postings = jobPostingRepository.searchByFilters(
                 industry,
                 experienceLevel,
                 educationLevel,
-                locationCode,
+                expandedLocationCodes,
                 keyword,
                 sort
         );
         return postings.stream()
                 .map(JobPostingDTO::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    private List<String> expandLocationCodes(List<String> inputCodes) {
+        if (inputCodes == null || inputCodes.isEmpty()) return null;
+
+        List<String> expanded = new ArrayList<>();
+
+        for (String code : inputCodes) {
+            // 시/도만 선택된 경우 (예: "101000")
+            locationRepository.findByLocationCode(code).ifPresent(provinceLoc -> {
+                expanded.add(code); // 본인도 포함
+
+                // 해당 시/도에 속한 시/군/구 추가
+                List<String> childCodes = locationRepository.findByProvince(provinceLoc.getProvince())
+                        .stream()
+                        .map(loc -> loc.getLocationCode())
+                        .filter(c -> !c.equals(code)) // 본인은 중복되므로 제거
+                        .toList();
+
+                expanded.addAll(childCodes);
+            });
+        }
+
+        return expanded;
     }
 
     /**

@@ -32,7 +32,7 @@ public class JobPostingController {
             @RequestParam(required = false) String industry,
             @RequestParam(required = false) Integer experienceLevel,
             @RequestParam(required = false) Integer educationLevel,
-            @RequestParam(required = false) String locationCode,
+            @RequestParam(required = false) List<String> locationCode,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "newest") String sort
     ) {

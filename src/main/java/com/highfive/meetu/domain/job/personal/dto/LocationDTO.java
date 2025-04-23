@@ -17,6 +17,7 @@ public class LocationDTO {
 
     public static LocationDTO fromEntity(Location location) {
         return LocationDTO.builder()
+                .id(location.getId())
                 .locationCode(location.getLocationCode())
                 .province(location.getProvince())
                 .city(location.getCity())
