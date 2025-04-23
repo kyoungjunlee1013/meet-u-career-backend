@@ -88,15 +88,27 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
     Optional<JobPosting> findByJobId(String jobId);
 
     /**
-     * 특정 기업(companyId)의 전체 채용 공고 조회 (등록일 내림차순)
+     * 특정 기업의 활성 상태이며 아직 마감되지 않은 채용 공고 목록 조회
+     *
+     * 조건:
+     * - status = 2 (활성 상태)
+     * - expirationDate > 현재 시간 (마감되지 않음)
+     *
+     * 정렬:
+     * - 등록일(createdAt) 기준 내림차순 정렬
+     *
+     * @param companyId 기업 ID
+     * @return 마감되지 않은 활성 공고 리스트
      */
     @Query("""
-        SELECT j FROM jobPosting j
+    SELECT j FROM jobPosting j
         WHERE j.company.id = :companyId
+          AND j.status = 2
+          AND j.expirationDate > CURRENT_TIMESTAMP
         ORDER BY j.createdAt DESC
     """)
-    List<JobPosting> findAllByCompanyId(@Param("companyId") Long companyId);
-    
+    List<JobPosting> findAllActiveAndNotExpiredByCompanyId(@Param("companyId") Long companyId);
+
     /**
      * 기업 ID와 공고 상태를 기반으로 해당 기업의 공고 개수 조회
      *
