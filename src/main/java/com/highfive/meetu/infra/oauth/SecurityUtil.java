@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+/**
+ * Spring Security 기반 인증 정보 접근 유틸리티
+ * - 현재 로그인한 사용자의 accountId, profileId, role 조회 지원
+ */
 @Component
 @RequiredArgsConstructor
 public class SecurityUtil {
@@ -22,7 +26,21 @@ public class SecurityUtil {
     private final AdminRepository adminRepository;
 
     /**
+     * 현재 사용자가 인증되었는지 여부 확인
+     * - 로그인 상태인지 비로그인 상태인지 판단
+     *
+     * @return true: 인증됨, false: 비인증 상태(익명 사용자)
+     */
+    public static boolean isAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal());
+    }
+
+    /**
      * 현재 로그인한 사용자의 accountId 가져오기
+     *
+     * @return accountId
+     * @throws NotFoundException 인증 정보가 없는 경우
      */
     public static Long getAccountId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -34,7 +52,11 @@ public class SecurityUtil {
     }
 
     /**
-     * 현재 로그인한 사용자의 profileId 가져오기 (개인회원만 존재)
+     * 현재 로그인한 사용자의 profileId 가져오기
+     * - 개인회원(PERSONAL)만 존재 (기업회원, 관리자 없음)
+     *
+     * @return profileId
+     * @throws NotFoundException 인증 정보가 없거나 profileId가 없는 경우
      */
     public static Long getProfileId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -51,7 +73,12 @@ public class SecurityUtil {
     }
 
     /**
-     * accountId를 기준으로 회원 유형(PERSONAL, BUSINESS, SUPER, ADMIN) Role 조회
+     * 주어진 accountId를 기준으로 회원 유형(Role) 조회
+     * - PERSONAL, BUSINESS, SUPER, ADMIN 중 하나
+     *
+     * @param accountId 사용자 계정 ID
+     * @return Role enum 값
+     * @throws NotFoundException 계정이나 관리자 정보를 찾을 수 없는 경우
      */
     public Role getUserRole(Long accountId) {
         Account account = accountRepository.findById(accountId)
@@ -62,7 +89,7 @@ public class SecurityUtil {
         } else if (account.getAccountType() == Account.AccountType.BUSINESS) {
             return Role.BUSINESS;
         } else {
-            // 관리자 권한 처리
+            // 관리자 권한 조회
             Admin admin = adminRepository.findByEmail(account.getEmail())
                 .orElseThrow(() -> new NotFoundException("관리자 계정을 찾을 수 없습니다."));
 
