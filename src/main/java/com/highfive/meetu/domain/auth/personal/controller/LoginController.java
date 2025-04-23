@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/personal/auth/")
+@RequestMapping("/api/personal/auth")
 public class LoginController {
 
     private final LoginService loginService;

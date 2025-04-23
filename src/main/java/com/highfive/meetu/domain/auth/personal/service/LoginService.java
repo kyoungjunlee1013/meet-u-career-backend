@@ -31,6 +31,8 @@ public class LoginService {
     private final RefreshTokenService refreshTokenService;
 
     public ResponseEntity<ResultData<LoginResponseDTO>> login(LoginRequestDTO dto) {
+        System.out.println("--------------- userId : " + dto.getUserId());
+
         Account account = accountRepository.findByUserIdAndAccountType(dto.getUserId(), 0)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 아이디입니다."));
 
