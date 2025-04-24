@@ -151,6 +151,13 @@ public class CalendarPersonalService {
                     )).toList();
         }
 
+        // 각 리스트의 size 출력
+        System.out.println("personalSchedules: " + personalSchedules.size());
+        System.out.println("applicationSchedules: " + applicationSchedules.size());
+        System.out.println("bookmarkSchedules: " + bookmarkSchedules.size());
+        System.out.println("companyIds: " + companyIds.size());
+        System.out.println("companyJobSchedules: " + companyJobSchedules.size());
+
 
         // 통합 후 정렬하여 반환
         return Stream.of(
@@ -166,7 +173,7 @@ public class CalendarPersonalService {
 
 
     /**
-     * [1] 일정 등록
+     * 일정 등록
      */
     @Transactional
     public Long addSchedule(Long accountId, CalendarPersonalDTO dto) {
@@ -185,18 +192,9 @@ public class CalendarPersonalService {
         return event.getId();
     }
 
-    /**
-     * [2] 회원(개인회원, 기업회원) 일정 전체 조회
-     */
-    @Transactional(readOnly = true)
-    public List<CalendarPersonalDTO> getScheduleList(Long accountId) {
-        return calendarEventRepository.findAllByAccount_Id(accountId).stream()
-                .map(CalendarPersonalDTO::fromEntity)
-                .collect(Collectors.toList());
-    }
 
     /**
-     * [3] 일정 상세 조회
+     * 일정 상세 조회
      */
     @Transactional(readOnly = true)
     public CalendarPersonalDTO getScheduleDetail(Long id) {
@@ -206,7 +204,7 @@ public class CalendarPersonalService {
     }
 
     /**
-     * [4] 일정 수정
+     * 일정 수정
      */
     @Transactional
     public void updateSchedule(CalendarPersonalDTO dto) {
@@ -228,7 +226,7 @@ public class CalendarPersonalService {
 
 
     /**
-     * [5] 일정 삭제
+     * 일정 삭제
      */
     @Transactional
     public void deleteSchedule(Long id) {
@@ -243,13 +241,5 @@ public class CalendarPersonalService {
         calendarEventRepository.delete(event);
     }
 
-
-    /**
-     * [6] 특정 날짜에 일정 존재 여부
-     */
-    @Transactional(readOnly = true)
-    public boolean hasScheduleOnDate(Long accountId, LocalDateTime dayStart, LocalDateTime dayEnd) {
-        return calendarEventRepository.existsByAccount_IdAndStartDateTimeBetween(accountId, dayStart, dayEnd);
-    }
 
 }

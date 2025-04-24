@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,55 +17,40 @@ public class CalendarPersonalController {
 
     private final CalendarPersonalService calendarPersonalService;
 
-
     /**
-     * [비로그인용] 마감 임박 공고 일정 리스트
+     * 일정 관리 페이지 진입시 일정 목록
      */
     @GetMapping("/list")
-    public ResultData<List<PublicCalendarItemDTO>> getPublicScheduleList() {
-        List<PublicCalendarItemDTO> list = calendarPersonalService.getPublicScheduleList();
-        return ResultData.success(list.size(), list);
+    public ResultData<?> getCalendarList() {
+        try {
+            // 로그인 상태 → 내 전체 일정 (개인회원, 기업회원 동일 방식)
+            //Long accountId = SecurityUtil.getAccountId();
+            Long accountId = 2L;
+            List<CalendarPersonalDTO> schedules = calendarPersonalService.getFullScheduleForAccount(accountId);
+            return ResultData.success(schedules.size(), schedules);
+
+        } catch (RuntimeException e) {
+            // 비로그인 상태 → 마감 공고 일정 일부 띄우기
+            List<PublicCalendarItemDTO> guestSchedules = calendarPersonalService.getPublicScheduleList();
+            return ResultData.success(guestSchedules.size(), guestSchedules);
+        }
     }
 
-
-
-    @GetMapping("/list")
-    public ResultData<List<CalendarPersonalDTO>> getFullCalendarForMe() {
-        //Long accountId = SecurityUtil.getAccountId(); // 인증된 사용자 ID
-        Long accountId = 1L;
-        List<CalendarPersonalDTO> schedules = calendarPersonalService.getFullScheduleForAccount(accountId);
-        return ResultData.success(schedules.size(), schedules);
-    }
-
-
-
-
     /**
-     * [1] 회원(개인회원, 기업회원) 일정 전체 조회
-     */
-//    @GetMapping("/list")
-//    public ResultData<List<CalendarPersonalDTO>> getPersonalCalendarList() {
-//        //Long accountId = SecurityUtil.getAccountId(); // 인증된 사용자 ID
-//        Long accountId = 1L;
-//        List<CalendarPersonalDTO> list = calendarPersonalService.getScheduleList(accountId);
-//        return ResultData.success(list.size(), list);
-//    }
-
-    /**
-     * [2] 일정 등록
+     * 일정 등록
      */
     @PostMapping("/create")
     public ResultData<Long> createCalendar(@RequestBody CalendarPersonalDTO dto) {
 
         //Long accountId = SecurityUtil.getAccountId(); // 인증된 사용자 ID
-        Long accountId = 1L;
+        Long accountId = 2L;
 
         Long id = calendarPersonalService.addSchedule(accountId, dto);
         return ResultData.success(1, id);
     }
 
     /**
-     * [3] 일정 상세 조회
+     * 일정 상세 조회
      */
     @GetMapping("/detail/{calendarEventId}")
     public ResultData<CalendarPersonalDTO> getCalendarDetail(@PathVariable Long calendarEventId) {
@@ -73,7 +59,7 @@ public class CalendarPersonalController {
     }
 
     /**
-     * [4] 일정 수정
+     * 일정 수정
      */
     @PostMapping("/update/{calendarEventId}")
     public ResultData<String> updateCalendar(@PathVariable Long calendarEventId, @RequestBody CalendarPersonalDTO dto) {
@@ -83,7 +69,7 @@ public class CalendarPersonalController {
     }
 
     /**
-     * [5] 일정 삭제
+     * 일정 삭제
      */
     @PostMapping("/delete/{calendarEventId}")
     public ResultData<String> deleteCalendar(@PathVariable Long calendarEventId) {
