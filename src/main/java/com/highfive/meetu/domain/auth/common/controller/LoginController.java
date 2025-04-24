@@ -27,16 +27,14 @@ public class LoginController {
         return loginService.userLogin(dto, 0);
     }
 
-
-  /**
-   * 기업 로그인 요청
-   * - AccessToken, RefreshToken 발급
-   */
-  @PostMapping("/business/auth/login")
-  public ResponseEntity<ResultData<LoginResponseDTO>> businessLogin(@RequestBody LoginRequestDTO dto) {
-    return loginService.userLogin(dto, 1);
-  }
-
+    /**
+     * 기업 로그인 요청
+     * - AccessToken, RefreshToken 발급
+     */
+    @PostMapping("/business/auth/login")
+    public ResponseEntity<ResultData<LoginResponseDTO>> businessLogin(@RequestBody LoginRequestDTO dto) {
+        return loginService.userLogin(dto, 1);
+    }
 
     /**
      * 관리자 로그인 요청
