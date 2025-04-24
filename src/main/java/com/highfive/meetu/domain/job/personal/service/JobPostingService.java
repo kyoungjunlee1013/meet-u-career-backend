@@ -32,7 +32,7 @@ public class JobPostingService {
      */
     @Transactional(readOnly = true)
     public List<JobPostingDTO> searchJobPostings(
-            String industry,
+            List<String>industry,
             Integer experienceLevel,
             Integer educationLevel,
             List<String> locationCode,

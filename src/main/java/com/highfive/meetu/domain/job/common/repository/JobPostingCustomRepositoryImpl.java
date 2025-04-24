@@ -29,7 +29,7 @@ public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepositor
      */
     @Override
     public List<JobPosting> searchByFilters(
-            String industry,
+            List<String> industry,
             Integer exp,
             Integer edu,
             List<String> locationCodes,
@@ -54,7 +54,7 @@ public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepositor
                 orderSpecifier = job.viewCount.desc();
                 break;
             case "recommended":
-                orderSpecifier = job.applyCount.desc();
+                orderSpecifier = job.expirationDate.desc();
                 break;
             default:
                 orderSpecifier = job.createdAt.desc();
@@ -68,11 +68,12 @@ public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepositor
                 .fetch();
     }
 
-    private BooleanExpression eqIndustry(String industry, QJobPosting job) {
-        return industry != null && !industry.isBlank()
-                ? job.industry.eq(industry)
+    private BooleanExpression eqIndustry(List<String> industryList, QJobPosting job) {
+        return (industryList != null && !industryList.isEmpty())
+                ? job.industry.in(industryList)
                 : null;
     }
+
 
     private BooleanExpression eqExperience(Integer exp, QJobPosting job) {
         return exp != null

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface JobPostingCustomRepository {
     List<JobPosting> searchByFilters(
-            String industry,
+            List<String> industry,
             Integer exp,
             Integer edu,
             List<String> locationCodes,

@@ -29,12 +29,12 @@ public class JobPostingController {
      */
     @GetMapping("/list")
     public ResultData<List<JobPostingDTO>> list(
-            @RequestParam(required = false) String industry,
+            @RequestParam(name = "industry", required = false) List<String> industry,
             @RequestParam(required = false) Integer experienceLevel,
             @RequestParam(required = false) Integer educationLevel,
             @RequestParam(required = false) List<String> locationCode,
             @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "newest") String sort
+            @RequestParam(name = "sort", defaultValue = "newest") String sort
     ) {
         List<JobPostingDTO> dtos = jobPostingService.searchJobPostings(
                 industry, experienceLevel, educationLevel, locationCode, keyword, sort
