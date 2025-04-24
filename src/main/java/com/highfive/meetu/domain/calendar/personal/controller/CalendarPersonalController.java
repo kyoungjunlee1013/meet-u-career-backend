@@ -37,13 +37,25 @@ public class CalendarPersonalController {
     }
 
     /**
+     * [기업회원용] 기업 커스텀 일정 + 공고 일정 조회
+     */
+    @GetMapping("/business/list")
+    public ResultData<List<CalendarPersonalDTO>> getCompanySchedule() {
+        //Long accountId = SecurityUtil.getAccountId(); // 현재 로그인한 기업회원 ID
+        Long accountId = 6L;
+        List<CalendarPersonalDTO> schedules = calendarPersonalService.getFullScheduleForCompany(accountId);
+        return ResultData.success(schedules.size(), schedules);
+    }
+
+    /**
      * 일정 등록
      */
     @PostMapping("/create")
     public ResultData<Long> createCalendar(@RequestBody CalendarPersonalDTO dto) {
 
         //Long accountId = SecurityUtil.getAccountId(); // 인증된 사용자 ID
-        Long accountId = 2L;
+        //Long accountId = 2L; 개인회원
+        Long accountId = 6L; // 기업회원
 
         Long id = calendarPersonalService.addSchedule(accountId, dto);
         return ResultData.success(1, id);

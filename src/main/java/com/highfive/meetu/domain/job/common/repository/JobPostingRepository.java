@@ -19,4 +19,7 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
 
     List<JobPosting> findByCompany_IdInAndStatus(List<Long> companyIds, int status);
 
+    // 특정 기업회원이 속한 기업이 등록한 공고
+    List<JobPosting> findByCompany_IdAndStatus(Long companyId, Integer status);
+
 }

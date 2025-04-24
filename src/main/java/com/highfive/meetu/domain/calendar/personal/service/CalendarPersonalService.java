@@ -170,6 +170,61 @@ public class CalendarPersonalService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<CalendarPersonalDTO> getFullScheduleForCompany(Long accountId) {
+
+        // 1. 내 기업 정보 조회
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("사용자 계정이 존재하지 않습니다."));
+        Company company = account.getCompany();
+        if (company == null) {
+            throw new BadRequestException("등록된 회사 정보가 없습니다.");
+        }
+
+        Long companyId = company.getId();
+
+        // 2. 내 기업이 등록한 공고 리스트
+        List<JobPosting> jobPostings = jobPostingRepository.findByCompany_IdAndStatus(companyId, 2); // 2 = 활성 공고
+
+        List<CalendarPersonalDTO> jobPostingSchedules = jobPostings.stream()
+                .flatMap(job -> Stream.of(
+                        CalendarPersonalDTO.builder()
+                                .eventType(CalendarEvent.EventType.COMPANY_EVENT)
+                                .title(job.getTitle() + " 접수 시작")
+                                .startDateTime(job.getOpeningDate())
+                                .endDateTime(job.getOpeningDate())
+                                .isAllDay(true)
+                                .relatedId(job.getId())
+                                .companyId(companyId)
+                                .companyName(company.getName())
+                                .build(),
+
+                        CalendarPersonalDTO.builder()
+                                .eventType(CalendarEvent.EventType.COMPANY_EVENT)
+                                .title(job.getTitle() + " 접수 마감")
+                                .startDateTime(job.getExpirationDate())
+                                .endDateTime(job.getExpirationDate())
+                                .isAllDay(true)
+                                .relatedId(job.getId())
+                                .companyId(companyId)
+                                .companyName(company.getName())
+                                .build()
+                )).toList();
+
+        // 3. 내가 등록한 기업 커스텀 일정 (eventType = 4)
+        List<CalendarPersonalDTO> companyCustomSchedules = calendarEventRepository
+                .findAllByAccount_IdAndEventType(accountId, CalendarEvent.EventType.PERSONAL_EVENT)
+                .stream()
+                .map(CalendarPersonalDTO::fromEntity)
+                .toList();
+
+        // 4. 통합 후 정렬
+        return Stream.of(companyCustomSchedules, jobPostingSchedules)
+                .flatMap(List::stream)
+                .sorted(Comparator.comparing(CalendarPersonalDTO::getStartDateTime))
+                .toList();
+    }
+
 
 
     /**
