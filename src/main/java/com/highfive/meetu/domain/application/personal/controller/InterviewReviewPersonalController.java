@@ -1,53 +1,45 @@
 package com.highfive.meetu.domain.application.personal.controller;
 
-import com.highfive.meetu.domain.application.personal.dto.InterviewReviewCreateDTO;
-import com.highfive.meetu.domain.application.personal.dto.InterviewReviewPersonalDTO;
+import com.highfive.meetu.domain.application.common.entity.Application;
+import com.highfive.meetu.domain.application.personal.dto.InterviewReviewApplicationDTO;
+import com.highfive.meetu.domain.application.personal.dto.InterviewReviewDTO;
 import com.highfive.meetu.domain.application.personal.service.InterviewReviewPersonalService;
 import com.highfive.meetu.global.common.response.ResultData;
+import com.highfive.meetu.infra.oauth.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * 개인 회원 면접 후기 작성 컨트롤러
+ * 개인 사용자 면접 후기 컨트롤러
  */
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/personal/interview-reviews")
+@RequiredArgsConstructor
 public class InterviewReviewPersonalController {
 
   private final InterviewReviewPersonalService interviewReviewPersonalService;
 
   /**
-   * 면접 후기 등록 (임시 profileId 고정 버전)
-   * JWT 없이 테스트할 수 있도록 임시로 profileId = 1L 고정
-   *
-   * @param dto 작성용 DTO
-   * @return 생성된 후기 ID
+   * (가정) 외부에서 Application 리스트를 주입받는 경우 테스트용
+   * 실제로는 queryRepository 또는 다른 팀원의 로직과 연결 필요
    */
-  @PostMapping("/create")
-  public ResultData<Long> createInterviewReview(@RequestBody InterviewReviewCreateDTO dto) {
-
-    // 임시 고정된 profileId
-    Long profileId = 1L;
-
-    // 후기 저장 처리
-    Long id = interviewReviewPersonalService.createInterviewReview(dto, profileId);
-
-    // 생성된 ID 반환 (count = 1)
-    return ResultData.success(1, id);
-  }
-
-
-  /**
-   * 특정 프로필이 작성한 면접 후기 목록 조회
-   * 예: GET /api/personal/interview-reviews?profileId=1
-   */
-  @GetMapping("/list")
-  public ResultData<List<InterviewReviewPersonalDTO>> findAllByProfileId() {
-    Long profileId = 1L;
-    List<InterviewReviewPersonalDTO> result = interviewReviewPersonalService.findAllByProfileId(profileId);
+  @PostMapping("/reviewable-list")
+  public ResultData<List<InterviewReviewApplicationDTO>> getReviewableApplications(
+      @RequestBody List<Application> applications) {
+    List<InterviewReviewApplicationDTO> result =
+        interviewReviewPersonalService.toDTOList(applications);
     return ResultData.success(result.size(), result);
   }
+
+  @GetMapping
+  public ResultData<List<InterviewReviewDTO>> getMyReviews() {
+    Long profileId = SecurityUtil.getProfileId(); // 현재 로그인한 사용자 기준
+    List<InterviewReviewDTO> reviews = interviewReviewPersonalService.getReviewsByProfileId(profileId);
+    return ResultData.success(reviews.size(), reviews);
+
+  }
 }
+
