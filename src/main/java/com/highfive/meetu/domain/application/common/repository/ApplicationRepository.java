@@ -13,13 +13,14 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface ApplicationRepository extends JpaRepository<Application, Long> {
+public interface ApplicationRepository extends JpaRepository<Application, Long>, ApplicationRepositoryCustom {
+
   @Query("""
         SELECT a
         FROM application a
         JOIN FETCH a.profile p
         WHERE a.jobPosting.id = :jobPostingId
-          AND a.status != 4
+        AND a.status != 4
     """)
   List<Application> findAllByJobPostingId(@Param("jobPostingId") Long jobPostingId);
 
