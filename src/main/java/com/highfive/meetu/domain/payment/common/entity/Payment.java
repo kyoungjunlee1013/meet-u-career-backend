@@ -34,7 +34,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"account", "advertisementList"})
+@ToString(exclude = {"account", "advertisement"})
 public class Payment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -60,15 +60,8 @@ public class Payment extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;  // 결제 상태 변경일
 
-    @BatchSize(size = 20)
-    @OneToMany(
-            mappedBy = "payment",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY
-    )
-    @JsonIgnoreProperties({"payment"})
-    @Builder.Default
-    private List<Advertisement> advertisementList = new ArrayList<>();
+    @OneToOne(mappedBy = "payment", fetch = FetchType.LAZY)
+    private Advertisement advertisement;
 
     /**
      * 결제 상태

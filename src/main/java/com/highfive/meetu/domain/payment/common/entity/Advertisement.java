@@ -58,8 +58,8 @@ public class Advertisement extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime endDate;  // 광고 종료 날짜
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "paymentId")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paymentId", unique = true)
     private Payment payment;  // 광고 결제 (NULL 가능)
 
     /**
