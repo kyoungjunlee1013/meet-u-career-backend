@@ -67,11 +67,10 @@ public class CalendarEvent extends BaseEntity {
 
     // 이벤트 유형 상수
     public static class EventType {
-        public static final int INTERVIEW = 1;              // 면접 일정
-        public static final int APPLICATION_DEADLINE = 2;   // 지원 마감
-        public static final int BOOKMARK_DEADLINE = 3;      // 스크랩 마감
-        public static final int COMPANY_EVENT = 4;          // 기업 행사
-        public static final int PERSONAL_EVENT = 5;         // 사용자 개인 일정
+        public static final int APPLICATION_DEADLINE = 1;              // 지원 마감
+        public static final int BOOKMARK_DEADLINE = 2;   // 스크랩 마감
+        public static final int COMPANY_EVENT = 3;      // 기업 행사
+        public static final int PERSONAL_EVENT = 4;          // 개인 커스텀 일정
     }
 
 }

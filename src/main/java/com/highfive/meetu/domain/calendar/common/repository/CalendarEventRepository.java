@@ -4,7 +4,6 @@ import com.highfive.meetu.domain.calendar.common.entity.CalendarEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,6 +15,10 @@ public interface CalendarEventRepository extends JpaRepository<CalendarEvent, Lo
 
     // 개인 회원의 특정 날짜 일정 존재 여부
     boolean existsByAccount_IdAndStartDateTimeBetween(Long accountId, LocalDateTime start, LocalDateTime end);
+
+    List<CalendarEvent> findAllByAccount_IdAndEventType(Long accountId, Integer eventType);
+
+    List<CalendarEvent> findAllByCompany_IdInAndEventType(List<Long> companyIds, Integer eventType);
 
 
 }

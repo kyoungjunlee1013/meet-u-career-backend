@@ -1,6 +1,7 @@
 package com.highfive.meetu.domain.calendar.personal.controller;
 
 import com.highfive.meetu.domain.calendar.personal.dto.CalendarPersonalDTO;
+import com.highfive.meetu.domain.calendar.personal.dto.PublicCalendarItemDTO;
 import com.highfive.meetu.domain.calendar.personal.service.CalendarPersonalService;
 import com.highfive.meetu.global.common.response.ResultData;
 import lombok.RequiredArgsConstructor;
@@ -15,21 +16,50 @@ public class CalendarPersonalController {
 
     private final CalendarPersonalService calendarPersonalService;
 
+
     /**
-     * [1] 개인 일정 전체 조회
+     * [비로그인용] 마감 임박 공고 일정 리스트
      */
-    @GetMapping("/list/{profileId}")
-    public ResultData<List<CalendarPersonalDTO>> getPersonalCalendarList(@PathVariable Long profileId) {
-        List<CalendarPersonalDTO> list = calendarPersonalService.getScheduleList(profileId);
+    @GetMapping("/list")
+    public ResultData<List<PublicCalendarItemDTO>> getPublicScheduleList() {
+        List<PublicCalendarItemDTO> list = calendarPersonalService.getPublicScheduleList();
         return ResultData.success(list.size(), list);
     }
+
+
+
+    @GetMapping("/list")
+    public ResultData<List<CalendarPersonalDTO>> getFullCalendarForMe() {
+        //Long accountId = SecurityUtil.getAccountId(); // 인증된 사용자 ID
+        Long accountId = 1L;
+        List<CalendarPersonalDTO> schedules = calendarPersonalService.getFullScheduleForAccount(accountId);
+        return ResultData.success(schedules.size(), schedules);
+    }
+
+
+
+
+    /**
+     * [1] 회원(개인회원, 기업회원) 일정 전체 조회
+     */
+//    @GetMapping("/list")
+//    public ResultData<List<CalendarPersonalDTO>> getPersonalCalendarList() {
+//        //Long accountId = SecurityUtil.getAccountId(); // 인증된 사용자 ID
+//        Long accountId = 1L;
+//        List<CalendarPersonalDTO> list = calendarPersonalService.getScheduleList(accountId);
+//        return ResultData.success(list.size(), list);
+//    }
 
     /**
      * [2] 일정 등록
      */
     @PostMapping("/create")
     public ResultData<Long> createCalendar(@RequestBody CalendarPersonalDTO dto) {
-        Long id = calendarPersonalService.addSchedule(dto);
+
+        //Long accountId = SecurityUtil.getAccountId(); // 인증된 사용자 ID
+        Long accountId = 1L;
+
+        Long id = calendarPersonalService.addSchedule(accountId, dto);
         return ResultData.success(1, id);
     }
 

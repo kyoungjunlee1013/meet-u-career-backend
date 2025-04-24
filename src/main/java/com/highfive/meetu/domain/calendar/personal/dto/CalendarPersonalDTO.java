@@ -1,67 +1,69 @@
 package com.highfive.meetu.domain.calendar.personal.dto;
 
 import com.highfive.meetu.domain.calendar.common.entity.CalendarEvent;
-import com.highfive.meetu.domain.user.common.entity.Profile;
+import com.highfive.meetu.domain.company.common.entity.Company;
+import com.highfive.meetu.domain.user.common.entity.Account;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class CalendarPersonalDTO {
 
-    private Long id; // 일정 ID (수정, 삭제, 상세조회 시 필요)
+    private Long id;
 
-    private Long profileId; // FK: 개인 회원의 프로필 ID
+    private Integer eventType;  // 1~4: 지원 마감, 스크랩 마감, 기업 이벤트, 개인 일정
 
-    private String title; // 일정 제목 (필수)
+    private String title;
 
-    private String description; // 일정 설명
+    private String description;
 
-    private LocalDate date; // 날짜 (연도-월-일)
+    private Long relatedId;  // 지원서 ID 또는 공고 ID 등
 
-    private LocalTime startTime; // 시작 시간
+    private Long companyId;
+    private String companyName;  // 캘린더 표시용 (nullable)
 
-    private LocalTime endTime; // 종료 시간
+    private LocalDateTime startDateTime;
 
-    private Integer status; // 상태값 (1: 활성, 0: 삭제)
+    private LocalDateTime endDateTime;
 
-    private Integer type;
-    // 일정 유형
-    // 1: 개인일정 (내가 직접 추가)
-    // 2: 지원 일정 (공고 지원 시 자동 추가)
-    // 3: 마감 일정 (관심 공고 마감일 자동 추가)
+    private Boolean isAllDay;
 
-    public static CalendarPersonalDTO fromEntity(com.highfive.meetu.domain.calendar.common.entity.CalendarEvent entity) {
-        return CalendarPersonalDTO.builder()
-                .id(entity.getId())
-                .profileId(entity.getAccount().getId()) // accountId → profileId로 표현
-                .title(entity.getTitle())
-                .description(entity.getDescription())
-                .date(entity.getStartDateTime().toLocalDate()) // LocalDateTime → LocalDate
-                .startTime(entity.getStartDateTime().toLocalTime())
-                .endTime(entity.getEndDateTime().toLocalTime())
-                .type(entity.getEventType()) // 일정 유형
-                .build(); // status는 없으므로 제외
-    }
+    private LocalDateTime updatedAt;
 
-    public CalendarEvent toEntity(Profile profile) {
+
+    public CalendarEvent toEntity(Account account, Company company) {
         return CalendarEvent.builder()
-                .account(profile.getAccount()) // ✅ 해결!
+                .account(account)
+                .company(company)
+                .eventType(this.eventType)
                 .title(this.title)
                 .description(this.description)
-                .eventType(this.type != null ? this.type : CalendarEvent.EventType.PERSONAL_EVENT)
-                .startDateTime(LocalDateTime.of(this.date, this.startTime != null ? this.startTime : LocalTime.MIN))
-                .endDateTime(LocalDateTime.of(this.date, this.endTime != null ? this.endTime : LocalTime.MAX))
-                .isAllDay(this.startTime == null && this.endTime == null)
+                .relatedId(this.relatedId)
+                .startDateTime(this.startDateTime)
+                .endDateTime(this.endDateTime)
+                .isAllDay(this.isAllDay)
                 .build();
     }
 
-
+    public static CalendarPersonalDTO fromEntity(CalendarEvent event) {
+        return CalendarPersonalDTO.builder()
+                .id(event.getId())
+                .eventType(event.getEventType())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .relatedId(event.getRelatedId())
+                .companyId(event.getCompany() != null ? event.getCompany().getId() : null)
+                .companyName(event.getCompany() != null ? event.getCompany().getName() : null)
+                .startDateTime(event.getStartDateTime())
+                .endDateTime(event.getEndDateTime())
+                .isAllDay(event.getIsAllDay())
+                .updatedAt(event.getUpdatedAt())
+                .build();
+    }
 
 }
