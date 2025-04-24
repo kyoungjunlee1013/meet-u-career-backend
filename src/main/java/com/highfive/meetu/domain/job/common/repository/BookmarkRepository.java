@@ -12,8 +12,9 @@ import java.util.Optional;
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
-  int countByAccountId(Long accountId);
-    /**
+  int countByProfile_Id(Long profileId); // ✅ 'profile' 필드 기준으로 정상 동작
+
+  /**
      * 특정 공고를 북마크한 사용자 수 조회
      *
      * @param jobPostingId 공고 ID

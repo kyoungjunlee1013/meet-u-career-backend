@@ -17,9 +17,9 @@ public class MyPageController {
       origins = "http://localhost:3000", // 실제 프론트엔드 주소로 변경 필요
       allowCredentials = "true"
   )
-  @GetMapping("/{accountId}")
-  public ResultData<MyPageDTO> getMyPageTest(@PathVariable Long accountId) {
-    MyPageDTO dto = myPageService.getMyPageInfo(accountId);
+  @GetMapping("/{profileId}")
+  public ResultData<MyPageDTO> getMyPage(@PathVariable Long profileId) {
+    MyPageDTO dto = myPageService.getMyPageInfo(profileId);
     return ResultData.success(1, dto);
   }
 }
