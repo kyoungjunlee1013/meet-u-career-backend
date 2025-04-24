@@ -24,7 +24,7 @@ public class LoginController {
      */
     @PostMapping("/personal/auth/login")
     public ResponseEntity<ResultData<LoginResponseDTO>> personalLogin(@RequestBody LoginRequestDTO dto) {
-        return loginService.userLogin(dto, 0);
+        return loginService.userLogin(dto);
     }
 
     /**
@@ -33,7 +33,7 @@ public class LoginController {
      */
     @PostMapping("/business/auth/login")
     public ResponseEntity<ResultData<LoginResponseDTO>> businessLogin(@RequestBody LoginRequestDTO dto) {
-        return loginService.userLogin(dto, 1);
+        return loginService.businessLogin(dto);
     }
 
     /**

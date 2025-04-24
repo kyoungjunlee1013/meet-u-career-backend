@@ -13,6 +13,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResultData<Void>> handleNotFound(NotFoundException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .header("Content-Type", "application/json")
                 .body(ResultData.fail(ex.getMessage()));
     }
 

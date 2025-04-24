@@ -129,7 +129,17 @@ public class JwtProvider {
         } else if (account.getAccountType() == Account.AccountType.BUSINESS) {
             return Role.BUSINESS.name();
         } else {
-            throw new IllegalStateException("알 수 없는 accountType입니다.");
+            // 관리자 처리
+            Admin admin = adminRepository.findByEmail(account.getEmail())
+                .orElseThrow(() -> new NotFoundException("관리자 계정을 찾을 수 없습니다."));
+
+            if (admin.getRole() == Admin.Role.SUPER) {
+                return Role.SUPER.name();
+            } else if (admin.getRole() == Admin.Role.ADMIN) {
+                return Role.ADMIN.name();
+            } else {
+                throw new IllegalStateException("알 수 없는 관리자 권한입니다.");
+            }
         }
     }
 

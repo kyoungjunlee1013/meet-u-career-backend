@@ -49,7 +49,9 @@ public class SecurityConfig {
                     "/api/admin/auth/login", // 관리자 로그인
                     "/api/business/auth/login", // 기업회원 로그인
                     "/api/personal/auth/login", // 개인회원 로그인
-                    "/swagger-ui/**", "/v3/api-docs/**",
+                    "/api/main/**",             // 메인
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
                     "/error"
                 ).permitAll()  // 인증 예외 경로
                 .anyRequest().authenticated()  // 나머지 경로는 인증 필요
