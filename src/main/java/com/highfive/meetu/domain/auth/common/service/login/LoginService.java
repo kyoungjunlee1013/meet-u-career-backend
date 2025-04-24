@@ -1,7 +1,8 @@
-package com.highfive.meetu.domain.auth.personal.service;
+package com.highfive.meetu.domain.auth.common.service.login;
 
 import com.highfive.meetu.domain.auth.personal.dto.LoginRequestDTO;
 import com.highfive.meetu.domain.auth.personal.dto.LoginResponseDTO;
+import com.highfive.meetu.domain.auth.personal.service.RefreshTokenService;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.user.common.repository.AccountRepository;
 import com.highfive.meetu.global.common.exception.BadRequestException;
@@ -30,8 +31,8 @@ public class LoginService {
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
 
-    public ResponseEntity<ResultData<LoginResponseDTO>> login(LoginRequestDTO dto) {
-        Account account = accountRepository.findByUserIdAndAccountType(dto.getUserId(), 0)
+    public ResponseEntity<ResultData<LoginResponseDTO>> login(LoginRequestDTO dto, int accountType) {
+        Account account = accountRepository.findByUserIdAndAccountType(dto.getUserId(), accountType)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 아이디입니다."));
 
         if (!passwordEncoder.matches(dto.getPassword(), account.getPassword())) {
