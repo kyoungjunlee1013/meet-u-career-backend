@@ -3,36 +3,33 @@ name: Backend Deploy to EC2
 on:
   push:
     branches:
-      - main  # 메인 브랜치에 push될 때만 실행
+      - main
 
 jobs:
   deploy:
-    name: Deploy Backend to EC2
+    name: SSH Deploy to EC2
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up SSH key
+      - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Deploy to EC2 and Restart Services
+      - name: Copy Files to EC2
+        run: |
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ ubuntu@${{ secrets.EC2_HOST }}:~/meet-u-backend
+
+      - name: Deploy via SSH
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             cd ~/meet-u-backend
-
-            echo "Pulling latest code"
-            git pull origin main
-
-            echo "Stopping current containers"
+            echo "Stopping old containers..."
             docker-compose down
-
-            echo "Building and starting containers"
+            echo "Starting new containers..."
             docker-compose up -d --build
-
-            echo "Cleaning up unused Docker images"
-            docker image prune -f
           EOF
+
