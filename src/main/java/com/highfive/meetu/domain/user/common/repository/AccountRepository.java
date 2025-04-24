@@ -2,8 +2,12 @@ package com.highfive.meetu.domain.user.common.repository;
 
 import com.highfive.meetu.domain.user.common.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -69,4 +73,34 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
      * 소셜 로그인용
      */
     Optional<Account> findByEmailAndAccountType(String email, int accountType);
+
+    @Query("""
+        SELECT COUNT(a.id)
+        FROM account a
+        WHERE a.createdAt >= :start
+    """)
+    long countUsersCurrent(@Param("start") LocalDateTime start);
+
+    @Query("""
+        SELECT COUNT(a.id)
+        FROM account a
+        WHERE a.createdAt BETWEEN :start AND :end
+    """)
+    long countUsersPrevious(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("""
+        SELECT FUNCTION('DATE_FORMAT', a.createdAt, '%Y-%m'), COUNT(a.id)
+        FROM account a
+        WHERE YEAR(a.createdAt) = :year
+        GROUP BY FUNCTION('DATE_FORMAT', a.createdAt, '%Y-%m')
+        ORDER BY FUNCTION('DATE_FORMAT', a.createdAt, '%Y-%m')
+    """)
+    List<Object[]> countUsersByMonth(@Param("year") int year);
+
+    @Query("""
+        SELECT a.accountType, COUNT(a.id)
+        FROM account a
+        GROUP BY a.accountType
+    """)
+    List<Object[]> countUsersByType();
 }
