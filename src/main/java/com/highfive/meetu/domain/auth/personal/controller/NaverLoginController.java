@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping("/api/personal/auth")
 public class NaverLoginController {
     private final NaverLoginService naverLoginService;
 
     @GetMapping("/naver/callback")
-    public ResultData<LoginResponseDTO> naverCallback(@RequestParam("code") String code, @RequestParam("state") String state) {
-        LoginResponseDTO loginResponse = naverLoginService.naverLogin(code, state);
+    public ResultData<LoginResponseDTO> loginWithNaver(@RequestParam("code") String code, @RequestParam("state") String state) {
+        LoginResponseDTO loginResponse = naverLoginService.naverLoginOrSignup(code, state);
         return ResultData.success(1, loginResponse);
     }
 }

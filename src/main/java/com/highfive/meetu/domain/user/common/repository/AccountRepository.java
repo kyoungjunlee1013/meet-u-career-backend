@@ -14,8 +14,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
    * Account 엔티티에 대한 CRUD 및 커스텀 조회 기능 제공
    * ------------------------------------------------------
    */
-    // 이메일(아이디) 중복 체크
-    boolean existsByEmail(String email);
 
   /**
    * 아이디 찾기
@@ -26,7 +24,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
    * @param status 계정 상태 (예: ACTIVE = 0)
    * @return 일치하는 Account를 Optional로 반환
    */
-  Optional<Account> findByNameAndEmailAndStatus(String name, String email, int status);
+    Optional<Account> findByNameAndEmailAndStatus(String name, String email, int status);
 
   /**
    * 비밀번호 찾기
@@ -38,7 +36,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
    * @param status 계정 상태 (0: ACTIVE)
    * @return 일치하는 Account가 있으면 Optional 반환
    */
-  Optional<Account> findByEmailAndNameAndUserIdAndStatus(
+    Optional<Account> findByEmailAndNameAndUserIdAndStatus(
       String email,
       String name,
       String userId,
@@ -50,11 +48,30 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
    * @param email 사용자 이메일
    * @return Optional<Account>
    */
-  Optional<Account> findByEmail(String email);
+    Optional<Account> findByEmail(String email);
 
-    // 아이디 로그인용
+    /**
+     *  아이디 중복 체크
+     */
+    boolean existsByUserId(String userId);
+
+    /**
+     * 이메일 중복 체크
+     */
+    boolean existsByEmail(String email);
+
+    /**
+     * 개인 아이디 로그인용
+     */
     Optional<Account> findByUserIdAndAccountType(String userId, int accountType);
 
-    // 소셜 로그인용
+    /**
+     * 기업 아이디 로그인용
+     */
+    Optional<Account> findByUserIdAndAccountTypeAndStatus(String userId, int accountType, int status);
+
+    /**
+     * 소셜 로그인용
+     */
     Optional<Account> findByEmailAndAccountType(String email, int accountType);
 }

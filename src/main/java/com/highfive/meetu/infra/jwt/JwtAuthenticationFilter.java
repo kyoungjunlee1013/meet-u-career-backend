@@ -1,3 +1,4 @@
+
 package com.highfive.meetu.infra.jwt;
 
 import com.highfive.meetu.domain.auth.personal.type.Role;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -55,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // Authentication 등록
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    userPrincipal, null, List.of()
+                    userPrincipal, null, List.of(new SimpleGrantedAuthority("ROLE_" +  role.name()))
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 

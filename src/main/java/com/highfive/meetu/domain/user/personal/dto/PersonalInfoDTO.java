@@ -13,4 +13,6 @@ public class PersonalInfoDTO {
     private Long accountId;
     private Long profileId;
     private Role role;
+    private String name; // 사용자 이름
+    private String profileImageKey; // 프로필 사진 Key
 }
