@@ -50,6 +50,8 @@ public class SecurityConfig {
                     "/api/business/auth/login", // 기업회원 로그인
                     "/api/personal/auth/login", // 개인회원 로그인
                     "/api/main/**",             // 메인
+                    "/business/talents",       // 인재 목록(인증 예외)
+                    "/business/talents/**",     // 인재 상세(인증 예외)
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/error"
