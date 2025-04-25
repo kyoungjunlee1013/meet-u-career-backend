@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PaymentRepository extends JpaRepository<Payment, Long> {
+public interface PaymentRepository extends JpaRepository<Payment, Long>, PaymentQueryRepository {
 
     // 내림차순으로 기업회원 결제내역 조회
     List<Payment> findAllByAccountIdOrderByCreatedAtDesc(Long accountId);
