@@ -32,7 +32,7 @@ public class CommunityCommentAdminService {
             ? communityCommentRepository.findAll(pageable)
             : communityCommentRepository.findAllByStatus(request.getStatus(), pageable);
 
-        return page.map(CommunityCommentDTO::fromEntity);
+        return page.map(CommunityCommentDTO::from);
     }
 
     /**
@@ -51,7 +51,7 @@ public class CommunityCommentAdminService {
     public CommunityCommentDTO getCommentDetail(Long commentId) {
         CommunityComment comment = communityCommentRepository.findById(commentId)
             .orElseThrow(() -> new NotFoundException("댓글을 찾을 수 없습니다."));
-        return CommunityCommentDTO.fromEntity(comment);
+        return CommunityCommentDTO.from(comment);
     }
 
     /**
