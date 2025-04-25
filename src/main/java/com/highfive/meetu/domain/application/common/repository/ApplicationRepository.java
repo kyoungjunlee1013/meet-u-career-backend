@@ -24,4 +24,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
 
     boolean existsByProfileAndJobPosting(Profile profile, JobPosting jobPosting);
 
+    // 일정 관리 기능 관련
+    List<Application> findByProfile_Account_Id(Long accountId);
 }
