@@ -16,7 +16,7 @@ import java.util.Optional;
 
 /**
  * Spring Security 기반 인증 정보 접근 유틸리티
- * - 현재 로그인한 사용자의 accountId, profileId, role 조회 지원
+ * - 현재 로그인한 사용자의 accountId, profileId, companyId, adminId, role 조회 지원
  */
 @Component
 @RequiredArgsConstructor
@@ -73,25 +73,82 @@ public class SecurityUtil {
     }
 
     /**
-     * 주어진 accountId를 기준으로 회원 유형(Role) 조회
-     * - PERSONAL, BUSINESS, SUPER, ADMIN 중 하나
+     * 현재 로그인한 사용자의 companyId 가져오기
+     * - 기업회원(BUSINESS)만 존재 (개인회원, 관리자 없음)
      *
-     * @param accountId 사용자 계정 ID
-     * @return Role enum 값
-     * @throws NotFoundException 계정이나 관리자 정보를 찾을 수 없는 경우
+     * @param accountRepository AccountRepository (DB 조회용)
+     * @return companyId
+     * @throws NotFoundException 인증 정보가 없거나 companyId가 없는 경우
      */
-    public Role getUserRole(Long accountId) {
+    public static Long getCompanyId(AccountRepository accountRepository) {
+        Long accountId = getAccountId();
         Account account = accountRepository.findById(accountId)
-            .orElseThrow(() -> new NotFoundException("사용자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("계정을 찾을 수 없습니다."));
 
-        if (account.getAccountType() == Account.AccountType.PERSONAL) {
-            return Role.PERSONAL;
-        } else if (account.getAccountType() == Account.AccountType.BUSINESS) {
-            return Role.BUSINESS;
-        } else {
-            // 관리자 권한 조회
-            Admin admin = adminRepository.findByEmail(account.getEmail())
-                .orElseThrow(() -> new NotFoundException("관리자 계정을 찾을 수 없습니다."));
+        if (account.getAccountType() != Account.AccountType.BUSINESS) {
+            throw new NotFoundException("기업 회원이 아닙니다.");
+        }
+
+        if (account.getCompany() == null) {
+            throw new NotFoundException("소속 회사 정보(company)가 없습니다.");
+        }
+
+        return account.getCompany().getId();
+    }
+
+    /**
+     * 현재 로그인한 관리자의 adminId 가져오기
+     * - 관리자(SUPER, ADMIN)만 호출 가능
+     *
+     * @return adminId
+     * @throws NotFoundException 인증 정보가 없거나 관리자 권한이 아닌 경우
+     */
+    public static Long getAdminId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal)) {
+            throw new NotFoundException("인증 정보가 없습니다.");
+        }
+
+        CustomUserPrincipal principal = (CustomUserPrincipal) auth.getPrincipal();
+
+        if (principal.getRole() != Role.ADMIN && principal.getRole() != Role.SUPER) {
+            throw new NotFoundException("관리자 권한이 아닙니다.");
+        }
+
+        return principal.getAccountId(); // 관리자 토큰의 경우 이 값이 adminId 역할을 함
+    }
+
+    /**
+     * 현재 로그인한 사용자의 Role 가져오기
+     * - PERSONAL, BUSINESS는 account 테이블 조회
+     * - ADMIN, SUPER는 admin 테이블 조회
+     */
+    public Role getUserRole() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal)) {
+            throw new NotFoundException("인증 정보가 없습니다.");
+        }
+
+        CustomUserPrincipal principal = (CustomUserPrincipal) auth.getPrincipal();
+        Role role = principal.getRole();
+
+        if (role == Role.PERSONAL || role == Role.BUSINESS) {
+            // accountId로 account 테이블 조회
+            Account account = accountRepository.findById(principal.getAccountId())
+                    .orElseThrow(() -> new NotFoundException("사용자 정보를 찾을 수 없습니다."));
+
+            if (account.getAccountType() == Account.AccountType.PERSONAL) {
+                return Role.PERSONAL;
+            } else if (account.getAccountType() == Account.AccountType.BUSINESS) {
+                return Role.BUSINESS;
+            } else {
+                throw new IllegalStateException("알 수 없는 회원 유형입니다.");
+            }
+        } else if (role == Role.ADMIN || role == Role.SUPER) {
+            // 관리자면 admin 테이블 조회
+            Admin admin = adminRepository.findById(principal.getAccountId())
+                    .orElseThrow(() -> new NotFoundException("관리자 계정을 찾을 수 없습니다."));
 
             if (admin.getRole() == Admin.Role.SUPER) {
                 return Role.SUPER;
@@ -100,6 +157,9 @@ public class SecurityUtil {
             } else {
                 throw new IllegalStateException("알 수 없는 관리자 권한입니다.");
             }
+        } else {
+            throw new IllegalStateException("알 수 없는 사용자 역할입니다.");
         }
     }
+
 }
