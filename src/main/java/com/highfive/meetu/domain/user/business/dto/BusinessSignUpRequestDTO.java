@@ -12,56 +12,69 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class BusinessSignUpRequestDTO {
-    // Account
-    private String email;
-    private String password;
-    private String phone;
-    private String name;
-    private LocalDate birthday;
 
-    // Company
-    private String businessNumber;
-    private String companyName;
-    private String address;
-    private String industry;
-    private LocalDate foundedDate;
-    private Integer numEmployees;
-    private Long revenue;
-    private String website;
-    private String logoKey;
-    
-    // 상태값
-    private Integer status;
+  // Account 관련
+  private String userId;
+  private String email;
+  private String password;
+  private String phone;
+  private String name;
+  private LocalDate birthday;
+  private String position; // 기업 담당자 직책
+  private String businessFileKey;
+  private String businessFileName;
 
-    // Company 생성
-    public Company toCompany() {
-        return Company.builder()
-            .businessNumber(businessNumber)
-            .name(companyName)
-            .address(address)
-            .industry(industry)
-            .foundedDate(foundedDate)
-            .numEmployees(numEmployees)
-            .revenue(revenue)
-            .website(website)
-            .logoKey(logoKey)
-            .status(status != null ? status : Status.WAITING)
-            .build();
-    }
+  // Company 관련
+  private String businessNumber;
+  private String companyName;
+  private String address;
+  private String industry;
+  private LocalDate foundedDate;
+  private Integer numEmployees;
+  private Long revenue;
+  private String website;
+  private String logoKey;
 
-    // Account 생성
-    public Account toAccount(String encodedPassword, Company company) {
-        return Account.builder()
-            .email(email)
-            .password(encodedPassword)
-            .name(name)
-            .phone(phone)
-            .birthday(birthday)
-            .accountType(1) // 기업 회원
-            .status(status != null ? status : Status.WAITING)
-            .company(company)
-            .build();
-    }
+  // 약관 동의
+  private Boolean serviceConsent;
+  private Boolean privacyConsent;
+
+  // 상태
+  private Integer status;
+
+  // Company 엔티티로 변환
+  public Company toCompany() {
+    return Company.builder()
+        .businessNumber(businessNumber)
+        .name(companyName)
+        .address(address)
+        .industry(industry)
+        .foundedDate(foundedDate)
+        .numEmployees(numEmployees != null ? numEmployees : 0)
+        .revenue(revenue != null ? revenue : 0L)
+        .website(website)
+        .logoKey(logoKey)
+        .status(status != null ? status : Status.WAITING)
+        .build();
+  }
+
+  // Account 엔티티로 변환
+  public Account toAccount(String encodedPassword, Company company) {
+    return Account.builder()
+        .userId(userId)
+        .email(email)
+        .password(encodedPassword)
+        .name(name)
+        .phone(phone)
+        .birthday(birthday)
+        .position(position)
+        .accountType(Account.AccountType.BUSINESS)
+        .status(status != null ? status : Status.WAITING)
+        .businessFileKey(businessFileKey)
+        .businessFileName(businessFileName)
+        .company(company)
+        .build();
+  }
 
     // Entity → DTO 변환
     public static BusinessSignUpRequestDTO from(Account account, Company company) {
