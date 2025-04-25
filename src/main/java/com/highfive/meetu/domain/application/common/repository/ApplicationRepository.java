@@ -52,21 +52,14 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
         FROM application a
         WHERE a.status = 1 AND a.createdAt < :start
     """)
-    long countInProgressApplicationsPrevious(@Param("start") LocalDateTime start); // 이전 서류 합격 건수
+    long countAcceptedApplicationsPrevious(@Param("start") LocalDateTime start); // 이전 서류 합격 건수
 
     @Query("""
         SELECT COUNT(a.id)
         FROM application a
         WHERE a.status = 2 AND a.createdAt < :start
     """)
-    long countAcceptedApplicationsPrevious(@Param("start") LocalDateTime start); // 이전 면접 합격 건수
-
-    @Query("""
-        SELECT COUNT(a.id)
-        FROM application a
-        WHERE a.status = 3 AND a.createdAt < :start
-    """)
-    long countRejectedApplicationsPrevious(@Param("start") LocalDateTime start); // 이전 최종 불합격 건수
+    long countRejectedApplicationsPrevious(@Param("start") LocalDateTime start); // 이전 서류 불합격 건수
 
     /**
      * 대시보드 통계
@@ -83,21 +76,14 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
         FROM application a
         WHERE a.status = 1
     """)
-    long countInProgressApplications(); // 서류 합격 건수
+    long countAcceptedApplications(); // 서류 합격 건수
 
     @Query("""
         SELECT COUNT(a.id)
         FROM application a
         WHERE a.status = 2
     """)
-    long countAcceptedApplications(); // 면접 합격 건수
-
-    @Query("""
-        SELECT COUNT(a.id)
-        FROM application a
-        WHERE a.status = 3
-    """)
-    long countRejectedApplications(); // 최종 합격 건수
+    long countRejectedApplications(); // 서류 불합격 건수
 
     /**
      * 지원자 연령대 통계
@@ -155,4 +141,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
         ORDER BY FIELD(timeSlot, '오전', '1-3시', '4-7시', '8-11시', '12-3시', '3시 이후')
         """, nativeQuery = true)
     List<Object[]> findApplicationTimeStatsRaw();
+
+    /**
+     * 지원 추이(오늘 날짜로부터 14일 전까지)
+     */
+    @Query("""
+        SELECT 
+            DATE(a.createdAt) AS date,
+            COUNT(a.id) AS totalApplications,
+            SUM(CASE WHEN a.status = 1 THEN 1 ELSE 0 END) AS acceptedApplications,
+            SUM(CASE WHEN a.status = 2 THEN 1 ELSE 0 END) AS rejectedApplications
+        FROM application a
+        WHERE a.createdAt >= :start AND a.createdAt <= :end AND a.status != 4
+        GROUP BY DATE(a.createdAt)
+        ORDER BY DATE(a.createdAt)
+    """)
+    List<Object[]> findDailyApplicationStats(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

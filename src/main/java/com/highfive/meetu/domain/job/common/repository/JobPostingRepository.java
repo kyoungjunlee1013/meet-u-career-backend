@@ -292,4 +292,15 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
         LIMIT 15
         """, nativeQuery = true)
     List<Object[]> findTopKeywordsRaw();
+
+    /**
+     * 지역별 채용공고 수 조회
+     */
+    @Query("""
+        SELECT l.province, COUNT(j.id)
+        FROM jobPosting j
+        JOIN location l ON j.location.id = l.id
+        GROUP BY l.province
+    """)
+    List<Object[]> countJobPostingsByLocation();
 }

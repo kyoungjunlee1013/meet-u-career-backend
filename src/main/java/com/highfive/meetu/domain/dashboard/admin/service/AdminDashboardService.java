@@ -68,16 +68,6 @@ public class AdminDashboardService {
             .map(row -> new MonthlyJobPostingCountDTO(Integer.parseInt(((String) row[0]).substring(5)) + "월", (Long) row[1]))
             .toList();
 
-        // 카테고리 분포
-        List<JobCategoryCountDTO> jobCategoryChart = jobPostingRepository.countJobPostingsByCategory().stream()
-            .map(row -> new JobCategoryCountDTO((String) row[0], (Long) row[1]))
-            .toList();
-
-        // 직무별 공고 수
-        List<JobCategoryCountDTO> jobCategoryPostings = jobPostingRepository.countJobPostingsByJobCategory().stream()
-            .map(row -> new JobCategoryCountDTO((String) row[0], (Long) row[1]))
-            .toList();
-
         // 상위 기업별 공고 수
         List<TopCompanyJobPostingsDTO> topCompanies = jobPostingRepository.countTopCompaniesJobPostings(2).stream()
             .map(row -> new TopCompanyJobPostingsDTO((String) row[0], (Long) row[1]))
@@ -99,17 +89,21 @@ public class AdminDashboardService {
         double avgDays = Optional.ofNullable(jobPostingRepository.findAveragePostingDays()).orElse(0.0);
         JobPostingStatisticsDTO jobPostingStatistics = new JobPostingStatisticsDTO(active, expired, draft, avgView, avgApply, avgDays);
 
+        // 지역별 채용공고 수
+        List<LocationJobPostingStatsDTO> locationStatistics =  jobPostingRepository.countJobPostingsByLocation().stream()
+            .map(row -> new LocationJobPostingStatsDTO((String) row[0], (Long) row[1]))  // 지역명, 공고 수
+            .toList();
+
         return new JobPostingStats(
             totalJobPostings,
             activeJobPostings,
             participatingCompanies,
             totalViews,
             jobPostingGrowthChart,
-            jobCategoryChart,
-            jobCategoryPostings,
             jobPostingStatistics,
             popularKeywordJobPostings,
-            topCompanies
+            topCompanies,
+            locationStatistics
         );
     }
 
@@ -122,29 +116,36 @@ public class AdminDashboardService {
 
         // 지원 건수 관련 메트릭
         DashboardMetricDTO totalApplications = build(applicationRepository.countTotalApplications(), 0);
-        DashboardMetricDTO inProgressApplications = build(applicationRepository.countInProgressApplications(), 0);
         DashboardMetricDTO acceptedApplications = build(applicationRepository.countAcceptedApplications(), 0);
         DashboardMetricDTO rejectedApplications = build(applicationRepository.countRejectedApplications(), 0);
 
-        // 지원 추이 (현재 vs 전월)
-        List<DashboardMetricDTO> applicationTrends = List.of(
-            build(applicationRepository.countTotalApplications(), applicationRepository.countTotalApplicationsPrevious(previousStart)),
-            build(applicationRepository.countInProgressApplications(), applicationRepository.countInProgressApplicationsPrevious(previousStart)),
-            build(applicationRepository.countAcceptedApplications(), applicationRepository.countAcceptedApplicationsPrevious(previousStart)),
-            build(applicationRepository.countRejectedApplications(), applicationRepository.countRejectedApplicationsPrevious(previousStart))
-        );
-
-        // 지원 전환율
-        List<ConversionRateDTO> conversionRates = List.of(
-            new ConversionRateDTO("공고 조회 → 지원", calculateConversionRate(applicationRepository.countTotalApplications(), applicationRepository.countInProgressApplications())),
-            new ConversionRateDTO("지원 → 서류 합격", calculateConversionRate(applicationRepository.countInProgressApplications(), applicationRepository.countAcceptedApplications())),
-            new ConversionRateDTO("서류 합격 → 면접 합격", calculateConversionRate(applicationRepository.countAcceptedApplications(), applicationRepository.countRejectedApplications())),
-            new ConversionRateDTO("면접 합격 → 최종 합격", calculateConversionRate(applicationRepository.countTotalApplications(), applicationRepository.countRejectedApplications()))
-        );
+        // 최근 2주간 일별 지원 추이
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime start = today.minusWeeks(2);
+        LocalDateTime end = today.plusDays(1).minusNanos(1); // 오늘의 23:59:59
+        List<DailyApplicationStatsDTO> applicationTrends = applicationRepository.findDailyApplicationStats(start, end)
+            .stream()
+            .map(row -> new DailyApplicationStatsDTO(
+                ((java.sql.Date) row[0]).toLocalDate(),
+                ((Number) row[1]).longValue(),  // totalApplications
+                ((Number) row[2]).longValue(),  // acceptedApplications
+                ((Number) row[3]).longValue()   // rejectedApplications
+            ))
+            .toList();
 
         // 연령대 분포
         List<AgeGroupDTO> applicantAgeGroupChart = applicationRepository.countApplicantsByAgeGroup().stream()
             .map(row -> new AgeGroupDTO((String) row[0], (Long) row[1]))
+            .toList();
+
+        // 카테고리 분포
+        List<JobCategoryCountDTO> jobCategoryChart = jobPostingRepository.countJobPostingsByCategory().stream()
+            .map(row -> new JobCategoryCountDTO((String) row[0], (Long) row[1]))
+            .toList();
+
+        // 직무별 공고 수
+        List<JobCategoryCountDTO> jobCategoryPostings = jobPostingRepository.countJobPostingsByJobCategory().stream()
+            .map(row -> new JobCategoryCountDTO((String) row[0], (Long) row[1]))
             .toList();
 
         // 지원자 많은 상위 5개 기업
@@ -163,13 +164,13 @@ public class AdminDashboardService {
 
         return new ApplicationStats(
             totalApplications,
-            inProgressApplications,
             acceptedApplications,
             rejectedApplications,
             applicationTrends,
-            conversionRates,
             applicantAgeGroupChart,
             top5Companies,
+            jobCategoryChart,
+            jobCategoryPostings,
             applicationTimeStats
         );
     }
