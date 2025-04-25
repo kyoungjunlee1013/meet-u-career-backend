@@ -22,6 +22,8 @@ import java.util.Date;
 
 /**
  * JWT 생성 및 파싱 관리
+ * - 사용자/관리자별 AccessToken, RefreshToken 발급
+ * - Claim: accountId/adminId, profileId(선택), role 포함
  */
 @Component
 @RequiredArgsConstructor
@@ -40,30 +42,47 @@ public class JwtProvider {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    // JWT 서명용 Key 생성
+    /**
+     * 서명 키 반환 (HMAC-SHA256용 Key)
+     */
     private Key getSigningKey() {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     /**
-     * Access Token 발급
+     * 개인/기업 회원용 AccessToken 발급
      */
     public String generateAccessToken(Long accountId) {
-        return generateToken(accountId, accessTokenExpiration);
+        return generateUserToken(accountId, accessTokenExpiration);
     }
 
     /**
-     * Refresh Token 발급
+     * 개인/기업 회원용 RefreshToken 발급
      */
     public String generateRefreshToken(Long accountId) {
-        return generateToken(accountId, refreshTokenExpiration);
+        return generateUserToken(accountId, refreshTokenExpiration);
     }
 
     /**
-     * 공통 토큰 생성 로직
+     * 관리자용 AccessToken 발급
      */
-    private String generateToken(Long accountId, long expiration) {
+    public String generateAdminAccessToken(Long adminId) {
+        return generateAdminToken(adminId, accessTokenExpiration);
+    }
+
+    /**
+     * 관리자용 RefreshToken 발급
+     */
+    public String generateAdminRefreshToken(Long adminId) {
+        return generateAdminToken(adminId, refreshTokenExpiration);
+    }
+
+    /**
+     * 개인/기업 회원용 JWT 생성
+     * - accountId, role, profileId 포함
+     */
+    private String generateUserToken(Long accountId, long expiration) {
         Account account = accountRepository.findById(accountId)
             .orElseThrow(() -> new NotFoundException("계정을 찾을 수 없습니다."));
 
@@ -81,14 +100,36 @@ public class JwtProvider {
             .compact();
     }
 
-    // 회원의 Role 확인
+    /**
+     * 관리자용 JWT 생성
+     * - adminId, role 포함 (profileId 없음)
+     */
+    private String generateAdminToken(Long adminId, long expiration) {
+        Admin admin = adminRepository.findById(adminId)
+            .orElseThrow(() -> new NotFoundException("관리자 계정을 찾을 수 없습니다."));
+
+        Role role = admin.getRole() == Admin.Role.SUPER ? Role.SUPER : Role.ADMIN;
+
+        return Jwts.builder()
+            .setSubject(adminId.toString())
+            .claim("accountId", adminId)
+            .claim("role", role.name())
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + expiration))
+            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+            .compact();
+    }
+
+    /**
+     * 계정에서 role 추출
+     */
     private String getRoleForAccount(Account account) {
         if (account.getAccountType() == Account.AccountType.PERSONAL) {
             return Role.PERSONAL.name();
         } else if (account.getAccountType() == Account.AccountType.BUSINESS) {
             return Role.BUSINESS.name();
         } else {
-            // 관리자(Admin 테이블) 조회
+            // 관리자 처리
             Admin admin = adminRepository.findByEmail(account.getEmail())
                 .orElseThrow(() -> new NotFoundException("관리자 계정을 찾을 수 없습니다."));
 
@@ -102,7 +143,9 @@ public class JwtProvider {
         }
     }
 
-    // 개인회원만 profileId 반환
+    /**
+     * 개인회원인 경우 profileId 추출
+     */
     private Long getProfileIdForAccount(Account account) {
         if (account.getAccountType() != Account.AccountType.PERSONAL) return null;
 
@@ -112,7 +155,7 @@ public class JwtProvider {
     }
 
     /**
-     * 토큰에서 단순 accountId 추출
+     * JWT에서 accountId/adminId 추출 (subject 기반)
      */
     public Long parseToken(String token) {
         return Long.valueOf(Jwts.parserBuilder()
@@ -124,7 +167,7 @@ public class JwtProvider {
     }
 
     /**
-     * 토큰에서 Claims 전체 추출
+     * JWT에서 Claim 전체 추출
      */
     public Claims parseClaims(String token) {
         return Jwts.parserBuilder()
@@ -135,14 +178,14 @@ public class JwtProvider {
     }
 
     /**
-     * AccessToken 유효기간 조회
+     * AccessToken 만료 시간 반환
      */
     public long getAccessTokenExpiration() {
         return accessTokenExpiration;
     }
 
     /**
-     * RefreshToken 유효기간 조회
+     * RefreshToken 만료 시간 반환
      */
     public long getRefreshTokenExpiration() {
         return refreshTokenExpiration;
