@@ -3,7 +3,6 @@ package com.highfive.meetu.domain.community.admin.dto;
 import com.highfive.meetu.domain.community.common.entity.CommunityTag;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter

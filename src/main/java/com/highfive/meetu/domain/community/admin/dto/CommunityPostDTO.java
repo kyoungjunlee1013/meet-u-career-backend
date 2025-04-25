@@ -12,14 +12,18 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class CommunityPostDTO {
+
     private Long id;
     private String title;
     private String content;
+    private Integer status;
+    private String postImageKey;
     private int likeCount;
     private int commentCount;
-    private int status;
+    private Long accountId;
+    private String accountName;
+    private Long tagId;
     private String tagName;
-    private String writerName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -28,11 +32,16 @@ public class CommunityPostDTO {
             .id(post.getId())
             .title(post.getTitle())
             .content(post.getContent())
-            .tagName(post.getTag().getName())
-            .writerName(post.getAccount().getName())
+            .status(post.getStatus())
+            .postImageKey(post.getPostImageKey())
             .likeCount(post.getLikeCount())
             .commentCount(post.getCommentCount())
-            .status(post.getStatus())
+            .accountId(post.getAccount().getId())
+            .accountName(post.getAccount().getName())
+            .tagId(post.getTag().getId())
+            .tagName(post.getTag().getName())
+            .createdAt(post.getCreatedAt())
+            .updatedAt(post.getUpdatedAt())
             .build();
     }
 }

@@ -18,9 +18,13 @@ public class CommunityCommentDTO {
     private Integer status;
     private Long postId;
     private Long accountId;
+    private String accountName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    /**
+     * CommunityComment → DTO 변환
+     */
     public static CommunityCommentDTO fromEntity(CommunityComment comment) {
         return CommunityCommentDTO.builder()
             .id(comment.getId())
@@ -28,8 +32,13 @@ public class CommunityCommentDTO {
             .status(comment.getStatus())
             .postId(comment.getPost().getId())
             .accountId(comment.getAccount().getId())
+            .accountName(comment.getAccount().getName())
             .createdAt(comment.getCreatedAt())
             .updatedAt(comment.getUpdatedAt())
             .build();
+    }
+
+    public static CommunityCommentDTO from(CommunityComment comment) {
+        return fromEntity(comment);
     }
 }
