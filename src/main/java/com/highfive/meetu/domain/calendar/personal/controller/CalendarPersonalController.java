@@ -26,6 +26,7 @@ public class CalendarPersonalController {
             // 로그인 상태 → 내 전체 일정 (개인회원, 기업회원 동일 방식)
             //Long accountId = SecurityUtil.getAccountId();
             Long accountId = 2L;
+            //Long accountId = null;
             List<CalendarPersonalDTO> schedules = calendarPersonalService.getFullScheduleForAccount(accountId);
             return ResultData.success(schedules.size(), schedules);
 
