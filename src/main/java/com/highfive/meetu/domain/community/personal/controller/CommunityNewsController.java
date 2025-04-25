@@ -18,7 +18,7 @@ public class CommunityNewsController {
 
   private final CommunityNewsService communityNewsService;
 
-// 태그 id로 해시태그를 받아와서, 해시태그 키워드로 뉴스목록을 받아옴
+  // 태그 id로 해시태그를 받아와서, 해시태그 키워드로 뉴스목록을 받아옴
   @GetMapping("/{tagId}")
   public ResultData<List<CommunityNewsDTO>> getNewsByTag(
       @PathVariable Long tagId,
