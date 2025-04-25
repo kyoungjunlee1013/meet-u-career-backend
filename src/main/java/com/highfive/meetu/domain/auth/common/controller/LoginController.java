@@ -24,16 +24,24 @@ public class LoginController {
      */
     @PostMapping("/personal/auth/login")
     public ResponseEntity<ResultData<LoginResponseDTO>> personalLogin(@RequestBody LoginRequestDTO dto) {
-        return loginService.login(dto, 0);
+        return loginService.userLogin(dto);
     }
 
+    /**
+     * 기업 로그인 요청
+     * - AccessToken, RefreshToken 발급
+     */
+    @PostMapping("/business/auth/login")
+    public ResponseEntity<ResultData<LoginResponseDTO>> businessLogin(@RequestBody LoginRequestDTO dto) {
+        return loginService.businessLogin(dto);
+    }
 
-  /**
-   * 기업 로그인 요청
-   * - AccessToken, RefreshToken 발급
-   */
-  @PostMapping("/business/auth/login")
-  public ResponseEntity<ResultData<LoginResponseDTO>> businessLogin(@RequestBody LoginRequestDTO dto) {
-    return loginService.login(dto, 1);
-  }
+    /**
+     * 관리자 로그인 요청
+     * - AccessToken, RefreshToken 발급
+     */
+    @PostMapping("/admin/auth/login")
+    public ResponseEntity<ResultData<LoginResponseDTO>> adminLogin(@RequestBody LoginRequestDTO dto) {
+        return loginService.adminLogin(dto);
+    }
 }
