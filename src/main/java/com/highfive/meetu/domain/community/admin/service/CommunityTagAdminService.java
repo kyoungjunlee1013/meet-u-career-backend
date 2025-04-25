@@ -5,12 +5,14 @@ import com.highfive.meetu.domain.community.admin.dto.TagSearchRequestDTO;
 import com.highfive.meetu.domain.community.common.entity.CommunityTag;
 import com.highfive.meetu.domain.community.common.repository.CommunityTagRepository;
 import com.highfive.meetu.global.common.exception.NotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,10 +21,10 @@ public class CommunityTagAdminService {
     private final CommunityTagRepository communityTagRepository;
 
     // 태그 생성
-    public Long createTag(String name) {
+    public Long createTag(String name, int status) {
         CommunityTag tag = CommunityTag.builder()
             .name(name)
-            .status(CommunityTag.Status.ACTIVE)
+            .status(status)
             .build();
         communityTagRepository.save(tag);
         return tag.getId();
@@ -38,6 +40,18 @@ public class CommunityTagAdminService {
             : communityTagRepository.findAllByStatus(request.getStatus(), pageable);
 
         return page.map(CommunityTagDTO::from);
+    }
+
+    // 태그 수정
+    @Transactional
+    public Long updateTag(Long id, String name, int status) {
+        CommunityTag tag = communityTagRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Tag not found"));
+
+        tag.setName(name);
+        tag.setStatus(status);
+
+        return tag.getId();
     }
 
     // 상태 토글 (활성 ↔ 비활성)

@@ -26,7 +26,18 @@ public class CommunityTagAdminController {
      */
     @PostMapping
     public ResultData<Long> createTag(@RequestBody CreateCommunityTagRequest request) {
-        Long tagId = tagService.createTag(request.getName());
+        Long tagId = tagService.createTag(request.getName(), request.getStatus());
+        return ResultData.success(1, tagId);
+    }
+
+    /**
+     * 태그 수정
+     * @param request 태그 수정 요청 DTO
+     * @return 생성된 태그 ID
+     */
+    @PostMapping
+    public ResultData<Long> updateTag(@RequestBody CreateCommunityTagRequest request) {
+        Long tagId = tagService.updateTag(request.getId(), request.getName(), request.getStatus());
         return ResultData.success(1, tagId);
     }
 

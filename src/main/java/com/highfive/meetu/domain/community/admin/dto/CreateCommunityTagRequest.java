@@ -8,5 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 public class CreateCommunityTagRequest {
+    private Long id;
     private String name;
+    private int status;
 }
