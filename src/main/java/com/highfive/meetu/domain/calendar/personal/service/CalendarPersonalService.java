@@ -91,7 +91,7 @@ public class CalendarPersonalService {
 
         // [3] 스크랩 마감 일정
         List<CalendarPersonalDTO> bookmarkSchedules = bookmarkRepository
-                .findByAccount_Id(accountId)
+                .findByProfile_Account_Id(accountId)
                 .stream()
                 .map(bookmark -> {
                     var job = bookmark.getJobPosting();
@@ -112,10 +112,11 @@ public class CalendarPersonalService {
                 .toList();
 
         // [4] 팔로우한 기업의 공고 일정 (접수 시작/마감)
-        List<Long> companyIds = companyFollowRepository.findByAccount_Id(accountId)
+        List<Long> companyIds = companyFollowRepository.findByProfile_Account_Id(accountId)
                 .stream()
                 .map(f -> f.getCompany().getId())
                 .toList();
+
 
         List<CalendarPersonalDTO> companyJobSchedules = Collections.emptyList();
 

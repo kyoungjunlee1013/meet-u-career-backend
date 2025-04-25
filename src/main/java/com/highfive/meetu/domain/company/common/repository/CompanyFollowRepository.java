@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface CompanyFollowRepository extends JpaRepository<CompanyFollow, Long> {
 
-    List<CompanyFollow> findByAccount_Id(Long accountId);
+    List<CompanyFollow> findByProfile_Account_Id(Long accountId);
 
     /**
      * 특정 회사에 대해 팔로우한 사용자의 수 조회

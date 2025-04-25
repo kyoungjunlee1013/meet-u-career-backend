@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
-    List<Bookmark> findByAccount_Id(Long accountId);
+    List<Bookmark> findByProfile_Account_Id(Long accountId);
 
     /**
      * 특정 공고를 북마크한 사용자 수 조회
