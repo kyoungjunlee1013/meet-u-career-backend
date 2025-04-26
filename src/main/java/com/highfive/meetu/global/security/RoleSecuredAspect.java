@@ -30,7 +30,7 @@ public class RoleSecuredAspect {
 
         // 사용자 Role이 허용된 Role 안에 포함되어 있는지 확인
         boolean hasPermission = Arrays.stream(allowedRoles)
-            .anyMatch(role -> role.equals(userRole.name()));
+                .anyMatch(role -> role.equals(userRole.name()));
 
         if (!hasPermission) {
             throw new ForbiddenException("접근 권한이 없습니다.");

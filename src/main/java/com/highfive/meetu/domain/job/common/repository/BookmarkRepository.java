@@ -7,10 +7,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 import java.util.Optional;
 
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
+
+  int countByProfile_Id(Long profileId); // ✅ 'profile' 필드 기준으로 정상 동작
+
+    List<Bookmark> findByProfile_Account_Id(Long accountId);
 
     /**
      * 특정 공고를 북마크한 사용자 수 조회

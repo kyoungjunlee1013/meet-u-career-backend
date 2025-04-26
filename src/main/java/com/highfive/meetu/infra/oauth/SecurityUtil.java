@@ -122,7 +122,7 @@ public class SecurityUtil {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal)) {
-            throw new NotFoundException("인증 정보가 없습니다. (4)");
+            throw new NotFoundException("인증 정보가 없습니다.");
         }
 
         CustomUserPrincipal principal = (CustomUserPrincipal) auth.getPrincipal();
@@ -142,7 +142,7 @@ public class SecurityUtil {
     public Role getUserRole() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal)) {
-            throw new NotFoundException("인증 정보가 없습니다. (5)");
+            throw new NotFoundException("인증 정보가 없습니다.");
         }
 
         CustomUserPrincipal principal = (CustomUserPrincipal) auth.getPrincipal();
