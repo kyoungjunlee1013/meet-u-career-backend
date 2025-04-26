@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +25,18 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
 
   // 특정 기업이 등록한 모든 채용공고 조회
   List<JobPosting> findByCompanyId(Long companyId);
+    /**
+     * 활성 상태인 공고 중 마감일이 가까운 순으로 10개 조회 (비회원용)
+     */
+    List<JobPosting> findTop10ByExpirationDateAfterAndStatusOrderByExpirationDateAsc(
+            LocalDateTime now, int status
+    );
+
+    List<JobPosting> findByCompany_IdInAndStatus(List<Long> companyIds, int status);
+
+    // 특정 기업회원이 속한 기업이 등록한 공고
+    List<JobPosting> findByCompany_IdAndStatus(Long companyId, Integer status);
+
     /**
      * 인기 공고 조회 (조회수 기준 내림차순)
      *

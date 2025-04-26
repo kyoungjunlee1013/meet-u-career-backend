@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ResumeViewLogRepository extends JpaRepository<ResumeViewLog, Long> {
 
+    int countByResumeId(Long resumeId);
 }

@@ -37,4 +37,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
     }
     return map;
   }
+    // 일정 관리 기능 관련
+    List<Application> findByProfile_Account_Id(Long accountId);
 }
