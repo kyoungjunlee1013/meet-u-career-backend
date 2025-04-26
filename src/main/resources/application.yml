@@ -49,3 +49,12 @@ springdoc:
 logging:
   level:
     root: INFO               # 전체 로그 레벨 설정 (DEBUG, INFO, WARN, ERROR 등)
+
+api:
+  jwt:
+    secret: meetu-super-secret-key-2025-change-to-something-longer-very-safe
+    access-token-expiration: 3600000
+    refresh-token-expiration: 604800000
+    passwordReset:
+      expiration: 600000
+
