@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -34,13 +35,16 @@ public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepositor
         QJobPosting job = QJobPosting.jobPosting;
         QLocation loc = QLocation.location;
 
+        LocalDate today = LocalDate.now();
+
         // 공통 where 절
         BooleanExpression whereClause = job.isNotNull()
                 .and(eqIndustry(industry, job))
                 .and(eqExperience(exp, job))
                 .and(eqEducation(edu, job))
                 .and(eqLocation(locationCodes, loc))
-                .and(eqKeyword(keyword, job));
+                .and(eqKeyword(keyword, job))
+                .and(job.expirationDate.goe(today.atStartOfDay()));
 
         // 정렬 조건
         OrderSpecifier<?> orderSpecifier;
@@ -49,7 +53,7 @@ public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepositor
                 orderSpecifier = job.viewCount.desc();
                 break;
             case "recommended":
-                orderSpecifier = job.expirationDate.desc();
+                orderSpecifier = job.expirationDate.asc();
                 break;
             default:
                 orderSpecifier = job.createdAt.desc();
