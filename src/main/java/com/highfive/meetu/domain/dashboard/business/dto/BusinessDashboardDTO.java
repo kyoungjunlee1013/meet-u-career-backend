@@ -58,4 +58,5 @@ public class BusinessDashboardDTO {
         .jobPostings(postings)
         .build();
   }
+
 }
