@@ -22,10 +22,7 @@ public class CommunityCommentDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    /**
-     * CommunityComment → DTO 변환
-     */
-    public static CommunityCommentDTO fromEntity(CommunityComment comment) {
+    public static CommunityCommentDTO from(CommunityComment comment) {
         return CommunityCommentDTO.builder()
             .id(comment.getId())
             .content(comment.getContent())
@@ -36,9 +33,5 @@ public class CommunityCommentDTO {
             .createdAt(comment.getCreatedAt())
             .updatedAt(comment.getUpdatedAt())
             .build();
-    }
-
-    public static CommunityCommentDTO from(CommunityComment comment) {
-        return fromEntity(comment);
     }
 }
