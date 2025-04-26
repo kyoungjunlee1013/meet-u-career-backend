@@ -29,6 +29,20 @@ public class S3Service {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
+
+    /**
+     * S3에 저장된 이미지 Key를 기반으로 Presigned URL 생성
+     *
+     * @param key : 이미지가 저장된 S3 Key (예: "profile/uuid_파일명.jpg")
+     *            → DB에서 가져온 profileImageKey, logoKey 등
+     * @return    : 1시간 동안 유효한 접근 가능한 Presigned URL (null 가능성 있음)
+     */
+    public String getImageUrl(String key) {
+        if (key == null || key.isBlank()) return null;
+        return generatePresignedUrl(key, DEFAULT_EXPIRATION); // 1시간 유효 Presigned URL
+    }
+
+
     /**
      * S3에 파일 업로드 (private 업로드)
      * @param file MultipartFile
@@ -53,6 +67,7 @@ public class S3Service {
             throw new BadRequestException("S3 업로드 실패: " + e.getMessage());
         }
     }
+
 
     /**
      * Presigned URL 생성 (1시간 고정)
