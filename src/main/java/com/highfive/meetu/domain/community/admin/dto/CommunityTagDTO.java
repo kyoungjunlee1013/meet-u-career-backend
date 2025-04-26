@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
+@Builder
 public class CommunityTagDTO {
     private Long id;
     private String name;
@@ -15,6 +16,12 @@ public class CommunityTagDTO {
     private Integer status;
 
     public static CommunityTagDTO from(CommunityTag tag) {
-        return new CommunityTagDTO(tag.getId(), tag.getName(), tag.getCreatedAt(), tag.getUpdatedAt(), tag.getStatus());
+        return CommunityTagDTO.builder()
+            .id(tag.getId())
+            .name(tag.getName())
+            .createdAt(tag.getCreatedAt())
+            .updatedAt(tag.getUpdatedAt())
+            .status(tag.getStatus())
+            .build();
     }
 }

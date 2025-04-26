@@ -14,6 +14,8 @@ import java.util.Optional;
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
+  int countByProfile_Id(Long profileId); // ✅ 'profile' 필드 기준으로 정상 동작
+
     List<Bookmark> findByProfile_Account_Id(Long accountId);
 
     /**
