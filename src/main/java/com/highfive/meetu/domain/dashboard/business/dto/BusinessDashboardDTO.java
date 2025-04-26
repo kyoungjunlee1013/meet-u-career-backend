@@ -1,7 +1,11 @@
 package com.highfive.meetu.domain.dashboard.business.dto;
 
 import com.highfive.meetu.domain.company.common.entity.Company;
-import lombok.*;
+import com.highfive.meetu.domain.dashboard.business.dto.JobPostingSimpleDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
@@ -45,7 +49,7 @@ public class BusinessDashboardDTO {
         .companyName(company.getName())
         .industry(company.getIndustry())
         .address(company.getAddress())
-        .foundedDate(company.getFoundedDate().toString())
+        .foundedDate(company.getFoundedDate() != null ? company.getFoundedDate().toString() : null)
         .employeeScale(company.getNumEmployees() + "명")
         .totalJobPostings(total)
         .activeJobPostings(active)
@@ -58,5 +62,4 @@ public class BusinessDashboardDTO {
         .jobPostings(postings)
         .build();
   }
-
 }
