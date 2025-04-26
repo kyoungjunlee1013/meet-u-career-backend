@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminController {
-
     /**
      * 일반 관리자, 슈퍼 관리자 모두 접근 가능한 대시보드
      */
