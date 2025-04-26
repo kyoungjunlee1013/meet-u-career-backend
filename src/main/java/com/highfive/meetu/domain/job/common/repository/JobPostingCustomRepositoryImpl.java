@@ -3,51 +3,46 @@ package com.highfive.meetu.domain.job.common.repository;
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
 import com.highfive.meetu.domain.job.common.entity.QLocation;
 import com.highfive.meetu.domain.job.common.entity.QJobPosting;
-import com.highfive.meetu.domain.job.common.repository.JobPostingCustomRepository;
-import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public JobPostingCustomRepositoryImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
-
-    /**
-     * industry(직무), exp(경력), edu(학력), locationCode(지역),
-     * keyword(키워드 포함 검색), sort(newest|popular|recommended)
-     */
     @Override
-    public List<JobPosting> searchByFilters(
+    public Page<JobPosting> searchByFilters(
             List<String> industry,
             Integer exp,
             Integer edu,
             List<String> locationCodes,
             String keyword,
-            String sort
+            String sort,
+            Pageable pageable
     ) {
         QJobPosting job = QJobPosting.jobPosting;
         QLocation loc = QLocation.location;
 
         // 공통 where 절
-        BooleanExpression whereClause = job.isNotNull()  // 항상 true
+        BooleanExpression whereClause = job.isNotNull()
                 .and(eqIndustry(industry, job))
                 .and(eqExperience(exp, job))
                 .and(eqEducation(edu, job))
                 .and(eqLocation(locationCodes, loc))
                 .and(eqKeyword(keyword, job));
 
-        // 정렬 지정
+        // 정렬 조건
         OrderSpecifier<?> orderSpecifier;
         switch (sort != null ? sort : "") {
             case "popular":
@@ -60,20 +55,33 @@ public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepositor
                 orderSpecifier = job.createdAt.desc();
         }
 
-        return queryFactory
+        // 데이터 조회 (with 페이징)
+        List<JobPosting> content = queryFactory
                 .selectFrom(job)
                 .leftJoin(job.location, loc).fetchJoin()
                 .where(whereClause)
                 .orderBy(orderSpecifier)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
+
+        // count 쿼리 별도 실행
+        Long total = queryFactory
+                .select(job.count())
+                .from(job)
+                .where(whereClause)
+                .fetchOne();
+
+        return PageableExecutionUtils.getPage(content, pageable, () -> total != null ? total : 0);
     }
+
+    // ------------------------- where 조건 메서드 -------------------------
 
     private BooleanExpression eqIndustry(List<String> industryList, QJobPosting job) {
         return (industryList != null && !industryList.isEmpty())
                 ? job.industry.in(industryList)
                 : null;
     }
-
 
     private BooleanExpression eqExperience(Integer exp, QJobPosting job) {
         return exp != null
@@ -94,30 +102,16 @@ public class JobPostingCustomRepositoryImpl implements JobPostingCustomRepositor
     }
 
     private BooleanExpression eqKeyword(String keyword, QJobPosting job) {
-        return keyword != null && !keyword.isBlank()
-                ? job.keyword.like("%" + keyword + "%")
-                : null;
+        if (keyword == null || keyword.isBlank()) {
+            return null;
+        }
+
+        // 검색어 2글자 이상일 때만 적용
+        if (keyword.length() < 2) {
+            return null;
+        }
+
+        return job.keyword.containsIgnoreCase(keyword)
+                .or(job.title.containsIgnoreCase(keyword));
     }
 }
-
-/*
-MySQL 쿼리(예시)
-------------------------------------------------------------
-SELECT jp.*, l.locationCode, l.province, l.city, l.fullLocation
-  FROM job_posting jp
-  LEFT JOIN location l
-    ON jp.locationCode = l.locationCode
- WHERE (:industry    IS NULL OR jp.industry        = :industry)
-   AND (:exp         IS NULL OR jp.experienceLevel = :exp)
-   AND (:edu         IS NULL OR jp.educationLevel  = :edu)
-   AND (:locationCode IS NULL OR l.locationCode     = :locationCode)
-   AND (:keyword     IS NULL OR jp.keyword LIKE CONCAT('%', :keyword, '%'))
- ORDER BY
-   CASE
-     WHEN :sort = 'popular'    THEN jp.viewCount
-     WHEN :sort = 'recommended' THEN jp.applyCount
-     ELSE jp.createdAt
-   END DESC;
-------------------------------------------------------------
-*/
-

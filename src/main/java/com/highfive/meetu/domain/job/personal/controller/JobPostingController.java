@@ -4,7 +4,10 @@ import com.highfive.meetu.domain.job.personal.dto.JobPostingDTO;
 import com.highfive.meetu.domain.job.personal.service.JobPostingService;
 import com.highfive.meetu.global.common.response.ResultData;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -24,8 +27,7 @@ public class JobPostingController {
      * - locationCode       : 지역 코드
      * - keyword            : 키워드 포함 검색
      * - sort               : newest|popular|recommended
-     *
-     * 예) /api/personal/job/list?industry=개발&experienceLevel=1&keyword=Java&sort=popular
+     * - pageable           : 페이징 정보
      */
     @GetMapping("/list")
     public ResultData<List<JobPostingDTO>> list(
@@ -34,20 +36,24 @@ public class JobPostingController {
             @RequestParam(required = false) Integer educationLevel,
             @RequestParam(required = false) List<String> locationCode,
             @RequestParam(required = false) String keyword,
-            @RequestParam(name = "sort", defaultValue = "newest") String sort
+            @RequestParam(name = "sort", defaultValue = "newest") String sort,
+            Pageable pageable
     ) {
-        List<JobPostingDTO> dtos = jobPostingService.searchJobPostings(
-                industry, experienceLevel, educationLevel, locationCode, keyword, sort
+        if (pageable.getPageSize() == 20) {
+            pageable = PageRequest.of(pageable.getPageNumber(), 30);
+        }
+
+        Page<JobPostingDTO> dtos = jobPostingService.searchJobPostings(
+                industry, experienceLevel, educationLevel, locationCode, keyword, sort, pageable
         );
-        return ResultData.success(dtos.size(), dtos);
+        return ResultData.success((int) dtos.getTotalElements(), dtos.getContent());
     }
 
     /**
      * 단일 채용공고 상세 조회
      */
     @GetMapping("/view/{jobPostingId}")
-    public ResultData<JobPostingDTO> view(@PathVariable Long jobPostingId) {
-        JobPostingDTO dto = jobPostingService.getJobPostingDetail(jobPostingId);
-        return ResultData.success(1, dto);
+    public JobPostingDTO view(@PathVariable Long jobPostingId) {
+        return jobPostingService.getJobPostingDetail(jobPostingId);
     }
 }

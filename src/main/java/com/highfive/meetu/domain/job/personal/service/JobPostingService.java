@@ -8,10 +8,11 @@ import com.highfive.meetu.global.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,46 +22,58 @@ public class JobPostingService {
     private final LocationRepository locationRepository;
 
     /**
-     * 통합 검색(필터+키워드+정렬)
-     *
-     * @param industry        산업(직무) 필터 (예: "개발", "마케팅"…)
-     * @param experienceLevel 경력 필터 (예: 0=신입, 1=경력)
-     * @param educationLevel  학력 필터 (예: 0=학력무관, 2=전문대졸…)
-     * @param locationCode    지역코드 필터
-     * @param keyword         키워드 포함 검색 (job.keyword 컬럼)
-     * @param sort            정렬 기준 ("newest"|"popular"|"recommended")
+     * 통합 검색 (필터 + 키워드 + 정렬)
      */
     @Transactional(readOnly = true)
-    public List<JobPostingDTO> searchJobPostings(
-            List<String>industry,
+    public Page<JobPostingDTO> searchJobPostings(
+            List<String> industry,
             Integer experienceLevel,
             Integer educationLevel,
             List<String> locationCode,
             String keyword,
-            String sort
+            String sort,
+            Pageable pageable
     ) {
-        List<String> expandedLocationCodes = expandLocationCodes(locationCode);
-
-        List<JobPosting> postings = jobPostingRepository.searchByFilters(
-                industry,
-                experienceLevel,
-                educationLevel,
-                expandedLocationCodes,
-                keyword,
-                sort
+        Page<JobPosting> jobPostings = jobPostingRepository.searchByFilters(
+                industry, experienceLevel, educationLevel, locationCode, keyword, sort, pageable
         );
-        return postings.stream()
-                .map(JobPostingDTO::fromEntity)
-                .collect(Collectors.toList());
+
+        return jobPostings.map(JobPostingDTO::fromEntity);
     }
 
+
+
+    /**
+     * 전체 목록(기본: 최신순) 조회 (페이지네이션 적용)
+     */
+    @Transactional(readOnly = true)
+    public Page<JobPostingDTO> getJobPostingList(Pageable pageable) {
+        return searchJobPostings(
+                null, null, null, null,
+                null, "newest",
+                pageable
+        );
+    }
+
+    /**
+     * 단일 상세 조회
+     */
+    @Transactional(readOnly = true)
+    public JobPostingDTO getJobPostingDetail(Long jobPostingId) {
+        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 채용공고입니다."));
+        return JobPostingDTO.fromEntity(jobPosting);
+    }
+
+    /**
+     * 시/도 선택 시 시군구까지 확장
+     */
     private List<String> expandLocationCodes(List<String> inputCodes) {
         if (inputCodes == null || inputCodes.isEmpty()) return null;
 
         List<String> expanded = new ArrayList<>();
 
         for (String code : inputCodes) {
-            // 시/도만 선택된 경우 (예: "101000")
             locationRepository.findByLocationCode(code).ifPresent(provinceLoc -> {
                 expanded.add(code); // 본인도 포함
 
@@ -76,27 +89,5 @@ public class JobPostingService {
         }
 
         return expanded;
-    }
-
-    /**
-     * 전체 목록(기본: 최신순) 조회
-     */
-    @Transactional(readOnly = true)
-    public List<JobPostingDTO> getJobPostingList() {
-        // 모두 null + sort=newest 로 호출
-        return searchJobPostings(
-                null, null, null, null,
-                null, "newest"
-        );
-    }
-
-    /**
-     * 단일 상세 조회
-     */
-    @Transactional(readOnly = true)
-    public JobPostingDTO getJobPostingDetail(Long jobPostingId) {
-        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
-                .orElseThrow(() -> new NotFoundException("채용공고를 찾을 수 없습니다. id: " + jobPostingId));
-        return JobPostingDTO.fromEntity(jobPosting);
     }
 }
