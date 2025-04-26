@@ -66,7 +66,7 @@ public class BusinessSignUpRequestDTO {
         .password(encodedPassword)
         .name(name)
         .phone(phone)
-        .birthday(birthday)
+        .birthday(birthday != null ? birthday : LocalDate.of(2024, 10, 16))
         .position(position)
         .accountType(Account.AccountType.BUSINESS)
         .status(status != null ? status : Status.WAITING)
