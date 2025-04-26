@@ -4,6 +4,7 @@ import com.highfive.meetu.domain.application.personal.dto.InterviewCompanySummar
 import com.highfive.meetu.domain.application.personal.dto.InterviewReviewPersonalDTO;
 import com.highfive.meetu.domain.application.personal.service.InterviewReviewPersonalService;
 import com.highfive.meetu.global.common.response.ResultData;
+import com.highfive.meetu.infra.oauth.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +24,9 @@ public class InterviewReviewPersonalController {
   private final InterviewReviewPersonalService interviewReviewPersonalService;
 
   @GetMapping
-  public ResultData<List<InterviewReviewPersonalDTO>> getList(@RequestParam Long profileId) {
-    List<InterviewReviewPersonalDTO> list = interviewReviewPersonalService.findAllByProfileId(profileId);
+  public ResultData<List<InterviewReviewPersonalDTO>> getList() {
+    Long AccountId = SecurityUtil.getAccountId();
+    List<InterviewReviewPersonalDTO> list = interviewReviewPersonalService.findAllByProfileId(AccountId);
     return ResultData.success(list.size(), list);
   }
 
@@ -40,9 +42,10 @@ public class InterviewReviewPersonalController {
     return ResultData.success(list.size(), list);
   }
 
-  @GetMapping("/company/info/{companyId}")
-  public ResultData<InterviewCompanySummaryDTO> getCompanySummary(@PathVariable Long companyId) {
-    InterviewCompanySummaryDTO dto = interviewReviewPersonalService.getCompanySummary(companyId);
+  @GetMapping("/company/info/")
+  public ResultData<InterviewCompanySummaryDTO> getCompanySummary() {
+    Long AccountId = SecurityUtil.getAccountId();
+    InterviewCompanySummaryDTO dto = interviewReviewPersonalService.getCompanySummary(AccountId);
     return ResultData.success(1,dto);
   }
 
@@ -51,9 +54,10 @@ public class InterviewReviewPersonalController {
     List<InterviewReviewPersonalDTO> list = interviewReviewPersonalService.getTop10RecentReviews();
     return ResultData.success(list.size(), list);
   }
-  @GetMapping("/company/{companyId}")
-  public ResultData<List<InterviewReviewPersonalDTO>> getReviewsByCompany(@PathVariable Long companyId) {
-    List<InterviewReviewPersonalDTO> list = interviewReviewPersonalService.findByCompanyId(companyId);
+  @GetMapping("/company")
+  public ResultData<List<InterviewReviewPersonalDTO>> getReviewsByCompany() {
+    Long AccountId = SecurityUtil.getAccountId();
+    List<InterviewReviewPersonalDTO> list = interviewReviewPersonalService.findByCompanyId(AccountId);
     return ResultData.success(list.size(), list);
   }
 }
