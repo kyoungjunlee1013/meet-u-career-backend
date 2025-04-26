@@ -7,9 +7,24 @@ import com.highfive.meetu.domain.dashboard.admin.dto.*;
 import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
 import com.highfive.meetu.domain.user.common.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFDrawing;
+import org.apache.poi.xssf.usermodel.XSSFChart;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
+import org.apache.poi.xddf.usermodel.chart.XDDFLineChartData;
+import org.apache.poi.xddf.usermodel.chart.XDDFChart;
+import org.apache.poi.xddf.usermodel.chart.XDDFCategoryAxis;
+import org.apache.poi.xddf.usermodel.chart.XDDFValueAxis;
+import org.apache.poi.xddf.usermodel.chart.XDDFCategoryDataSource;
+import org.apache.poi.xddf.usermodel.chart.XDDFNumericalDataSource;
+
+
+import org.springframework.stereotype.Service;
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -149,17 +164,16 @@ public class AdminDashboardService {
             .toList();
 
         // 지원자 많은 상위 5개 기업
-        List<TopCompanyJobPostingsDTO> top5Companies = applicationRepository.countTopCompaniesByApplicants().stream()
+        Pageable topFive = PageRequest.of(0, 5);
+        List<TopCompanyJobPostingsDTO> top5Companies = applicationRepository.countTopCompaniesByApplicants(topFive).stream()
             .map(row -> new TopCompanyJobPostingsDTO((String) row[0], (Long) row[1]))
             .toList();
 
         // 시간대별 지원 통계
-        List<ApplicationTimeStatDTO> applicationTimeStats = applicationRepository.findApplicationTimeStatsRaw().stream()
+        List<ApplicationTimeStatDTO> applicationTimeStats = applicationRepository.findApplicationTimeStatsHourly().stream()
             .map(row -> new ApplicationTimeStatDTO(
                 (String) row[0],
-                ((Number) row[1]).intValue(),
-                ((Number) row[2]).intValue(),
-                ((Number) row[3]).intValue()
+                ((Number) row[1]).intValue()
             )).toList();
 
         return new ApplicationStats(
@@ -188,5 +202,126 @@ public class AdminDashboardService {
      */
     private double calculateConversionRate(long numerator, long denominator) {
         return denominator == 0 ? 0 : ((double) numerator / denominator) * 100;
+    }
+
+    // ✅ 엑셀 다운로드용 메서드
+    public byte[] generateDashboardExcel() {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Dashboard Report");
+
+            int rowIdx = 0;
+
+            // 1. 사용자 통계
+            var userStats = getUserStats();
+            rowIdx = writeUserStats(sheet, rowIdx, userStats);
+
+            rowIdx++;
+
+            // 2. 채용공고 통계
+            var jobPostingStats = getJobPostingStats();
+            rowIdx = writeJobPostingStats(sheet, rowIdx, jobPostingStats);
+
+            rowIdx++;
+
+            // 3. 지원 통계
+            var applicationStats = getApplicationStats();
+            rowIdx = writeApplicationStats(sheet, rowIdx, applicationStats);
+
+            rowIdx++;
+
+            // 4. 📈 월별 사용자 수 차트 삽입
+            insertUserGrowthChart(workbook, sheet, rowIdx, userStats.getUserGrowthChart());
+
+            for (int i = 0; i < 6; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            workbook.write(bos);
+            return bos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("대시보드 보고서 생성 중 오류 발생", e);
+        }
+    }
+
+    // 📌 사용자 통계 작성
+    private int writeUserStats(Sheet sheet, int rowIdx, UserStats userStats) {
+        Row header = sheet.createRow(rowIdx++);
+        header.createCell(0).setCellValue("사용자 통계");
+        Row column = sheet.createRow(rowIdx++);
+        column.createCell(0).setCellValue("구분");
+        column.createCell(1).setCellValue("현재 수");
+        column.createCell(2).setCellValue("전월 수");
+        column.createCell(3).setCellValue("성장률");
+
+        rowIdx = createMetricRow(sheet, rowIdx, "개인회원 수", userStats.getUserCount());
+        rowIdx = createMetricRow(sheet, rowIdx, "기업회원 수", userStats.getCompanyCount());
+        rowIdx = createMetricRow(sheet, rowIdx, "채용공고 수", userStats.getJobPostingCount());
+        rowIdx = createMetricRow(sheet, rowIdx, "커뮤니티 게시글 수", userStats.getCommunityPostCount());
+        return rowIdx;
+    }
+
+    // 📌 채용공고 통계 작성
+    private int writeJobPostingStats(Sheet sheet, int rowIdx, JobPostingStats jobPostingStats) {
+        Row header = sheet.createRow(rowIdx++);
+        header.createCell(0).setCellValue("채용공고 통계");
+
+        rowIdx = createMetricRow(sheet, rowIdx, "총 채용공고 수", jobPostingStats.getTotalJobPostings());
+        rowIdx = createMetricRow(sheet, rowIdx, "진행중 채용공고 수", jobPostingStats.getActiveJobPostings());
+        rowIdx = createMetricRow(sheet, rowIdx, "참여 기업 수", jobPostingStats.getParticipatingCompanies());
+        rowIdx = createMetricRow(sheet, rowIdx, "총 조회수", jobPostingStats.getTotalViews());
+        return rowIdx;
+    }
+
+    // 📌 지원 통계 작성
+    private int writeApplicationStats(Sheet sheet, int rowIdx, ApplicationStats applicationStats) {
+        Row header = sheet.createRow(rowIdx++);
+        header.createCell(0).setCellValue("지원 통계");
+
+        rowIdx = createMetricRow(sheet, rowIdx, "총 지원 수", applicationStats.getTotalApplications());
+        rowIdx = createMetricRow(sheet, rowIdx, "서류 합격 수", applicationStats.getAcceptedApplications());
+        rowIdx = createMetricRow(sheet, rowIdx, "서류 불합격 수", applicationStats.getRejectedApplications());
+        return rowIdx;
+    }
+
+    // 📌 지표 하나 작성
+    private int createMetricRow(Sheet sheet, int rowIdx, String label, DashboardMetricDTO metric) {
+        Row row = sheet.createRow(rowIdx++);
+        row.createCell(0).setCellValue(label);
+        row.createCell(1).setCellValue(metric.getCurrent());
+        row.createCell(2).setCellValue(metric.getPrevious());
+        row.createCell(3).setCellValue(metric.getGrowthRate() + "%");
+        return rowIdx;
+    }
+
+    // 📌 월별 사용자수 그래프 삽입
+    private void insertUserGrowthChart(Workbook workbook, Sheet sheet, int rowIdx, List<MonthlyUserCountDTO> growthData) {
+        // int chartStartRow = rowIdx + 2;
+        // int chartStartCol = 0;
+        //
+        // // 데이터 영역 작성
+        // for (int i = 0; i < growthData.size(); i++) {
+        //     Row row = sheet.createRow(chartStartRow + i);
+        //     row.createCell(chartStartCol).setCellValue(growthData.get(i).getMonth());
+        //     row.createCell(chartStartCol + 1).setCellValue(growthData.get(i).getUserCount());
+        // }
+        //
+        // // 차트 삽입
+        // XSSFDrawing drawing = (XSSFDrawing) sheet.createDrawingPatriarch();
+        // XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 3, chartStartRow, 10, chartStartRow + 15);
+        //
+        // XSSFChart chart = drawing.createChart(anchor);
+        // chart.setTitleText("월별 사용자 증가 추이");
+        // chart.setTitleOverlay(false);
+        //
+        // LineChartData data = chart.getChartDataFactory().createLineChartData();
+        //
+        // ChartDataSource<String> months = DataSources.fromStringCellRange(sheet, new CellRangeAddress(chartStartRow, chartStartRow + growthData.size() - 1, chartStartCol, chartStartCol));
+        // ChartDataSource<Number> users = DataSources.fromNumericCellRange(sheet, new CellRangeAddress(chartStartRow, chartStartRow + growthData.size() - 1, chartStartCol + 1, chartStartCol + 1));
+        //
+        // data.addSeries(months, users);
+        //
+        // chart.plot(data, chart.getChartAxisFactory().createCategoryAxis(AxisPosition.BOTTOM),
+        //     chart.getChartAxisFactory().createValueAxis(AxisPosition.LEFT));
     }
 }

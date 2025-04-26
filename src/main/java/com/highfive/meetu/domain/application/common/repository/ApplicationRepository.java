@@ -3,6 +3,7 @@ package com.highfive.meetu.domain.application.common.repository;
 import com.highfive.meetu.domain.application.common.entity.Application;
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
 import com.highfive.meetu.domain.user.common.entity.Profile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -91,6 +92,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
     @Query(value = """
         SELECT 
             CASE 
+                WHEN TIMESTAMPDIFF(YEAR, acc.birthday, CURRENT_DATE()) BETWEEN 10 AND 19 THEN '10대'
                 WHEN TIMESTAMPDIFF(YEAR, acc.birthday, CURRENT_DATE()) BETWEEN 20 AND 29 THEN '20대'
                 WHEN TIMESTAMPDIFF(YEAR, acc.birthday, CURRENT_DATE()) BETWEEN 30 AND 39 THEN '30대'
                 WHEN TIMESTAMPDIFF(YEAR, acc.birthday, CURRENT_DATE()) BETWEEN 40 AND 49 THEN '40대'
@@ -103,44 +105,46 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
         JOIN profile p ON a.profileId = p.id
         JOIN account acc ON p.accountId = acc.id
         GROUP BY ageGroup
+        ORDER BY FIELD(ageGroup, '10대', '20대', '30대', '40대', '50대', '60대 이상', '기타')
     """, nativeQuery = true)
     List<Object[]> countApplicantsByAgeGroup();
 
     /**
-     * 서류합격 기준 기업별 지원자 수 통계 (TOP 5)
+     * 지원자 수 기준 상위 5개 기업 조회 (서류 상태 관계없이 전체 지원 기준)
+     *
+     * - application → jobPosting → company 관계로 조인
+     * - 기업 이름(c.name)을 기준으로 지원서 수를 COUNT
+     * - 지원자 수가 많은 순서로 정렬
+     * - 상위 5개만 조회
+     *
+     * @param pageable 페이징 객체 (size = 5 고정해서 전달)
+     * @return Object[] 배열: [0] = 회사 이름 (String), [1] = 지원자 수 (Long)
      */
     @Query("""
         SELECT c.name, COUNT(a.id)
         FROM application a
         JOIN a.jobPosting j
         JOIN j.company c
-        WHERE a.status = 2
         GROUP BY c.name
         ORDER BY COUNT(a.id) DESC
     """)
-    List<Object[]> countTopCompaniesByApplicants();
+    List<Object[]> countTopCompaniesByApplicants(Pageable pageable);
 
     /**
-     * 시간대별 지원 현황 (오전/오후 등)
+     * 시간대별 지원 완료 현황 (1시간 단위)
+     * - 지원 상태(status = 0)만 집계
+     * - 시간은 '00시', '01시' 형태로 출력됨
      */
     @Query(value = """
         SELECT 
-            CASE 
-                WHEN HOUR(createdAt) < 12 THEN '오전'
-                WHEN HOUR(createdAt) BETWEEN 13 AND 15 THEN '1-3시'
-                WHEN HOUR(createdAt) BETWEEN 16 AND 19 THEN '4-7시'
-                WHEN HOUR(createdAt) BETWEEN 20 AND 23 THEN '8-11시'
-                WHEN HOUR(createdAt) = 12 THEN '12-3시'
-                ELSE '3시 이후'
-            END AS timeSlot,
-            SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS applied,
-            SUM(CASE WHEN status = 4 THEN 1 ELSE 0 END) AS canceled,
-            SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END) AS modified
+            CONCAT(LPAD(HOUR(createdAt), 2, '0'), '시') AS hourSlot,
+            COUNT(*) AS applied
         FROM application
-        GROUP BY timeSlot
-        ORDER BY FIELD(timeSlot, '오전', '1-3시', '4-7시', '8-11시', '12-3시', '3시 이후')
-        """, nativeQuery = true)
-    List<Object[]> findApplicationTimeStatsRaw();
+        WHERE status = 0
+        GROUP BY hourSlot
+        ORDER BY hourSlot
+    """, nativeQuery = true)
+    List<Object[]> findApplicationTimeStatsHourly();
 
     /**
      * 지원 추이(오늘 날짜로부터 14일 전까지)

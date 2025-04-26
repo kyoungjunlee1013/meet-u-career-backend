@@ -4,6 +4,9 @@ import com.highfive.meetu.domain.dashboard.admin.dto.*;
 import com.highfive.meetu.domain.dashboard.admin.service.AdminDashboardService;
 import com.highfive.meetu.global.common.response.ResultData;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/admin/dashboard")
 public class AdminDashboardController {
 
-    private final AdminDashboardService dashboardService;
+    private final AdminDashboardService adminDashboardService;
 
     /**
      * 관리자 대시보드 - 사용자 관련 통계 조회
@@ -24,7 +27,7 @@ public class AdminDashboardController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/userstats")
     public ResultData<UserStats> getUserStats() {
-        return ResultData.success(1, dashboardService.getUserStats());
+        return ResultData.success(1, adminDashboardService.getUserStats());
     }
 
     /**
@@ -37,7 +40,7 @@ public class AdminDashboardController {
      */
     @GetMapping("/jobpostingstats")
     public ResultData<JobPostingStats> getJobPostingStats() {
-        return ResultData.success(1, dashboardService.getJobPostingStats());
+        return ResultData.success(1, adminDashboardService.getJobPostingStats());
     }
 
     /**
@@ -50,6 +53,23 @@ public class AdminDashboardController {
      */
     @GetMapping("/applicationstats")
     public ResultData<ApplicationStats> getApplicationStats() {
-        return ResultData.success(1, dashboardService.getApplicationStats());
+        return ResultData.success(1, adminDashboardService.getApplicationStats());
+    }
+
+    /**
+     * 대시보드 보고서 엑셀 다운로드
+     */
+    @GetMapping("/download")
+    public ResponseEntity<byte[]> downloadDashboardReport() {
+        byte[] excelFile = adminDashboardService.generateDashboardExcel();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dashboard_report.xlsx");
+
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .body(excelFile);
     }
 }
