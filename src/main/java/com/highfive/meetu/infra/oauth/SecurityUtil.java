@@ -44,11 +44,26 @@ public class SecurityUtil {
      */
     public static Long getAccountId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (Long) Optional.ofNullable(auth)
-            .map(Authentication::getPrincipal)
-            .filter(principal -> principal instanceof Long)
-            .map(Long.class::cast)
-            .orElseThrow(() -> new NotFoundException("인증 정보가 없습니다."));
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new NotFoundException("인증 정보가 없습니다. (1)");
+        }
+
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof Long accountId) {
+            return accountId;
+        }
+        if (principal instanceof String principalStr) {
+            try {
+                return Long.parseLong(principalStr);
+            } catch (NumberFormatException e) {
+                throw new NotFoundException("잘못된 인증 정보입니다.");
+            }
+        }
+        if (principal instanceof CustomUserPrincipal customUserPrincipal) {
+            return customUserPrincipal.getAccountId();
+        }
+        throw new NotFoundException("인증 정보가 없습니다. (2)");
     }
 
     /**
@@ -61,7 +76,7 @@ public class SecurityUtil {
     public static Long getProfileId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal)) {
-            throw new NotFoundException("인증 정보가 없습니다.");
+            throw new NotFoundException("인증 정보가 없습니다. (3)");
         }
 
         CustomUserPrincipal principal = (CustomUserPrincipal) auth.getPrincipal();

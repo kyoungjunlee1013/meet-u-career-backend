@@ -1,6 +1,8 @@
 package com.highfive.meetu.domain.application.common.repository;
 
 import com.highfive.meetu.domain.application.common.entity.Application;
+import com.highfive.meetu.domain.dashboard.personal.dto.RecentApplicationDTO;
+import com.highfive.meetu.domain.dashboard.personal.dto.ApplicationSummaryDTO;
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
 import com.highfive.meetu.domain.user.common.entity.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,8 +17,10 @@ import java.util.Map;
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long>, ApplicationRepositoryCustom {
 
+  @Query("SELECT COUNT(a) FROM application a WHERE a.profile.id = :profileId")
+  int countOffersByProfileId(@Param("profileId") Long profileId);
   /**
-   * 채용공고 ID로 지원서 목록 조회
+   * 특정 공고에 지원한 이력 전체 조회 (상태 4 제외)
    */
   @Query("""
         SELECT a
@@ -28,37 +32,34 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
   List<Application> findAllByJobPostingId(@Param("jobPostingId") Long jobPostingId);
 
   /**
-   * 프로필과 채용공고를 기준으로 지원 여부 확인
+   * 지원 이력 존재 여부 확인
    */
   boolean existsByProfileAndJobPosting(Profile profile, JobPosting jobPosting);
 
   /**
-   * ✅ 추가: 계정 ID로 지원서 목록 조회
-   *
-   * Profile → Account → Id를 타고 검색
+   * 마이페이지에서 최근 지원 이력 조회 (기업명, 제목, 상태)
    */
-  List<Application> findByProfile_Account_Id(Long accountId);
+  @Query("SELECT new com.highfive.meetu.domain.dashboard.personal.dto.RecentApplicationDTO(" +
+      "c.name, jp.title, a.status) " +
+      "FROM application a " +
+      "JOIN a.jobPosting jp " +
+      "JOIN jp.company c " +
+      "WHERE a.profile.id = :profileId " +
+      "ORDER BY a.createdAt DESC")
+  List<RecentApplicationDTO> findRecentByProfileId(@Param("profileId") Long profileId);
 
   /**
-   * ✅ 추가: 기업 ID 기준으로 공고별 지원자 수 집계 (List<Object[]>로 반환)
+   * 마이페이지 상태 요약 (status = 1~4)
    */
-  @Query("""
-        SELECT a.jobPosting.id, COUNT(a)
-        FROM application a
-        WHERE a.jobPosting.company.id = :companyId
-        GROUP BY a.jobPosting.id
-    """)
-  List<Object[]> countApplicationsByJobPostingGrouped(@Param("companyId") Long companyId);
+  @Query("SELECT new com.highfive.meetu.domain.dashboard.personal.dto.ApplicationSummaryDTO(" +
+      "SUM(CASE WHEN a.status = 1 THEN 1 ELSE 0 END), " +
+      "SUM(CASE WHEN a.status = 2 THEN 1 ELSE 0 END), " +
+      "SUM(CASE WHEN a.status = 3 THEN 1 ELSE 0 END), " +
+      "SUM(CASE WHEN a.status = 4 THEN 1 ELSE 0 END)) " +
+      "FROM application a " +
+      "WHERE a.profile.id = :profileId")
+  ApplicationSummaryDTO aggregateStatusSummary(@Param("profileId") Long profileId);
 
-  /**
-   * ✅ 추가: 위 결과를 Map<Long, Integer> 형태로 변환해서 반환
-   */
-  default Map<Long, Integer> countApplicationsGroupByJobPosting(Long companyId) {
-    List<Object[]> results = countApplicationsByJobPostingGrouped(companyId);
-    Map<Long, Integer> map = new HashMap<>();
-    for (Object[] row : results) {
-      map.put((Long) row[0], ((Long) row[1]).intValue());
-    }
-    return map;
-  }
+    // 일정 관리 기능 관련
+    List<Application> findByProfile_Account_Id(Long accountId);
 }
