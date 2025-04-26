@@ -23,8 +23,7 @@ public class RoleSecuredAspect {
     @Before("@annotation(roleSecured)")
     public void checkRole(JoinPoint joinPoint, RoleSecured roleSecured) {
         // 현재 인증된 사용자 정보 가져오기
-        Long accountId = SecurityUtil.getAccountId(); // static 메서드 사용
-        Role userRole = securityUtil.getUserRole(accountId); // DB 조회
+        Role userRole = securityUtil.getUserRole(); // static 메서드 사용
 
         // 허용된 roles
         String[] allowedRoles = roleSecured.roles();
