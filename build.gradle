@@ -91,7 +91,6 @@ dependencies {
     // Apache POI 기본 (Excel .xlsx 파일 지원)
     implementation 'org.apache.poi:poi:5.2.3'
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
-    implementation 'org.apache.poi:poi-ooxml-schemas:4.1.2'
     implementation 'org.apache.xmlbeans:xmlbeans:5.1.1'
 }
 

@@ -1,6 +1,7 @@
 package com.highfive.meetu.domain.dashboard.admin.controller;
 
 import com.highfive.meetu.domain.dashboard.admin.dto.*;
+import com.highfive.meetu.domain.dashboard.admin.service.AdminDashboardExcelService;
 import com.highfive.meetu.domain.dashboard.admin.service.AdminDashboardService;
 import com.highfive.meetu.global.common.response.ResultData;
 import lombok.RequiredArgsConstructor;
@@ -10,14 +11,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/dashboard")
 public class AdminDashboardController {
-
     private final AdminDashboardService adminDashboardService;
+    private final AdminDashboardExcelService adminDashboardExcelService;
 
     /**
      * 관리자 대시보드 - 사용자 관련 통계 조회
@@ -61,15 +66,21 @@ public class AdminDashboardController {
      */
     @GetMapping("/download")
     public ResponseEntity<byte[]> downloadDashboardReport() {
-        byte[] excelFile = adminDashboardService.generateDashboardExcel();
+        DashboardExcelResult excelResult = adminDashboardExcelService.generateDashboardExcel();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dashboard_report.xlsx");
+
+        try {
+            String encodedFileName = URLEncoder.encode(excelResult.getFileName(), StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
+        } catch (Exception e) {
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=default.xlsx");
+        }
 
         return ResponseEntity
             .ok()
             .headers(headers)
-            .body(excelFile);
+            .body(excelResult.getFileBytes());
     }
 }
