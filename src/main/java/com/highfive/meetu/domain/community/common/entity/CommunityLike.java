@@ -38,6 +38,6 @@ public class CommunityLike extends BaseEntity {
 
   // 좋아요를 누른 게시글 (CommunityPost와 N:1)
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "postId", nullable = false) // 🔥 명시적으로 추가
+  @JoinColumn(name = "postId", nullable = false)
   private CommunityPost post;
 }

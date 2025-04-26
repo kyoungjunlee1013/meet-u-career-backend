@@ -57,4 +57,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
       "FROM application a " +
       "WHERE a.profile.id = :profileId")
   ApplicationSummaryDTO aggregateStatusSummary(@Param("profileId") Long profileId);
+
+    // 일정 관리 기능 관련
+    List<Application> findByProfile_Account_Id(Long accountId);
 }

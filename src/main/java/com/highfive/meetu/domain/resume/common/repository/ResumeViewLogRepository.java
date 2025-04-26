@@ -16,4 +16,5 @@ public interface ResumeViewLogRepository extends JpaRepository<ResumeViewLog, Lo
       "WHERE p.id = :profileId")
   int countByProfileId(@Param("profileId") Long profileId);
 
+  int countByResumeId(Long resumeId);
 }
