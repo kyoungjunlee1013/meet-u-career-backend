@@ -1,7 +1,6 @@
 package com.highfive.meetu.domain.job.business.service;
 
 import com.highfive.meetu.domain.company.common.entity.Company;
-import com.highfive.meetu.domain.company.common.repository.CompanyRepository;
 import com.highfive.meetu.domain.job.business.dto.JobPostingResponseDTO;
 import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
 import com.highfive.meetu.domain.user.common.entity.Account;

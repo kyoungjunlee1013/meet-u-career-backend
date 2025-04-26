@@ -157,4 +157,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
         ORDER BY DATE(a.createdAt)
     """)
     List<Object[]> findDailyApplicationStats(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    // 일정 관리 기능 관련
+    List<Application> findByProfile_Account_Id(Long accountId);
 }

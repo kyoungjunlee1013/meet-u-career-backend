@@ -41,6 +41,14 @@ spring:
           writetimeout: 5000
       auth-code-expiration-millis: 600000  # 10 * 60 * 1000(밀리초) == 10분
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  override-with-generic-response: false
+
 logging:
   level:
     root: INFO               # 전체 로그 레벨 설정 (DEBUG, INFO, WARN, ERROR 등)

@@ -1,6 +1,8 @@
 package com.highfive.meetu.domain.community.common.repository;
 
 import com.highfive.meetu.domain.community.common.entity.CommunityPost;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,6 +22,9 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
 
     // 해시태그별 게시글 조회 (최신순 정렬 / 중앙영역)
     List<CommunityPost> findAllByTagIdAndStatusOrderByCreatedAtDesc(Long tagId, Integer status);
+
+    // 상태별 게시글 조회
+    Page<CommunityPost> findAllByStatus(Integer status, Pageable pageable);
 
     @Query("""
         SELECT COUNT(p.id)
