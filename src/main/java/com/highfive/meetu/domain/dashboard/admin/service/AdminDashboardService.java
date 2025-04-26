@@ -294,7 +294,7 @@ public class AdminDashboardService {
         return rowIdx;
     }
 
-    // 📌 월별 사용자수 그래프 삽입
+    // 월별 사용자수 그래프 삽입
     private void insertUserGrowthChart(Workbook workbook, Sheet sheet, int rowIdx, List<MonthlyUserCountDTO> growthData) {
         // int chartStartRow = rowIdx + 2;
         // int chartStartCol = 0;
