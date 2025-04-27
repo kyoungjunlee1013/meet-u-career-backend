@@ -1,27 +1,29 @@
 package com.highfive.meetu.global.config;
 
-import org.springframework.context.annotation.Bean;
+
+import com.highfive.meetu.global.security.LoginAccountIdArgumentResolver;
+import com.highfive.meetu.global.security.LoginUserArgumentResolver;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
 /**
- * CORS 설정 클래스
+ * WebMvcConfigurer 설정
+ * - 커스텀 ArgumentResolver 등록
  */
 @Configuration
-public class WebConfig {
+@RequiredArgsConstructor
+public class WebConfig implements WebMvcConfigurer {
 
-  @Bean
-  public WebMvcConfigurer corsConfigurer() {
-    return new WebMvcConfigurer() {
-      @Override
-      public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // 모든 경로
-            .allowedOrigins("http://localhost:3000") // Next.js 프론트 서버 주소
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // 허용할 메서드
-            .allowedHeaders("*") // 허용할 헤더
-            .allowCredentials(true); // 인증정보 포함 허용
-      }
-    };
-  }
+    private final LoginAccountIdArgumentResolver loginAccountIdArgumentResolver;
+    private final LoginUserArgumentResolver loginUserArgumentResolver;
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(loginAccountIdArgumentResolver);
+        resolvers.add(loginUserArgumentResolver);
+    }
 }
