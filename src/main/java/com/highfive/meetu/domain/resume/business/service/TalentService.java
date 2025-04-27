@@ -1,9 +1,9 @@
-package com.highfive.meetu.domain.user.business.service;
+package com.highfive.meetu.domain.resume.business.service;
 
+import com.highfive.meetu.domain.resume.business.dto.TalentDto;
 import com.highfive.meetu.domain.resume.common.entity.Resume;
+import com.highfive.meetu.domain.resume.common.repository.TalentRepository;
 import com.highfive.meetu.domain.user.common.entity.Profile;
-import com.highfive.meetu.domain.user.common.repository.TalentRepository;
-import com.highfive.meetu.domain.user.business.dto.TalentResponseDto;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.job.common.entity.JobCategory;
 import com.highfive.meetu.domain.job.common.entity.Location;
@@ -28,19 +28,19 @@ public class TalentService {
      * 
      * @return 인재 응답 DTO 리스트
      */
-    public List<TalentResponseDto> findAllPrimaryResumes() {
+    public List<TalentDto> findAllPrimaryResumes() {
         return talentRepository.findByIsPrimaryTrue().stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Resume 엔티티를 TalentResponseDto로 변환
+     * Resume 엔티티를 TalentDto로 변환
      * 
      * @param r 이력서 엔티티
-     * @return 변환된 TalentResponseDto
+     * @return 변환된 TalentDto
      */
-    private TalentResponseDto toDto(Resume r) {
+    private TalentDto toDto(Resume r) {
         Profile p = r.getProfile();
         Account a = p.getAccount();
         JobCategory job = p.getDesiredJobCategory();
@@ -54,7 +54,7 @@ public class TalentService {
                 : Collections.emptyList();
         int moreSkills = Math.max(0, skills.size() - 5);
 
-        return TalentResponseDto.builder()
+        return TalentDto.builder()
                 .id(r.getId())
                 .name(a.getName())
                 .title(job != null ? job.getJobName() : "")

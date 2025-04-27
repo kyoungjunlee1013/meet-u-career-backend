@@ -1,4 +1,4 @@
-package com.highfive.meetu.domain.user.business.dto;
+package com.highfive.meetu.domain.resume.business.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TalentResponseDto {
+public class TalentDto {
     /** 식별자 */
     private Long id;
     /** 계정명 */
