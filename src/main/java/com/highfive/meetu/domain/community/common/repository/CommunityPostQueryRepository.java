@@ -4,6 +4,7 @@ import com.highfive.meetu.domain.community.common.entity.CommunityPost;
 import com.highfive.meetu.domain.community.personal.dto.CommunityPostListDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  QueryDSL 기반 커뮤니티 게시글 커스텀 쿼리 리포지토리
@@ -25,4 +26,7 @@ public interface CommunityPostQueryRepository {
 
   // 게시글 목록 조회 ( 작성자, 해시태그 정보 포함 / 최신순)
   List<CommunityPostListDTO> findPostListWithWriterAndTag(int limit);
+
+  Optional<CommunityPost> findPostById(Long postId);
+
 }
