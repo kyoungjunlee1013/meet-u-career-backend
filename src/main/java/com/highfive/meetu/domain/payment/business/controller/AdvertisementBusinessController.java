@@ -21,6 +21,7 @@ public class AdvertisementBusinessController {
     public ResultData<Long> registerAdWithPayment(@RequestBody AdvertisementRegisterRequest request) {
         //Long companyId = SecurityUtil.getCompanyId();
         Long companyId = 1L;
+        System.out.println("/register");
         return advertisementBusinessService.registerAdWithPayment(companyId, request);
     }
 

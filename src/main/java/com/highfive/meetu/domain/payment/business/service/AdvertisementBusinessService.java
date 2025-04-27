@@ -27,15 +27,17 @@ public class AdvertisementBusinessService {
     private final CompanyRepository companyRepository;
 
     public ResultData<Long> registerAdWithPayment(Long companyId, AdvertisementRegisterRequest request) {
-
+        System.out.println("withPayment");
         // Toss 결제 승인
         TossPaymentConfirmRequest confirmRequest = new TossPaymentConfirmRequest(
                 request.getPaymentKey(), request.getOrderId(), request.getAmount()
         );
-        String paymentKey = paymentBusinessService.confirmPayment(confirmRequest);
 
+        System.out.println("request.getPaymentKey():" + request.getPaymentKey());
+        String paymentKey = paymentBusinessService.confirmPayment(confirmRequest);
+        System.out.println("paymentKey:" + paymentKey);
         // 결제 객체 조회
-        Payment payment = paymentRepository.findByTransactionId(paymentKey)
+        Payment payment = paymentRepository.findByTransactionId(request.getOrderId())
                 .orElseThrow(() -> new NotFoundException("결제 정보 없음"));
 
         // 공고 조회

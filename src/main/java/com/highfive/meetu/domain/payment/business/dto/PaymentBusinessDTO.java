@@ -2,6 +2,7 @@ package com.highfive.meetu.domain.payment.business.dto;
 
 import com.highfive.meetu.domain.payment.common.entity.Advertisement;
 import com.highfive.meetu.domain.payment.common.entity.Payment;
+import jakarta.persistence.Column;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public class PaymentBusinessDTO {
     private Integer status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Integer adType;  // 광고 유형 (1: BASIC, 2: STANDARD, 3: PREMIUM)
 
     // 광고/공고/기업 정보 추가
     private Long advertisementId;
@@ -51,6 +53,7 @@ public class PaymentBusinessDTO {
                 .advertisementStartDate(ad != null ? ad.getStartDate() : null)
                 .advertisementEndDate(ad != null ? ad.getEndDate() : null)
                 .jobPostingId(ad != null && ad.getJobPosting() != null ? ad.getJobPosting().getId() : null)
+                .adType(ad != null ? ad.getAdType() : null)
                 .companyName(ad != null && ad.getCompany() != null ? ad.getCompany().getName() : null)
                 .build();
     }
