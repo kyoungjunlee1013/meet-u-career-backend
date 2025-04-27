@@ -3,10 +3,9 @@ package com.highfive.meetu.domain.job.personal.service;
 import com.highfive.meetu.domain.application.common.repository.ApplicationRepository;
 import com.highfive.meetu.domain.application.common.repository.InterviewReviewRepository;
 import com.highfive.meetu.domain.company.common.repository.CompanyFollowRepository;
-import com.highfive.meetu.domain.job.common.repository.ApplicationQueryPersonalRepository;
-import com.highfive.meetu.domain.job.common.repository.BookmarkRepository;
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
-import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
+import com.highfive.meetu.domain.job.common.repository.*;
+import com.highfive.meetu.domain.job.personal.dto.JobPostingDTO;
 import com.highfive.meetu.domain.job.personal.dto.JobPostingDetailDTO;
 import com.highfive.meetu.domain.user.common.entity.Profile;
 import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
@@ -16,22 +15,95 @@ import com.highfive.meetu.infra.oauth.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-/**
- * 개인 회원 채용 공고 상세 조회 서비스
- * - 로그인 여부에 따라 데이터 추가 제공 (스크랩 여부, 관심 기업 여부 등)
- */
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class JobPostingPersonalService {
 
     private final JobPostingRepository jobPostingRepository;
+    private final JobPostingCustomRepository jobPostingCustomRepository;
+    private final LocationRepository locationRepository;
     private final CompanyFollowRepository companyFollowRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ApplicationRepository applicationRepository;
     private final ProfileRepository profileRepository;
     private final InterviewReviewRepository interviewReviewRepository;
     private final ApplicationQueryPersonalRepository applicationQueryRepository;
+
+    /**
+     * 통합 검색 (필터 + 키워드 + 정렬)
+     */
+    @Transactional(readOnly = true)
+    public Page<JobPostingDTO> searchJobPostings(
+            List<String> industry,
+            Integer experienceLevel,
+            Integer educationLevel,
+            List<String> locationCode,
+            String keyword,
+            String sort,
+            Pageable pageable
+    ) {
+        Page<JobPosting> jobPostings = jobPostingCustomRepository.searchByFilters(
+                industry, experienceLevel, educationLevel, locationCode, keyword, sort, pageable
+        );
+
+        return jobPostings.map(JobPostingDTO::fromEntity);
+    }
+
+
+
+    /**
+     * 전체 목록(기본: 최신순) 조회 (페이지네이션 적용)
+     */
+    @Transactional(readOnly = true)
+    public Page<JobPostingDTO> getJobPostingList(Pageable pageable) {
+        return searchJobPostings(
+                null, null, null, null,
+                null, "newest",
+                pageable
+        );
+    }
+
+    /**
+     * 단일 상세 조회
+     */
+    @Transactional(readOnly = true)
+    public JobPostingDTO getJobPostingDetail(Long jobPostingId) {
+        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 채용공고입니다."));
+        return JobPostingDTO.fromEntity(jobPosting);
+    }
+
+    /**
+     * 시/도 선택 시 시군구까지 확장
+     */
+    private List<String> expandLocationCodes(List<String> inputCodes) {
+        if (inputCodes == null || inputCodes.isEmpty()) return null;
+
+        List<String> expanded = new ArrayList<>();
+
+        for (String code : inputCodes) {
+            locationRepository.findByLocationCode(code).ifPresent(provinceLoc -> {
+                expanded.add(code); // 본인도 포함
+
+                // 해당 시/도에 속한 시/군/구 추가
+                List<String> childCodes = locationRepository.findByProvince(provinceLoc.getProvince())
+                        .stream()
+                        .map(loc -> loc.getLocationCode())
+                        .filter(c -> !c.equals(code)) // 본인은 중복되므로 제거
+                        .toList();
+
+                expanded.addAll(childCodes);
+            });
+        }
+
+        return expanded;
+    }
 
     /**
      * 채용 공고 상세 조회
@@ -41,7 +113,7 @@ public class JobPostingPersonalService {
      * @return ResultData로 래핑된 JobPostingDetailDTO
      */
     @Transactional(readOnly = true)
-    public ResultData<JobPostingDetailDTO> getJobPostingDetail(Long jobPostingId) {
+    public ResultData<JobPostingDetailDTO> getJobPostingDetails(Long jobPostingId) {
         // 1. 공고 기본 정보 조회 (활성화된 공고만)
         JobPosting jobPosting = jobPostingRepository.findByIdAndStatus(jobPostingId, JobPosting.Status.ACTIVE)
             .orElseThrow(() -> new NotFoundException("존재하지 않거나 비활성화된 공고입니다."));

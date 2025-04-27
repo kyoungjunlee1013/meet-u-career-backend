@@ -32,19 +32,19 @@ public class MainPageService {
 
             return MainPageResponseDTO.builder()
                 .isLoggedIn(true)
-                .recommendations(jobPostingRepository.findRecommended(k1, k2, k3, pageable).map(JobPostingDTO::from).getContent())
-                .popular(jobPostingRepository.findPopular(pageable).map(JobPostingDTO::from).getContent())
-                .latest(jobPostingRepository.findLatest(pageable).map(JobPostingDTO::from).getContent())
-                .mostApplied(jobPostingRepository.findMostApplied(pageable).map(JobPostingDTO::from).getContent())
+                .recommendations(jobPostingRepository.findRecommended(k1, k2, k3, pageable).map(JobPostingDTO::fromEntity).getContent())
+                .popular(jobPostingRepository.findPopular(pageable).map(JobPostingDTO::fromEntity).getContent())
+                .latest(jobPostingRepository.findLatest(pageable).map(JobPostingDTO::fromEntity).getContent())
+                .mostApplied(jobPostingRepository.findMostApplied(pageable).map(JobPostingDTO::fromEntity).getContent())
                 .build();
         }
 
         return MainPageResponseDTO.builder()
             .isLoggedIn(false)
             .recommendations(List.of()) // 비로그인 시 추천 없음
-            .popular(jobPostingRepository.findPopular(pageable).map(JobPostingDTO::from).getContent())
-            .latest(jobPostingRepository.findLatest(pageable).map(JobPostingDTO::from).getContent())
-            .mostApplied(jobPostingRepository.findMostApplied(pageable).map(JobPostingDTO::from).getContent())
+            .popular(jobPostingRepository.findPopular(pageable).map(JobPostingDTO::fromEntity).getContent())
+            .latest(jobPostingRepository.findLatest(pageable).map(JobPostingDTO::fromEntity).getContent())
+            .mostApplied(jobPostingRepository.findMostApplied(pageable).map(JobPostingDTO::fromEntity).getContent())
             .build();
     }
 }
