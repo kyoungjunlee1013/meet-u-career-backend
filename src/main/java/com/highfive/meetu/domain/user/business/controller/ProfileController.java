@@ -1,19 +1,22 @@
-package com.highfive.meetu.domain.user.business.talents;
+package com.highfive.meetu.domain.user.business.controller;
 
 import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import com.highfive.meetu.global.common.response.ResultData;
 import com.highfive.meetu.domain.user.common.service.ProfileService;
-import com.highfive.meetu.domain.user.business.talents.ProfileDto;
+import com.highfive.meetu.domain.user.business.dto.ProfileDto;
 
 /**
  * 프로필 관련 REST API
  */
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
-@RequestMapping("/business/talents")
+@RequestMapping("/business/profiles")
+
 public class ProfileController {
 
     private final ProfileService profileService;

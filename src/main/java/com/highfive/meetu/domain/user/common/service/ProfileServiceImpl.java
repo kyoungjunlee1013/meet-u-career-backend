@@ -2,7 +2,7 @@ package com.highfive.meetu.domain.user.common.service;
 
 import com.highfive.meetu.domain.job.common.repository.JobCategoryRepository;
 import com.highfive.meetu.domain.job.common.repository.LocationRepository;
-import com.highfive.meetu.domain.user.business.talents.ProfileDto;
+import com.highfive.meetu.domain.user.business.dto.ProfileDto;
 import com.highfive.meetu.domain.user.common.entity.Profile;
 import com.highfive.meetu.domain.user.common.repository.AccountRepository;
 import com.highfive.meetu.domain.user.common.repository.ProfileRepository;

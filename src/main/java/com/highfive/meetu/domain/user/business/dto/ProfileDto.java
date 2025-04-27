@@ -1,4 +1,4 @@
-package com.highfive.meetu.domain.user.business.talents;
+package com.highfive.meetu.domain.user.business.dto;
 
 import java.time.LocalDateTime;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +25,9 @@ public class ProfileDto {
     /** 현재 위치 ID (선택) */
     private Long locationId;
 
+    /** 희망 직무 카테고리 ID */
+    private Long desiredJobCategoryId;
+
     /** 경력 레벨 */
     private Integer experienceLevel;
 
@@ -33,9 +36,6 @@ public class ProfileDto {
 
     /** 보유 스킬 목록 */
     private String skills;
-
-    /** 희망 직무 카테고리 ID */
-    private Long desiredJobCategoryId;
 
     /** 희망 지역 ID */
     private Long desiredLocationId;
