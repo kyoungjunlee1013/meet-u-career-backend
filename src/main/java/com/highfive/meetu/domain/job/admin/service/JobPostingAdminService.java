@@ -27,7 +27,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class JobPostingService {
+public class JobPostingAdminService {
 
     private final JobPostingRepository jobPostingRepo;
     private final ObjectMapper objectMapper;

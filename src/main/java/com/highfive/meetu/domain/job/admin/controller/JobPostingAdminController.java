@@ -1,7 +1,7 @@
 package com.highfive.meetu.domain.job.admin.controller;
 
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
-import com.highfive.meetu.domain.job.admin.service.JobPostingService;
+import com.highfive.meetu.domain.job.admin.service.JobPostingAdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +13,9 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/jobs")
-public class JobPostingController {
+public class JobPostingAdminController {
 
-    private final JobPostingService service;
+    private final JobPostingAdminService service;
 
     // DB에 저장된 채용 공고 조회
     @GetMapping

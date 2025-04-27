@@ -27,17 +27,25 @@ import java.util.Optional;
  */
 @Repository
 public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
-  @Query("SELECT new com.highfive.meetu.domain.dashboard.personal.dto.RecommendedJobPostingDTO(" +
-      "c.name, jp.title, l.fullLocation, jp.salaryRange, jp.expirationDate, jp.keyword) " +
-      "FROM jobPosting jp " +
-      "JOIN jp.company c " +
-      "JOIN jp.location l " +
-      "WHERE jp.status = 2 " +
-      "ORDER BY jp.expirationDate ASC")
-  List<RecommendedJobPostingDTO> findRecommendedForProfile(@Param("profile") Profile profile, org.springframework.data.domain.Pageable pageable);
-
-
-
+    @Query("""
+        SELECT new com.highfive.meetu.domain.dashboard.personal.dto.RecommendedJobPostingDTO(
+            c.name,
+            jp.title,
+            l.fullLocation,
+            jp.salaryRange,
+            jp.expirationDate,
+            jp.keyword
+        )
+        FROM jobPosting jp
+        JOIN jp.company c
+        JOIN jp.location l
+        WHERE jp.status = 2
+        ORDER BY jp.expirationDate ASC
+    """)
+    List<RecommendedJobPostingDTO> findRecommendedForProfile(
+        @Param("profile") Profile profile,
+        org.springframework.data.domain.Pageable pageable
+    );
 
     /**
      * 활성 상태인 공고 중 마감일이 가까운 순으로 10개 조회 (비회원용)
