@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Swagger (OpenAPI) 설정
- * - Swagger UI 경로: http://localhost:8080/swagger-ui.html
+ * - Swagger UI 경로: http://localhost:8080/swagger-ui/index.html
  * - JWT 인증 헤더 자동 적용
  */
 @Configuration

@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,4 +45,25 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
      * @return List<Company> 해당 상태의 회사 리스트
      */
     List<Company> findAllByStatus(Integer status);
+
+    @Query("""
+        SELECT COUNT(c.id)
+        FROM company c
+        WHERE c.createdAt >= :start
+    """)
+    long countCompaniesCurrent(@Param("start") LocalDateTime start);
+
+    @Query("""
+        SELECT COUNT(c.id)
+        FROM company c
+        WHERE c.createdAt BETWEEN :start AND :end
+    """)
+    long countCompaniesPrevious(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("""
+        SELECT COUNT(c.id)
+        FROM company c
+    """)
+    long countParticipatingCompanies();  // 참여 기업 수
+
 }
