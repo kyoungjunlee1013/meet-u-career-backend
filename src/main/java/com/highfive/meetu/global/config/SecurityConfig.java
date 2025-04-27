@@ -51,6 +51,7 @@ public class SecurityConfig {
                     "/api/personal/auth/login",     // 개인회원 로그인
                     "/api/main/**",                 // 메인
                     "/api/personal/job/**",       // 채용 정보
+                    "/ws/**",                   // WebSocket
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/error"

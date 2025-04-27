@@ -16,7 +16,7 @@ public class BusinessAccountController {
 
     // 이메일(아이디) 중복 체크
     @PostMapping("/check/email")
-    public ResultData<Boolean> findByEmail(@RequestBody BusinessEmailRequestDTO dto) {
+    public ResultData<Boolean> personalpersonalfindByEmail(@RequestBody BusinessEmailRequestDTO dto) {
         boolean result = accountService.findByEmail(dto.getEmail());
         return ResultData.success(result ? 1 : 0, result);
     }

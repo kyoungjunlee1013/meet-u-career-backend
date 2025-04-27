@@ -5,8 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -23,4 +25,18 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
 
     // 상태별 게시글 조회
     Page<CommunityPost> findAllByStatus(Integer status, Pageable pageable);
+
+    @Query("""
+        SELECT COUNT(p.id)
+        FROM communityPost p
+        WHERE p.createdAt >= :start
+    """)
+    long countPostsCurrent(@Param("start") LocalDateTime start);
+
+    @Query("""
+        SELECT COUNT(p.id)
+        FROM communityPost p
+        WHERE p.createdAt BETWEEN :start AND :end
+    """)
+    long countPostsPrevious(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }
