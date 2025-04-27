@@ -27,7 +27,7 @@ public class CommunityCommentDTO {
   public static CommunityCommentDTO fromEntity(CommunityComment entity) {
     return CommunityCommentDTO.builder()
         .id(entity.getId())
-        .postId(entity.getPost().getId())
+        .postId(entity.getPost() != null ? entity.getPost().getId() : null)
         .accountId(entity.getAccount().getId())
         .authorName(entity.getAccount().getName())
         .authorAvatar(entity.getAccount().getProfile() != null
@@ -39,6 +39,8 @@ public class CommunityCommentDTO {
         .updatedAt(entity.getUpdatedAt())
         .build();
   }
+
+
 
 }
 

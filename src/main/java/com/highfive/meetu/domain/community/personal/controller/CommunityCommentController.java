@@ -34,9 +34,13 @@ public class CommunityCommentController {
   // 내가 쓴 게시글, 댓글 조회
   @GetMapping("/my/{accountId}")
   public ResultData<List<CommunityCommentDTO>> getMyComments(@PathVariable Long accountId) {
-    List<CommunityCommentDTO> result = communityCommentService.getMyComments(accountId);
-    return ResultData.success(result.size(), result);
+    List<CommunityCommentDTO> comments = communityCommentService.getMyComments(accountId);
+    if (comments == null || comments.isEmpty()) {
+      return ResultData.success(0, List.of());
+    }
+    return ResultData.success(comments.size(), comments);
   }
+
 
 
   //댓글 수정
