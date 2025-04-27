@@ -86,17 +86,21 @@ public class CommunityCommentService {
     List<CommunityComment> comments = commentRepository
         .findAllByAccountIdAndStatusOrderByCreatedAtDesc(accountId, CommunityComment.Status.ACTIVE);
 
-    return comments.stream().map(c -> CommunityCommentDTO.builder()
-        .id(c.getId())
-        .postId(c.getPost().getId())
-        .accountId(c.getAccount().getId())
-        .content(c.getContent())
-        .status(c.getStatus())
-        .createdAt(c.getCreatedAt())
-        .updatedAt(c.getUpdatedAt())
-        .build()
-    ).toList();
+    return comments.stream()
+        .map(c -> CommunityCommentDTO.builder()
+            .id(c.getId())
+            .postId(c.getPost() != null ? c.getPost().getId() : null) // 여기!!!!!!!
+            .accountId(c.getAccount().getId())
+            .content(c.getContent())
+            .status(c.getStatus())
+            .createdAt(c.getCreatedAt())
+            .updatedAt(c.getUpdatedAt())
+            .build()
+        )
+        .toList();
   }
+
+
 
 
   // 댓글 수정 (id 체크하여 본인이 등록한 댓글만 수정 가능)
