@@ -110,7 +110,7 @@ public class CommunityNewsService {
     } catch (Exception e) {
       System.err.println("API 호출 또는 응답 처리 중 오류 발생: " + e.getMessage());
       e.printStackTrace();
-      throw new RuntimeException("뉴스 API 요청 실패: " + e.getMessage());
+      return new ArrayList<>();
     }
   }
 }

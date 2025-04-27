@@ -14,10 +14,7 @@ import org.springframework.stereotype.Repository;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  QueryDSL 커뮤니티 게시글 복합 조회 쿼리 구현체
@@ -132,5 +129,19 @@ public class CommunityPostQueryRepositoryImpl implements CommunityPostQueryRepos
         .limit(limit)                                       // 조회 개수 제한
         .fetch();                                           // 결과 리스트 반환
   }
+
+  @Override
+  public Optional<CommunityPost> findPostById(Long postId) {
+    CommunityPost foundPost = queryFactory
+        .selectFrom(post)
+        .where(
+            post.id.eq(postId),
+            post.status.eq(CommunityPost.Status.ACTIVE)
+        )
+        .fetchOne();
+
+    return Optional.ofNullable(foundPost);
+  }
+
 
 }
