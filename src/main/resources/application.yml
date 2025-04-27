@@ -57,4 +57,3 @@ api:
     refresh-token-expiration: 604800000
     passwordReset:
       expiration: 600000
-
