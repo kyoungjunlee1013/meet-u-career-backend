@@ -11,10 +11,7 @@ import java.util.Optional;
  */
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
-    /**
-     * 계정 ID로 프로필 조회
-     * @param accountId 계정 ID
-     * @return 프로필(Optional)
-     */
-    Optional<Profile> findByAccountId(Long accountId);
+
+  Optional<Profile> findByAccountId(Long profileId);
+
 }

@@ -15,14 +15,16 @@ import com.highfive.meetu.domain.user.common.repository.AdminRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * 로그인(Login) 전용 API 컨트롤러
  */
+@Tag(name = "00-login-controller", description = "로그인/토큰 발급 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -37,6 +39,7 @@ public class LoginController {
      * 개인 로그인 요청
      * - AccessToken, RefreshToken 발급
      */
+    @Operation(summary = "개인회원 로그인 API")
     @PostMapping("/personal/auth/login")
     public ResponseEntity<ResultData<LoginResponseDTO>> personalLogin(@RequestBody LoginRequestDTO dto,
             HttpServletRequest request) {
@@ -52,6 +55,7 @@ public class LoginController {
      * 기업 로그인 요청
      * - AccessToken, RefreshToken 발급
      */
+    @Operation(summary = "기업회원 로그인 API")
     @PostMapping("/business/auth/login")
     public ResponseEntity<ResultData<LoginResponseDTO>> businessLogin(@RequestBody LoginRequestDTO dto,
             HttpServletRequest request) {
@@ -67,6 +71,7 @@ public class LoginController {
      * 관리자 로그인 요청
      * - AccessToken, RefreshToken 발급
      */
+    @Operation(summary = "관리자 로그인 API")
     @PostMapping("/admin/auth/login")
     public ResponseEntity<ResultData<LoginResponseDTO>> adminLogin(@RequestBody LoginRequestDTO dto,
             HttpServletRequest request) {

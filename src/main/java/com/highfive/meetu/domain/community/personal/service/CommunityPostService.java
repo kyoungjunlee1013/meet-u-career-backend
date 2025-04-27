@@ -278,4 +278,16 @@ public class CommunityPostService {
         .build();
   }
 
+  // 게시글 간단 조회 (단건 인기글용)
+  @Transactional(readOnly = true)
+  public CommunityPostSimpleDTO findSimplePostById(Long postId) {
+    CommunityPost post = communityPostRepository.findById(postId)
+        .filter(p -> p.getStatus() == CommunityPost.Status.ACTIVE)
+        .orElseThrow(() -> new NotFoundException("게시글을 찾을 수 없습니다."));
+
+    return convertToSimpleDTO(post);
+  }
+
+
+
 }
