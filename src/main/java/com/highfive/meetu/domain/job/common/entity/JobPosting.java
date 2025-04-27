@@ -114,6 +114,9 @@ public class JobPosting extends BaseEntity {
     @Column(nullable = false)
     private Integer status;  // 공고 상태 (INACTIVE, PENDING, ACTIVE)
 
+    /**
+     * 출력개수 설정
+     */
     @BatchSize(size = 20)
     @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"jobPosting"})
