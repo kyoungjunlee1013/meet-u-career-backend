@@ -4,7 +4,9 @@ import com.highfive.meetu.domain.job.common.repository.LocationRepository;
 import com.highfive.meetu.domain.job.personal.dto.JobPostingDTO;
 import com.highfive.meetu.domain.job.personal.dto.JobPostingDetailDTO;
 import com.highfive.meetu.domain.job.personal.dto.LocationDTO;
+import com.highfive.meetu.domain.job.personal.dto.RecommendedJobPostingDTO;
 import com.highfive.meetu.domain.job.personal.service.JobPostingPersonalService;
+import com.highfive.meetu.domain.job.personal.service.JobPostingRecommendService;
 import com.highfive.meetu.global.common.response.ResultData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +24,7 @@ public class JobPostingPersonalController {
 
     private final JobPostingPersonalService jobPostingService;
     private final LocationRepository locationRepository;
+    private final JobPostingRecommendService jobPostingRecommendService;
 
     /**
      * 전체/필터/검색/정렬 통합 엔드포인트
@@ -79,5 +82,14 @@ public class JobPostingPersonalController {
     @GetMapping("/{jobpostingId}")
     public ResultData<JobPostingDetailDTO> getJobPostingDetails(@PathVariable Long jobpostingId) {
         return jobPostingService.getJobPostingDetails(jobpostingId);
+    }
+
+    /**
+     * 로그인한 회원의 프로필 기반으로 추천 채용공고 리스트 반환
+     */
+    @GetMapping("/recommend")
+    public ResultData<List<RecommendedJobPostingDTO>> recommendJobPostings() {
+        List<RecommendedJobPostingDTO> jobPostings = jobPostingRecommendService.recommendByProfileSkills();
+        return ResultData.success(jobPostings.size(), jobPostings);
     }
 }

@@ -48,14 +48,22 @@ public class AccountService {
             throw new NotFoundException(USER_NOT_FOUND.getMessage());
         }
 
-        String name;
+        String name = null;
+        String email = null;
         String profileImageUrl = null;
+        String companyName = null;
+        String position = null;
 
         if (role == Role.ADMIN || role == Role.SUPER) {
             // 관리자 계정 조회
             Admin admin = adminRepository.findById(accountId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.getMessage()));
             name = admin.getName();
+
+            // 관리자일 경우 이메일 정보 조회
+            if (admin != null) {
+                email = admin.getEmail();
+            }
         } else {
             // 일반 사용자(Account) 조회
             Account account = accountRepository.findById(accountId)
@@ -68,6 +76,16 @@ public class AccountService {
                     .orElseThrow(() -> new NotFoundException(PROFILE_NOT_FOUND.getMessage()));
                 profileImageUrl = profile.getProfileImageKey();
             }
+
+            // 기업회원인 경우 회사명 정보 조회
+            if (role == Role.BUSINESS && account.getCompany() != null) {
+                companyName = account.getCompany().getName();
+            }
+
+            // 기업회원인 경우 직책 정보 조회
+            if (role == Role.BUSINESS && account.getCompany() != null) {
+                position = account.getPosition();
+            }
         }
 
         return new PersonalInfoDTO(
@@ -75,6 +93,9 @@ public class AccountService {
             profileId,
             role,
             name,
+            email,
+            companyName,
+            position,
             profileImageUrl
         );
     }

@@ -1,14 +1,11 @@
 package com.highfive.meetu.domain.community.personal.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.highfive.meetu.domain.community.personal.dto.CommunityNewsDTO;
 import com.highfive.meetu.domain.community.personal.dto.CommunityPostDTO;
 import com.highfive.meetu.domain.community.personal.dto.CommunityPostListDTO;
 import com.highfive.meetu.domain.community.personal.dto.CommunityPostSimpleDTO;
 import com.highfive.meetu.domain.community.personal.service.CommunityNewsService;
 import com.highfive.meetu.domain.community.personal.service.CommunityPostService;
-import com.highfive.meetu.global.common.exception.BadRequestException;
 import com.highfive.meetu.global.common.response.ResultData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +15,8 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-@CrossOrigin(origins = "http://localhost:3000")
+
+// @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/personal/community/posts")
 @RequiredArgsConstructor

@@ -1,5 +1,6 @@
 package com.highfive.meetu.domain.notification.common.controller;
 
+import com.highfive.meetu.domain.notification.common.dto.NotificationReadRequest;
 import com.highfive.meetu.domain.notification.common.entity.Notification;
 import com.highfive.meetu.domain.notification.common.service.NotificationService;
 import com.highfive.meetu.domain.notification.common.dto.NotificationDTO;
@@ -43,10 +44,10 @@ public class NotificationController {
     /**
      * 알림 읽음 처리
      */
-    @PostMapping("/read/{notificationId}")
-    public ResultData<Long> markNotificationAsRead(@PathVariable Long notificationId) {
-        notificationService.markAsRead(notificationId);
-        return ResultData.success(1, notificationId);
+    @PostMapping("/read")
+    public ResultData<Long> markNotificationAsRead(@RequestBody NotificationReadRequest request) {
+        notificationService.markAsRead(request.getNotificationId());
+        return ResultData.success(1, request.getNotificationId());
     }
 
     /**

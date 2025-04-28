@@ -15,10 +15,10 @@ public class MyPageController {
   private final MyPageService myPageService;
 
 
-  @CrossOrigin(
-      origins = "http://localhost:3000", // 실제 프론트엔드 주소로 변경 필요
-      allowCredentials = "true"
-  )
+  // @CrossOrigin(
+  //     origins = "http://localhost:3000", // 실제 프론트엔드 주소로 변경 필요
+  //     allowCredentials = "true"
+  // )
   @GetMapping()
   public ResultData<MyPageDTO> getMyPage() {
     Long profileId = SecurityUtil.getProfileId();

@@ -34,12 +34,13 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(
+                        // "*",
                         "https://meet-u-career.com",
                         "https://api.meet-u-career.com",
                         "http://localhost:3000"
                 )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
+                .allowedHeaders("*") // allowedOrigins 와는 별도.
                 .allowCredentials(true);
     }
 }
