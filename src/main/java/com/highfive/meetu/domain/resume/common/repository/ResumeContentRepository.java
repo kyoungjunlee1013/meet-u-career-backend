@@ -14,4 +14,6 @@ public interface ResumeContentRepository extends JpaRepository<ResumeContent, Lo
 
     @Query("SELECT rc.field FROM resumeContent rc JOIN rc.resume r WHERE r.profile.id = :userId GROUP BY rc.field ORDER BY COUNT(rc.id) DESC")
     List<String> findTop3KeywordsByUserId(@Param("userId") Long userId);
+
+    List<ResumeContent> findByResumeIdOrderByContentOrderAsc(Long resumeId);
 }

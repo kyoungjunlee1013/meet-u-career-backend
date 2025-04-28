@@ -8,9 +8,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ApplicationSummaryDTO {
-  private long passedDocument;
-  private long interview1st;
-  private long finalAccepted;
-  private long rejected;
-
+  private Long passedDocument;
+  private Long interview1st;
+  private Long finalAccepted;
+  private Long rejected;
 }

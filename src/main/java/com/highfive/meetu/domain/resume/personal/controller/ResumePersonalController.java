@@ -30,7 +30,7 @@ public class ResumePersonalController {
     // 이력서 초기 생성 메서드 - "이력서 작성" 버튼을 눌러서 이력서 작성 페이지로 넘어갈 때 데이터 생성
     @PostMapping("/init")
     public ResultData<Long> initResume(@RequestBody Map<String, Object> request) {
-        Long profileId = Long.valueOf(request.get("profileId").toString());
+        Long profileId = SecurityUtil.getProfileId();
         Integer resumeType = Integer.valueOf(request.get("resumeType").toString());
 
         Long resumeId = resumePersonalService.initResume(profileId, resumeType);
@@ -168,7 +168,11 @@ public class ResumePersonalController {
     }
 
 
-
+    @PostMapping("/create")
+    public ResultData<Long> createResume(@RequestBody ResumeSaveRequestDTO dto) {
+        Long resumeId = resumePersonalService.createResume(dto);
+        return ResultData.success(1, resumeId); // 성공 시 생성된 이력서 ID 반환
+    }
 
 
 
@@ -184,17 +188,15 @@ public class ResumePersonalController {
 
     /**
      * 입사 지원
-     * @param jobPostingId 채용 공고 ID
-     * @param resumeId 이력서 ID
+     * @param dto 지원 정보
      * @return 결과 메시지
      */
     @PostMapping("/apply")
-    public ResultData<?> applyForJob(@RequestParam Long jobPostingId, @RequestParam Long resumeId) {
-        Long profileId = SecurityUtil.getProfileId();  // 로그인한 사용자의 프로필 ID 가져오기
-        applicationPersonalService.applyForJob(profileId, jobPostingId, resumeId);
+    public ResultData<?> applyForJob(@RequestBody ApplyRequestDTO dto) {
+        Long profileId = SecurityUtil.getProfileId(); // 로그인한 사용자 프로필 ID
+        applicationPersonalService.applyForJob(profileId, dto.getJobPostingId(), dto.getResumeId());
         return ResultData.success(1, "입사 지원이 완료되었습니다.");
     }
-
 
     // -------------------------------
 
@@ -235,7 +237,6 @@ public class ResumePersonalController {
         return ResultData.success(1, "상태가 변경되었습니다.");
     }
 
-
     // 이력서 조회수 조회
     @GetMapping("/{resumeId}/view-count")
     public ResultData<Integer> getViewCount(@PathVariable Long resumeId) {
@@ -243,7 +244,22 @@ public class ResumePersonalController {
         return ResultData.success(1, count);
     }
 
+    /**
+     * 이력서 기본 정보 세팅
+     */
+    @GetMapping("/base-info")
+    public ResultData<ResumeBaseInfoDTO> getBaseInfo() {
+        ResumeBaseInfoDTO baseInfo = resumePersonalService.getBaseInfo();
+        return ResultData.success(1, baseInfo);
+    }
 
-
+    /**
+     * 이력서 상세 조회
+     */
+    @GetMapping("/view/{resumeId}")
+    public ResultData<ResumeSaveRequestDTO> getResumeDetail(@PathVariable Long resumeId) {
+        ResumeSaveRequestDTO dto = resumePersonalService.getResumeDetail(resumeId);
+        return ResultData.success(1, dto);
+    }
 }
 

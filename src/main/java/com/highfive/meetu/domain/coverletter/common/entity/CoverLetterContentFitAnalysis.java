@@ -1,7 +1,6 @@
 package com.highfive.meetu.domain.coverletter.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.highfive.meetu.domain.coverletter.common.entity.CoverLetterContent;
 import com.highfive.meetu.domain.job.common.entity.JobCategory;
 import com.highfive.meetu.global.common.entity.BaseEntity;
 import jakarta.persistence.*;

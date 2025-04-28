@@ -16,6 +16,7 @@ import com.highfive.meetu.domain.user.common.entity.Profile;
 import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
 import com.highfive.meetu.global.common.exception.BadRequestException;
 import com.highfive.meetu.global.common.exception.NotFoundException;
+import com.highfive.meetu.infra.oauth.SecurityUtil;
 import com.highfive.meetu.infra.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -413,76 +414,121 @@ public class ResumePersonalService {
 
 
     /**
-     * 이력서 상세 조회 서비스
-     * - Resume + ResumeContent 리스트를 JOIN FETCH로 한 번에 가져옴
-     * - 가져온 Resume 엔티티를 DTO로 변환하여 반환
+     * 이력서 상세 조회 (Resume + ResumeContent + Profile 일부)
      */
-    @Transactional(readOnly = true) // 읽기 전용 트랜잭션 설정 (쓰기 불필요, 성능 최적화)
-    public ResumePersonalDTO getResumeDetail(Long resumeId) {
+    @Transactional(readOnly = true)
+    public ResumeSaveRequestDTO getResumeDetail(Long resumeId) {
+        Long profileId = SecurityUtil.getProfileId();
+        // Long profileId = 2L;
 
-        // ====================== 1. 이력서 조회 ======================
-        // 이력서 + 연관된 ResumeContent 항목들까지 함께 조회 (Fetch Join 방식)
-        Resume resume = resumeRepository.findWithContentsById(resumeId)
-                .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
+        // 1. Resume 조회
+        Resume resume = resumeRepository.findById(resumeId)
+            .orElseThrow(() -> new NotFoundException("이력서를 찾을 수 없습니다."));
 
-        // ====================== 2. 이력서 항목 리스트 변환 ======================
-        // 이력서에 포함된 항목(ResumeContent)들을 각각 ResumeContentPersonalDTO로 변환
-        // resume.getResumeContentList()의 각 ResumeContent 객체를
-        // ResumeContentPersonalDTO.fromEntity(content)로 변환하는 것과 동일
-        // 메서드 레퍼런스(::)는 람다식 content -> ResumeContentPersonalDTO.fromEntity(content) 를 간결하게 표현한 문법
-        List<ResumeContentPersonalDTO> contentDTOs = resume.getResumeContentList().stream()
-                .map(ResumeContentPersonalDTO::fromEntity)
-                .toList();
+        // 1-1. 삭제 상태(DELETED) 이거나 본인 소유가 아니면 예외
+        if (resume.getStatus() == Resume.Status.DELETED) {
+            throw new NotFoundException("삭제된 이력서입니다.");
+        }
+        if (!resume.getProfile().getId().equals(profileId)) {
+            throw new NotFoundException("본인 소유의 이력서만 조회할 수 있습니다.");
+        }
 
-        // ====================== 3. 이력서 → DTO 변환 및 반환 ======================
-        return ResumePersonalDTO.fromEntity(resume, contentDTOs); // 여기서 사용됨!
+        // 2. ResumeContent 리스트 조회
+        List<ResumeContent> contentList = resumeContentRepository.findByResumeIdOrderByContentOrderAsc(resumeId);
+
+        // 3. Profile 일부 정보 (location, desiredJobCategory, skills)
+        Profile profile = resume.getProfile();
+
+        // 4. DTO 변환
+        ResumeSaveRequestDTO dto = ResumeSaveRequestDTO.builder()
+            .resume(ResumeSaveRequestDTO.ResumeInfo.builder()
+                .title(resume.getTitle())
+                .resumeType(resume.getResumeType())
+                .resumeFileKey(resume.getResumeFileKey())
+                .resumeFileName(resume.getResumeFileName())
+                .resumeFileType(resume.getResumeFileType())
+                .resumeUrl(resume.getResumeUrl())
+                .overview(resume.getOverview())
+                .coverLetterId(resume.getCoverLetter() != null ? resume.getCoverLetter().getId() : null)
+                .extraLink1(resume.getExtraLink1())
+                .extraLink2(resume.getExtraLink2())
+                .isPrimary(resume.getIsPrimary())
+                .status(resume.getStatus())
+                .build())
+            .resumeContents(contentList.stream()
+                .map(ResumeContentSaveDTO::fromEntity)
+                .collect(Collectors.toList()))
+            .profile(ProfileUpdateDTO.builder()
+                .locationId(profile.getLocation() != null ? profile.getLocation().getId() : null)
+                .desiredJobCategoryId(profile.getDesiredJobCategory() != null ? profile.getDesiredJobCategory().getId() : null)
+                .skills(profile.getSkills())
+                .build())
+            .build();
+
+        return dto;
+
     }
 
 
+
     /**
-     * 이력서 생성 서비스
-     * - 이력서만 먼저 생성하고 ID 반환 (임시저장용 또는 초안)
-     *
-     * @param dto 작성 요청 DTO
-     * @return 생성된 이력서 ID
+     * 이력서 작성 (Resume + ResumeContent + Profile 업데이트)
      */
     @Transactional
-    public Long createResume(ResumePersonalDTO dto) {
+    public Long createResume(ResumeSaveRequestDTO dto) {
+        // 로그인 사용자의 profileId 가져오기
+        Long profileId = SecurityUtil.getProfileId();
+        // Long profileId = 2L;
 
-        // 1. 필수 값 검증
-        if (dto.getTitle() == null || dto.getProfileId() == null) {
-            throw new BadRequestException("이력서 제목 또는 프로필 ID는 필수입니다.");
+        // 프로필 조회
+        Profile profile = profileRepository.findById(profileId)
+            .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
+
+        // Resume 생성
+        Resume resume = dto.toEntity(profile);
+
+        // coverLetter 연결
+        if (dto.getResume() != null && dto.getResume().getCoverLetterId() != null) {
+            CoverLetter coverLetter = coverLetterRepository.findById(dto.getResume().getCoverLetterId())
+                .orElseThrow(() -> new NotFoundException("자기소개서를 찾을 수 없습니다."));
+            resume.setCoverLetter(coverLetter);
         }
 
-        // 2. 연관 프로필 조회
-        Profile profile = profileRepository.findById(dto.getProfileId())
-                .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
-
-        // 3. 자기소개서가 선택된 경우 조회
-        CoverLetter coverLetter = null;
-        if (dto.getCoverLetterId() != null) {
-            coverLetter = coverLetterRepository.findById(dto.getCoverLetterId())
-                    .orElseThrow(() -> new NotFoundException("자기소개서를 찾을 수 없습니다."));
-        }
-
-        // 4. 이력서 엔티티 생성
-        Resume resume = dto.toEntity(profile, coverLetter);
-
-        // 5. 저장 (ID 생성됨)
+        // 저장
         resumeRepository.save(resume);
 
-        // 6. 항목이 있는 경우 content 리스트도 저장
-        if (dto.getContents() != null && !dto.getContents().isEmpty()) {
 
-            List<ResumeContent> contentList = dto.getContents().stream()
-                    .map(content -> content.toEntity(resume))
-                    .collect(Collectors.toList());
+        // ResumeContent 저장
+        if (dto.getResumeContents() != null && !dto.getResumeContents().isEmpty()) {
+            List<ResumeContent> contentList = dto.getResumeContents().stream()
+                .map(contentDto -> contentDto.toEntity(resume))
+                .collect(Collectors.toList());
 
             resumeContentRepository.saveAll(contentList);
         }
 
-        // 7. 생성된 ID만 반환
-        return resume.getId();
+        // 5. Profile 수정 (선택사항)
+        if (dto.getProfile() != null) {
+            ProfileUpdateDTO profileDto = dto.getProfile();
+
+            if (profileDto.getLocationId() != null) {
+                Location location = locationRepository.findById(profileDto.getLocationId())
+                    .orElseThrow(() -> new NotFoundException("거주 지역을 찾을 수 없습니다."));
+                profile.setLocation(location);
+            }
+
+            if (profileDto.getDesiredJobCategoryId() != null) {
+                JobCategory jobCategory = jobCategoryRepository.findById(profileDto.getDesiredJobCategoryId())
+                    .orElseThrow(() -> new NotFoundException("희망 직무를 찾을 수 없습니다."));
+                profile.setDesiredJobCategory(jobCategory);
+            }
+
+            if (profileDto.getSkills() != null) {
+                profile.setSkills(profileDto.getSkills());
+            }
+        }
+
+        return resume.getId(); // 저장된 이력서 ID 반환
     }
 
 
@@ -638,5 +684,21 @@ public class ResumePersonalService {
         return resumeViewLogRepository.countByResumeId(resumeId);
     }
 
+    @Transactional(readOnly = true)
+    public ResumeBaseInfoDTO getBaseInfo() {
+        Long profileId = SecurityUtil.getProfileId();
+        // Long profileId = 2L;
+        Profile profile = profileRepository.findById(profileId)
+            .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
 
+        return ResumeBaseInfoDTO.builder()
+            .name(profile.getAccount().getName())
+            .email(profile.getAccount().getEmail())
+            .phone(profile.getAccount().getPhone())
+            .profileImageKey(profile.getProfileImageKey())
+            .locationId(profile.getLocation() != null ? profile.getLocation().getId() : null)
+            .desiredJobCategoryId(profile.getDesiredJobCategory() != null ? profile.getDesiredJobCategory().getId() : null)
+            .skills(profile.getSkills())
+            .build();
+    }
 }

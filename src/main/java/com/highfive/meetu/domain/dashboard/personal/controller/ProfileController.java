@@ -14,13 +14,13 @@ public class ProfileController {
   private final ProfileService profileService;
 
   @GetMapping("/me")
-  public ResultData<ProfileInfoDTO> getProfileInfo(@RequestParam Long profileId) {
-    return ResultData.success(1, profileService.getProfileInfo(profileId));
+  public ResultData<ProfileInfoDTO> getProfileInfo() {
+    return ResultData.success(1, profileService.getProfileInfo());
   }
 
   @PutMapping("/me")
-  public ResultData<Void> updateProfile(@RequestParam Long profileId, @RequestBody ProfileInfoDTO dto) {
-    profileService.updateProfileByProfileId(profileId, dto);
+  public ResultData<Void> updateProfile(@RequestBody ProfileInfoDTO dto) {
+    profileService.updateProfileByProfileId(dto);
     return ResultData.success(1, null);
   }
 }

@@ -4,6 +4,7 @@ import com.highfive.meetu.domain.calendar.personal.dto.CalendarPersonalDTO;
 import com.highfive.meetu.domain.calendar.personal.dto.PublicCalendarItemDTO;
 import com.highfive.meetu.domain.calendar.personal.service.CalendarPersonalService;
 import com.highfive.meetu.global.common.response.ResultData;
+import com.highfive.meetu.infra.oauth.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +25,8 @@ public class CalendarPersonalController {
     public ResultData<?> getCalendarList() {
         try {
             // 로그인 상태 → 내 전체 일정 (개인회원, 기업회원 동일 방식)
-            //Long accountId = SecurityUtil.getAccountId();
-            Long accountId = 2L;
+            Long accountId = SecurityUtil.getAccountId();
+            // Long accountId = 2L;
             //Long accountId = null;
             List<CalendarPersonalDTO> schedules = calendarPersonalService.getFullScheduleForAccount(accountId);
             return ResultData.success(schedules.size(), schedules);

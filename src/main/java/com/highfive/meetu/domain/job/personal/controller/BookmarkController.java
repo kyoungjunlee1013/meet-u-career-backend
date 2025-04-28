@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/personal/job/bookmark")
+@RequestMapping("/api/personal/bookmark")
 public class BookmarkController {
 
     private final BookmarkService bookmarkService;
