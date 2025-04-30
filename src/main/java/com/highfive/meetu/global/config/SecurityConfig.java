@@ -46,13 +46,14 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/admin/dashboard/**").hasRole("ADMIN")  // 관리자 대시보드 보호
                 .requestMatchers(
-                    "/api/admin/auth/login",                // 관리자 로그인
-                    "/api/business/auth/login",             // 기업회원 로그인
-                    "/api/personal/auth/login",             // 개인회원 로그인
-                    "/api/main/**",                         // 메인
-                    "/api/personal/job/**",                 // 채용 정보
-                    "/api/community/popular/posts",         // 커뮤니티
-                    "/ws/**",                               // WebSocket
+                    "/api/admin/auth/login",                            // 관리자 로그인
+                    "/api/business/auth/login",                         // 기업회원 로그인
+                    "/api/personal/auth/login",                         // 개인회원 로그인
+                    "/api/main/**",                                     // 메인
+                    "/api/personal/job/**",                             // 채용 정보
+                    "/api/community/popular/posts",                     // 커뮤니티 인기 게시글
+                    "/api/personal/community/posts/all-posts",          // 커뮤니티 글 목록
+                    "/ws/**",                                           // WebSocket
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/error"
