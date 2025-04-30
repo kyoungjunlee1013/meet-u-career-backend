@@ -3,6 +3,8 @@ package com.highfive.meetu.infra.s3;
 import com.highfive.meetu.global.common.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -110,6 +112,24 @@ public class S3Service {
 
         PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
         return presignedRequest.url().toString();
+    }
+
+    /**
+     * S3에서 파일을 읽어 Resource 객체로 반환 (파일 다운로드용)
+     */
+    public Resource loadAsResource(String key) {
+        GetObjectRequest request = GetObjectRequest.builder()
+            .bucket(bucket)
+            .key(key)
+            .build();
+
+        // AWS SDK의 response와 stream 추출
+        try {
+            var s3Object = s3Client.getObject(request);
+            return new InputStreamResource(s3Object);
+        } catch (Exception e) {
+            throw new BadRequestException("S3 파일 다운로드 실패: " + e.getMessage());
+        }
     }
 }
 
