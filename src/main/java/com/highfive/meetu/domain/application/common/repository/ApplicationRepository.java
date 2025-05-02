@@ -12,7 +12,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Application (지원서) Repository
@@ -23,6 +25,9 @@ import java.util.List;
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long>, ApplicationRepositoryCustom {
 
+    /**
+     * 특정 프로필의 전체 오퍼 수 조회
+     */
     @Query("SELECT COUNT(a) FROM application a WHERE a.profile.id = :profileId")
     int countOffersByProfileId(@Param("profileId") Long profileId);
 
@@ -193,4 +198,30 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
 
     // 일정 관리 기능 관련
     List<Application> findByProfile_Account_Id(Long accountId);
+
+    /**
+     * (Business 대시보드용) 회사 ID 기준으로 공고별 지원자 수 집계
+     */
+    @Query("""
+        SELECT a.jobPosting.id, COUNT(a)
+        FROM application a
+        WHERE a.jobPosting.company.id = :companyId
+        GROUP BY a.jobPosting.id
+    """)
+    List<Object[]> countApplicationsByJobPostingGrouped(@Param("companyId") Long companyId);
+
+
+
+    /**
+     * (Business 대시보드용) 회사 ID 기준 지원자 수를 Map<Long, Integer>로 반환
+     */
+    default Map<Long, Integer> countApplicationsGroupByJobPosting(Long companyId) {
+        List<Object[]> results = countApplicationsByJobPostingGrouped(companyId);
+        Map<Long, Integer> map = new HashMap<>();
+        for (Object[] row : results) {
+            map.put((Long) row[0], ((Long) row[1]).intValue());
+        }
+        return map;
+    }
+
 }

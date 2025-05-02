@@ -47,6 +47,8 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
         org.springframework.data.domain.Pageable pageable
     );
 
+  // 특정 기업이 등록한 모든 채용공고 조회
+  List<JobPosting> findByCompanyId(Long companyId);
     /**
      * 활성 상태인 공고 중 마감일이 가까운 순으로 10개 조회 (비회원용)
      */

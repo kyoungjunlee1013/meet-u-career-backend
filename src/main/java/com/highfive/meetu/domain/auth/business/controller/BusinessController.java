@@ -4,7 +4,6 @@ import com.highfive.meetu.global.common.response.ResultData;
 import com.highfive.meetu.global.security.LoginAccountId;
 import com.highfive.meetu.global.security.RoleSecured;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +19,7 @@ public class BusinessController {
     /**
      * 기업회원 전용 대시보드 접근
      */
-    @PreAuthorize("hasRole('BUSINESS')")
+
     @GetMapping("/dashboard")
     public ResultData<String> companyDashboard() {
         return ResultData.success(1, "기업회원 대시보드 진입 성공!");
