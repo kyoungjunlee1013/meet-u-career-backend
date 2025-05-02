@@ -25,10 +25,16 @@ public class InterviewReviewDTO {
   private String createdAt;
   private String updatedAt;
   private String logo;
+  private Long companyId;
+  private Long jobCategoryId;
+  private Long applicationId;
 
   public static InterviewReviewDTO fromEntity(InterviewReview review) {
     return InterviewReviewDTO.builder()
         .id(review.getId())
+        .companyId(review.getCompany() != null ? review.getCompany().getId() : null)
+        .jobCategoryId(review.getJobCategory() != null ? review.getJobCategory().getId() : null)
+        .applicationId(review.getApplication() != null ? review.getApplication().getId() : null)
         .company(review.getCompany().getName())
         .position("포지션명")
         .date(review.getCreatedAt().toString()) // ✅ 여기만 수정

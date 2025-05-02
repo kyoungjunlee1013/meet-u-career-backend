@@ -101,4 +101,6 @@ public interface InterviewReviewRepository extends JpaRepository<InterviewReview
       WHERE ir.company.id = :companyId
   """)
   int countByCompanyId(Long companyId);
+
+  Optional<InterviewReview> findByApplicationId(Long applicationId);
 }

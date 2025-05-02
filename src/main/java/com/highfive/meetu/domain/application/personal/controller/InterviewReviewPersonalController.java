@@ -1,10 +1,7 @@
 package com.highfive.meetu.domain.application.personal.controller;
 
 import com.highfive.meetu.domain.application.common.entity.Application;
-import com.highfive.meetu.domain.application.personal.dto.InterviewCompanySummaryDTO;
-import com.highfive.meetu.domain.application.personal.dto.InterviewReviewApplicationDTO;
-import com.highfive.meetu.domain.application.personal.dto.InterviewReviewDTO;
-import com.highfive.meetu.domain.application.personal.dto.InterviewReviewPersonalDTO;
+import com.highfive.meetu.domain.application.personal.dto.*;
 import com.highfive.meetu.domain.application.personal.service.InterviewReviewPersonalService;
 import com.highfive.meetu.global.common.response.ResultData;
 import com.highfive.meetu.infra.oauth.SecurityUtil;
@@ -26,13 +23,13 @@ public class InterviewReviewPersonalController {
      * (가정) 외부에서 Application 리스트를 주입받는 경우 테스트용
      * 실제로는 queryRepository 또는 다른 팀원의 로직과 연결 필요
      */
-    @PostMapping("/reviewable-list")
-    public ResultData<List<InterviewReviewApplicationDTO>> getReviewableApplications(
-            @RequestBody List<Application> applications) {
-        List<InterviewReviewApplicationDTO> result =
-                interviewReviewPersonalService.toDTOList(applications);
-        return ResultData.success(result.size(), result);
-    }
+//    @PostMapping("/reviewable-list")
+//    public ResultData<List<InterviewReviewApplicationDTO>> getReviewableApplications(
+//            @RequestBody List<Application> applications) {
+//        List<InterviewReviewApplicationDTO> result =
+//                interviewReviewPersonalService.toDTOList(applications);
+//        return ResultData.success(result.size(), result);
+//    }
 
     @GetMapping
     public ResultData<List<InterviewReviewDTO>> getMyReviews() {
@@ -41,6 +38,18 @@ public class InterviewReviewPersonalController {
         return ResultData.success(reviews.size(), reviews);
 
     }
+
+  /**
+   * [후기 저장] 면접 후기 등록
+   * - 로그인한 사용자 기준으로 등록
+   */
+  @PostMapping
+  public ResultData<Long> createReview(@RequestBody InterviewReviewCreateDTO dto) {
+    Long profileId = SecurityUtil.getProfileId(); // 로그인한 사용자
+    Long savedId = interviewReviewPersonalService.createReview(dto, profileId);
+    return ResultData.success(1, savedId);
+  }
+
 
   /**
    * [마이페이지] 내가 작성한 면접 후기 목록 조회

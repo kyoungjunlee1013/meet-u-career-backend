@@ -3,6 +3,7 @@ package com.highfive.meetu.domain.application.personal.service;
 import com.highfive.meetu.domain.application.common.entity.Application;
 import com.highfive.meetu.domain.application.common.repository.ApplicationQueryRepository;
 import com.highfive.meetu.domain.application.common.repository.ApplicationRepository;
+import com.highfive.meetu.domain.application.common.repository.InterviewReviewRepository;
 import com.highfive.meetu.domain.application.personal.dto.ApplicationPersonalDTO;
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
 import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
@@ -30,27 +31,24 @@ public class ApplicationPersonalService {
     private final ProfileRepository profileRepository;
     private final JobPostingRepository jobPostingRepository;
     private final ResumeRepository resumeRepository;
+    private final InterviewReviewRepository interviewReviewRepository;
 
     /**
      * 특정 profileId의 지원 내역 목록 조회
      */
     public List<ApplicationPersonalDTO> getMyApplications(Long profileId) {
-        // profileId가 실제 존재하는지 먼저 확인 (선택적)
-        // 굳이 필요 없다면 생략 가능
-        /*
-         * boolean existsProfile = profileRepository.existsById(profileId);
-         * if(!existsProfile) {
-         * throw new NotFoundException("해당 프로필을 찾을 수 없습니다.");
-         * }
-         */
+        List<ApplicationPersonalDTO> list = applicationQueryRepository.findAllByProfileId(profileId);
 
-        // QueryDSL 통해 조회
-        return applicationQueryRepository
-            .findAllByProfileId(profileId)
-            .stream()
-            .filter(dto -> dto.getStatus() != Application.Status.DELETED)
-            .toList();
+        return list.stream()
+                .filter(dto -> dto.getStatus() != Application.Status.DELETED)
+                .peek(dto -> {
+                    boolean canWrite = dto.getStatus() == Application.Status.INTERVIEW_COMPLETED &&
+                            !interviewReviewRepository.existsByApplicationId(dto.getApplicationId());
+                    dto.setCanWriteReview(canWrite);
+                })
+                .toList();
     }
+
 
     /**
      * 특정 profileId와 status에 따른 지원 내역 목록 조회

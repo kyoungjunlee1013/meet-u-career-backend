@@ -30,4 +30,10 @@ public class ApplicationPersonalDTO {
   // 회사명
   private String companyName;
 
+  // 추가: 해당 지원서에 대해 면접 후기 작성 가능 여부
+  private boolean canWriteReview;
+
+  private Long companyId;      // 회사 ID
+  private Long jobCategoryId;  // 직무 카테고리 ID
+
 }

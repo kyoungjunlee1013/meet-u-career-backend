@@ -2,19 +2,20 @@ package com.highfive.meetu.domain.application.personal.service;
 
 import com.highfive.meetu.domain.application.common.entity.Application;
 import com.highfive.meetu.domain.application.common.entity.InterviewReview;
+import com.highfive.meetu.domain.application.common.repository.ApplicationRepository;
 import com.highfive.meetu.domain.application.common.repository.InterviewReviewRepository;
-import com.highfive.meetu.domain.application.personal.dto.InterviewCompanySummaryDTO;
-import com.highfive.meetu.domain.application.personal.dto.InterviewReviewPersonalDTO;
+import com.highfive.meetu.domain.application.personal.dto.*;
 import com.highfive.meetu.domain.company.common.entity.Company;
 import com.highfive.meetu.domain.company.common.repository.CompanyRepository;
+import com.highfive.meetu.domain.job.common.repository.JobCategoryRepository;
+import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
 import com.highfive.meetu.global.common.exception.NotFoundException;
-import com.highfive.meetu.domain.application.personal.dto.InterviewReviewApplicationDTO;
-import com.highfive.meetu.domain.application.personal.dto.InterviewReviewDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +24,9 @@ public class InterviewReviewPersonalService {
 
   private final InterviewReviewRepository interviewReviewRepository;
   private final CompanyRepository companyRepository;
+  private final ApplicationRepository applicationRepository;
+  private final JobCategoryRepository jobCategoryRepository;
+  private final ProfileRepository profileRepository;
 
 
     /**
@@ -62,8 +66,64 @@ public class InterviewReviewPersonalService {
                 .collect(Collectors.toList());
     }
 
+  public Long createReview(InterviewReviewCreateDTO dto, Long profileId) {
+    Application application = applicationRepository.findById(dto.getApplicationId())
+            .orElseThrow(() -> new NotFoundException("지원 정보를 찾을 수 없습니다."));
 
-    /**
+    // 이미 해당 applicationId로 작성된 후기가 있는지 확인
+    Optional<InterviewReview> existingOpt = interviewReviewRepository
+            .findByApplicationId(dto.getApplicationId());
+
+
+    InterviewReview review;
+    if (existingOpt.isPresent()) {
+      // 후기 수정
+      review = existingOpt.get();
+      review.setCompany(companyRepository.getReferenceById(dto.getCompanyId()));
+      review.setJobCategory(jobCategoryRepository.getReferenceById(dto.getJobCategoryId()));
+      review.setProfile(profileRepository.findByAccountId(profileId)
+              .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다.")));
+      review.setRating(dto.getRating());
+      review.setDifficulty(dto.getDifficulty());
+      review.setCareerLevel(dto.getCareerLevel());
+      review.setInterviewYearMonth(dto.getInterviewYearMonth());
+      review.setInterviewType(dto.getInterviewType());
+      review.setInterviewParticipants(dto.getInterviewParticipants());
+      review.setHasFrequentQuestions(dto.getHasFrequentQuestions());
+      review.setQuestionsAsked(dto.getQuestionsAsked());
+      review.setInterviewTip(dto.getInterviewTip());
+      review.setResult(dto.getResult());
+      // 필요하다면 수정일자 등 추가
+    } else {
+      // 후기 신규 작성
+      review = InterviewReview.builder()
+              .application(application)
+              .company(companyRepository.getReferenceById(dto.getCompanyId()))
+              .jobCategory(jobCategoryRepository.getReferenceById(dto.getJobCategoryId()))
+              .profile(profileRepository.findByAccountId(profileId)
+                      .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다.")))
+              .rating(dto.getRating())
+              .difficulty(dto.getDifficulty())
+              .careerLevel(dto.getCareerLevel())
+              .interviewYearMonth(dto.getInterviewYearMonth())
+              .interviewType(dto.getInterviewType())
+              .interviewParticipants(dto.getInterviewParticipants())
+              .hasFrequentQuestions(dto.getHasFrequentQuestions())
+              .questionsAsked(dto.getQuestionsAsked())
+              .interviewTip(dto.getInterviewTip())
+              .result(dto.getResult())
+              .status(0)
+              .build();
+    }
+
+    interviewReviewRepository.save(review);
+    return review.getId();
+
+  }
+
+
+
+  /**
    * [마이페이지용] 로그인한 사용자의 후기 전체 조회
    *
    * @param accountId 로그인한 사용자 계정 ID

@@ -7,6 +7,7 @@ import com.highfive.meetu.domain.application.common.entity.QApplication;
 import com.highfive.meetu.domain.job.common.entity.QJobPosting;
 import com.highfive.meetu.domain.company.common.entity.QCompany;
 import com.highfive.meetu.domain.job.common.entity.QJobPosting;
+import com.highfive.meetu.domain.job.common.entity.QJobPostingJobCategory;
 import com.highfive.meetu.domain.resume.common.entity.QResume;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,6 +25,7 @@ public class ApplicationQueryRepositoryImpl implements ApplicationQueryRepositor
     private final QJobPosting qJobPosting = QJobPosting.jobPosting;
     private final QCompany qCompany = QCompany.company;
     private final QInterviewReview review = QInterviewReview.interviewReview;
+    QJobPostingJobCategory jpjc = QJobPostingJobCategory.jobPostingJobCategory;
 
   @Override
   public List<ApplicationPersonalDTO> findAllByProfileId(Long profileId) {
@@ -41,11 +43,17 @@ public class ApplicationQueryRepositoryImpl implements ApplicationQueryRepositor
             qJobPosting.id, // jobPostingId
             qJobPosting.title, // jobTitle
             qJobPosting.expirationDate, // expirationDate
-            qCompany.name // companyName
+            qCompany.name, // companyName
+            review.id.isNotNull(),            // reviewExists: 후기 작성 여부
+            qCompany.id,                       // companyId (신규)
+            jpjc.jobCategory.id                 // jobCategoryId (신규)
+
         ))
         .from(qApplication)
         .join(qApplication.jobPosting, qJobPosting)
         .join(qJobPosting.company, qCompany)
+        .leftJoin(review).on(qApplication.id.eq(review.application.id)) // 후기 여부 확인
+        .leftJoin(jpjc).on(jpjc.jobPosting.id.eq(qJobPosting.id))       // ★ 조인 추가
         .where(qApplication.profile.id.eq(profileId))
         .orderBy(qApplication.id.desc()) // ID 기준 내림차순 or 원하는 정렬
         .fetch();
