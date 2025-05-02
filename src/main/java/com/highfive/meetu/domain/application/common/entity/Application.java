@@ -49,7 +49,8 @@ public class Application extends BaseEntity {
     @Column(nullable = false)
     private Integer status; // 지원 상태 (PENDING, REVIEWING, INTERVIEWING, REJECTED, CANCELED)
 
-    // 상태 코드 상수 정의
+
+  // 상태 코드 상수 정의
     public static class Status {
         public static final int APPLIED = 0;
         public static final int DOCUMENT_PASSED = 1;

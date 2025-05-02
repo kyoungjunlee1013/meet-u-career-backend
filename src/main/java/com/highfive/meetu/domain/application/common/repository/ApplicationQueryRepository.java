@@ -1,6 +1,7 @@
 package com.highfive.meetu.domain.application.common.repository;
 
 import com.highfive.meetu.domain.application.personal.dto.ApplicationPersonalDTO;
+import com.highfive.meetu.domain.application.personal.dto.InterviewListDTO;
 
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface ApplicationQueryRepository {
      * - Application + JobPosting + Company 등 조인하여 DTO로 반환
      */
     List<ApplicationPersonalDTO> findAllByProfileId(Long profileId);
+
+    List<InterviewListDTO> findInterviewsWithReviewStatusByProfileId(Long profileId);
 }

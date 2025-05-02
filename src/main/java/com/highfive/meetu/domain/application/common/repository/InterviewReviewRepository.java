@@ -14,9 +14,20 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.List;
+
+/**
+ * 면접 후기 관련 Repository
+ */
+@Repository
 public interface InterviewReviewRepository extends JpaRepository<InterviewReview, Long> {
 
-  /**
+    // applicationId 기준으로 후기 존재 여부 확인
+    boolean existsByApplicationId(Long applicationId); // 지원서 기준 중복 작성 방지
+
+    List<InterviewReview> findByProfileId(Long profileId);
+
+    /**
    * 특정 사용자(profileId)가 작성한 후기 중 status가 일치하는 목록 조회
    */
   List<InterviewReview> findAllByProfileIdAndStatus(Long profileId, Integer status);

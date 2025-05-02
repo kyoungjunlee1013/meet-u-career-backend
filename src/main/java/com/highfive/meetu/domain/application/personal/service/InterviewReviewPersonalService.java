@@ -1,5 +1,6 @@
 package com.highfive.meetu.domain.application.personal.service;
 
+import com.highfive.meetu.domain.application.common.entity.Application;
 import com.highfive.meetu.domain.application.common.entity.InterviewReview;
 import com.highfive.meetu.domain.application.common.repository.InterviewReviewRepository;
 import com.highfive.meetu.domain.application.personal.dto.InterviewCompanySummaryDTO;
@@ -7,11 +8,14 @@ import com.highfive.meetu.domain.application.personal.dto.InterviewReviewPersona
 import com.highfive.meetu.domain.company.common.entity.Company;
 import com.highfive.meetu.domain.company.common.repository.CompanyRepository;
 import com.highfive.meetu.global.common.exception.NotFoundException;
+import com.highfive.meetu.domain.application.personal.dto.InterviewReviewApplicationDTO;
+import com.highfive.meetu.domain.application.personal.dto.InterviewReviewDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +25,45 @@ public class InterviewReviewPersonalService {
   private final CompanyRepository companyRepository;
 
 
-  /**
+    /**
+     * [후기 작성 가능 여부 확인]
+     * - 조건: 상태(status) = 3 (면접 완료) && 아직 리뷰가 작성되지 않은 경우
+     */
+    public boolean canWriteReview(Application application) {
+        return application.getStatus() == 3 &&
+                !interviewReviewRepository.existsByApplicationId(application.getId());
+    }
+
+    /**
+     * [지원서 리스트 → 후기 작성 가능 여부 DTO 변환]
+     * - 프론트에 각 지원서별로 '후기 작성 가능' 표시할 때 사용
+     */
+    public List<InterviewReviewApplicationDTO> toDTOList(List<Application> applications) {
+        return applications.stream()
+                .map(app -> InterviewReviewApplicationDTO.builder()
+                        .applicationId(app.getId())
+                        .jobTitle(app.getJobPosting().getTitle())
+                        .companyName(app.getJobPosting().getCompany().getName())
+                        .status(app.getStatus())
+                        .createdAt(app.getCreatedAt())
+                        .canWriteReview(canWriteReview(app))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * [프로필 기준 전체 후기 조회]
+     * - 상태 조건 없이 전체 반환 (관리자 검토용 또는 마이페이지용)
+     */
+    public List<InterviewReviewDTO> getReviewsByProfileId(Long profileId) {
+        List<InterviewReview> list = interviewReviewRepository.findByProfileId(profileId);
+        return list.stream()
+                .map(InterviewReviewDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+
+    /**
    * [마이페이지용] 로그인한 사용자의 후기 전체 조회
    *
    * @param accountId 로그인한 사용자 계정 ID

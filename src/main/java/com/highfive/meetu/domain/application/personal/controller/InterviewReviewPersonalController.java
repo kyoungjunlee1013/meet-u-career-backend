@@ -1,10 +1,12 @@
 package com.highfive.meetu.domain.application.personal.controller;
 
+import com.highfive.meetu.domain.application.common.entity.Application;
 import com.highfive.meetu.domain.application.personal.dto.InterviewCompanySummaryDTO;
 import com.highfive.meetu.domain.application.personal.dto.InterviewReviewPersonalDTO;
 import com.highfive.meetu.domain.application.personal.service.InterviewReviewPersonalService;
 import com.highfive.meetu.global.common.response.ResultData;
 import com.highfive.meetu.infra.oauth.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,15 +15,30 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/personal/interview-reviews")
 @RequiredArgsConstructor
-@CrossOrigin(
-    origins = "http://localhost:3000",
-    allowedHeaders = "*",
-    methods = {RequestMethod.GET, RequestMethod.POST},
-    allowCredentials = "true"
-)
 public class InterviewReviewPersonalController {
 
   private final InterviewReviewPersonalService interviewReviewPersonalService;
+
+
+    /**
+     * (가정) 외부에서 Application 리스트를 주입받는 경우 테스트용
+     * 실제로는 queryRepository 또는 다른 팀원의 로직과 연결 필요
+     */
+    @PostMapping("/reviewable-list")
+    public ResultData<List<InterviewReviewApplicationDTO>> getReviewableApplications(
+            @RequestBody List<Application> applications) {
+        List<InterviewReviewApplicationDTO> result =
+                interviewReviewPersonalService.toDTOList(applications);
+        return ResultData.success(result.size(), result);
+    }
+
+    @GetMapping
+    public ResultData<List<InterviewReviewDTO>> getMyReviews() {
+        Long profileId = SecurityUtil.getProfileId(); // 현재 로그인한 사용자 기준
+        List<InterviewReviewDTO> reviews = interviewReviewPersonalService.getReviewsByProfileId(profileId);
+        return ResultData.success(reviews.size(), reviews);
+
+    }
 
   /**
    * [마이페이지] 내가 작성한 면접 후기 목록 조회

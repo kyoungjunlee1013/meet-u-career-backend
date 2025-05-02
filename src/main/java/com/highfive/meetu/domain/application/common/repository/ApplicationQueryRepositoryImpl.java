@@ -1,9 +1,13 @@
 package com.highfive.meetu.domain.application.common.repository;
 
+import com.highfive.meetu.domain.application.common.entity.QInterviewReview;
 import com.highfive.meetu.domain.application.personal.dto.ApplicationPersonalDTO;
+import com.highfive.meetu.domain.application.personal.dto.InterviewListDTO;
 import com.highfive.meetu.domain.application.common.entity.QApplication;
 import com.highfive.meetu.domain.job.common.entity.QJobPosting;
 import com.highfive.meetu.domain.company.common.entity.QCompany;
+import com.highfive.meetu.domain.job.common.entity.QJobPosting;
+import com.highfive.meetu.domain.resume.common.entity.QResume;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -15,14 +19,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApplicationQueryRepositoryImpl implements ApplicationQueryRepository {
 
-  private final JPAQueryFactory queryFactory;
+    private final JPAQueryFactory queryFactory;
+    private final QApplication qApplication = QApplication.application;
+    private final QJobPosting qJobPosting = QJobPosting.jobPosting;
+    private final QCompany qCompany = QCompany.company;
+    private final QInterviewReview review = QInterviewReview.interviewReview;
 
   @Override
   public List<ApplicationPersonalDTO> findAllByProfileId(Long profileId) {
 
-    QApplication qApplication = QApplication.application;
-    QJobPosting qJobPosting = QJobPosting.jobPosting;
-    QCompany qCompany = QCompany.company;
 
     return queryFactory
         .select(Projections.constructor(
@@ -45,4 +50,31 @@ public class ApplicationQueryRepositoryImpl implements ApplicationQueryRepositor
         .orderBy(qApplication.id.desc()) // ID 기준 내림차순 or 원하는 정렬
         .fetch();
   }
+
+    @Override
+    public List<InterviewListDTO> findInterviewsWithReviewStatusByProfileId(Long profileId) {
+
+        return queryFactory
+                .select(
+                        Projections.constructor(InterviewListDTO.class,
+                                application.id,                              // interviewId
+                                company.name,                                // companyName
+                                jobPosting.title,                            // position
+                                application.createdAt.stringValue().substring(0, 10), // interviewDate
+                                review.id.isNotNull(),                       // hasReview
+
+                                company.id,                                   // companyId
+                                // jobPosting.jobCategory.id,                    // jobCategoryId
+                                application.id                                // applicationId
+                        )
+
+                )
+                .from(application)
+                .join(application.jobPosting, jobPosting)
+                .join(jobPosting.company, company)
+                .leftJoin(review).on(application.id.eq(review.application.id))
+                .where(application.profile.id.eq(profileId))
+                .orderBy(application.createdAt.desc())
+                .fetch();
+    }
 }
