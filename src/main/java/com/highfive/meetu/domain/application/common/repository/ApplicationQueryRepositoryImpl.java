@@ -57,24 +57,22 @@ public class ApplicationQueryRepositoryImpl implements ApplicationQueryRepositor
         return queryFactory
                 .select(
                         Projections.constructor(InterviewListDTO.class,
-                                application.id,                              // interviewId
-                                company.name,                                // companyName
-                                jobPosting.title,                            // position
-                                application.createdAt.stringValue().substring(0, 10), // interviewDate
-                                review.id.isNotNull(),                       // hasReview
-
-                                company.id,                                   // companyId
-                                // jobPosting.jobCategory.id,                    // jobCategoryId
-                                application.id                                // applicationId
+                                qApplication.id,                                  // interviewId
+                                qCompany.name,                                    // companyName
+                                qJobPosting.title,                                // position
+                                qApplication.createdAt.stringValue().substring(0, 10), // interviewDate
+                                review.id.isNotNull(),                            // hasReview
+                                qCompany.id,                                      // companyId
+                                // qJobPosting.jobCategory.id,                   // jobCategoryId
+                                qApplication.id                                   // applicationId
                         )
-
                 )
-                .from(application)
-                .join(application.jobPosting, jobPosting)
-                .join(jobPosting.company, company)
-                .leftJoin(review).on(application.id.eq(review.application.id))
-                .where(application.profile.id.eq(profileId))
-                .orderBy(application.createdAt.desc())
+                .from(qApplication)
+                .join(qApplication.jobPosting, qJobPosting)
+                .join(qJobPosting.company, qCompany)
+                .leftJoin(review).on(qApplication.id.eq(review.application.id))
+                .where(qApplication.profile.id.eq(profileId))
+                .orderBy(qApplication.createdAt.desc())
                 .fetch();
     }
 }

@@ -94,4 +94,45 @@ public class InterviewReviewPersonalDTO {
                 .status(review.getStatus())
                 .build();
     }
+
+    public InterviewReviewPersonalDTO(
+            Long id,
+            String companyName,
+            String jobCategoryName,
+            String interviewYearMonth,
+            Integer rating,
+            LocalDateTime createdAt,
+            Integer careerLevel,
+            Integer difficulty,
+            Integer interviewType,
+            Integer interviewParticipants,
+            Boolean hasFrequentQuestions,
+            String questionsAsked,
+            String interviewTip,
+            Integer result,
+            Long applicationId,
+            Long companyId,
+            Long jobCategoryId,
+            Integer status
+    ) {
+        this.id = id;
+        this.companyName = companyName;
+        this.jobCategoryName = jobCategoryName;
+        this.interviewYearMonth = interviewYearMonth;
+        this.rating = rating;
+        this.createdAt = createdAt;
+        this.careerLevel = careerLevel;
+        this.difficulty = difficulty;
+        this.interviewType = interviewType;
+        this.interviewParticipants = interviewParticipants;
+        this.hasFrequentQuestions = hasFrequentQuestions;
+        this.questionsAsked = questionsAsked;
+        this.interviewTip = interviewTip;
+        this.result = result;
+        this.applicationId = applicationId;
+        this.companyId = companyId;
+        this.jobCategoryId = jobCategoryId;
+        this.status = status;
+    }
+
 }

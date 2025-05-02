@@ -2,6 +2,8 @@ package com.highfive.meetu.domain.application.personal.controller;
 
 import com.highfive.meetu.domain.application.common.entity.Application;
 import com.highfive.meetu.domain.application.personal.dto.InterviewCompanySummaryDTO;
+import com.highfive.meetu.domain.application.personal.dto.InterviewReviewApplicationDTO;
+import com.highfive.meetu.domain.application.personal.dto.InterviewReviewDTO;
 import com.highfive.meetu.domain.application.personal.dto.InterviewReviewPersonalDTO;
 import com.highfive.meetu.domain.application.personal.service.InterviewReviewPersonalService;
 import com.highfive.meetu.global.common.response.ResultData;
@@ -45,12 +47,12 @@ public class InterviewReviewPersonalController {
    * - 로그인한 계정 ID를 기준으로 조회
    * - 개인회원용 마이페이지에서 사용
    */
-  @GetMapping
-  public ResultData<List<InterviewReviewPersonalDTO>> getList() {
-    Long AccountId = SecurityUtil.getAccountId();
-    List<InterviewReviewPersonalDTO> list = interviewReviewPersonalService.findAllByProfileId(AccountId);
-    return ResultData.success(list.size(), list);
-  }
+//  @GetMapping
+//  public ResultData<List<InterviewReviewPersonalDTO>> getList() {
+//    Long AccountId = SecurityUtil.getAccountId();
+//    List<InterviewReviewPersonalDTO> list = interviewReviewPersonalService.findAllByProfileId(AccountId);
+//    return ResultData.success(list.size(), list);
+//  }
 
   /**
    * [공개 목록] 면접 후기가 1개 이상 존재하는 기업 목록 조회
