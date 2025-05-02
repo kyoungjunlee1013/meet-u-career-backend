@@ -3,6 +3,8 @@ package com.highfive.meetu.domain.job.business.dto;
 import com.highfive.meetu.domain.resume.common.entity.Resume;
 import lombok.*;
 
+import java.util.List;
+
 /**
  * 이력서 상세 정보를 담는 DTO (기업회원이 지원자의 이력서를 열람할 때 사용)
  */
@@ -12,26 +14,40 @@ import lombok.*;
 @AllArgsConstructor
 public class ResumeDetailResponseDTO {
 
-    private Long resumeId;           // 이력서 ID
-    private String title;            // 이력서 제목
-    private String overview;         // 간략 자기소개
-    private String resumeFileKey;    // S3 저장된 이력서 파일 키
-    private String resumeFileName;   // 업로드된 이력서 원본 파일명
-    private String resumeFileType;   // 이력서 파일 MIME 타입
-    private String resumeUrl;        // 외부 이력서 URL (resumeType이 URL인 경우)
-    private String extraLink1;       // 추가 링크 1 (예: GitHub, 블로그 등)
-    private String extraLink2;       // 추가 링크 2 (예: 포트폴리오 등)
-    private Boolean isPrimary;       // 대표 이력서 여부
-    private Integer resumeType;      // 이력서 유형 (직접입력, 파일업로드, URL 등록)
-    private Integer status;          // 이력서 상태 (공개, 비공개 등)
+    // 기본 이력서 정보
+    private Long resumeId;
+    private String title;
+    private String overview;
+    private String resumeFileKey;
+    private String resumeFileName;
+    private String resumeFileType;
+    private String resumeUrl;
+    private String extraLink1;
+    private String extraLink2;
+    private Boolean isPrimary;
+    private Integer resumeType;
+    private Integer status;
+
+    // 상세 이력서 항목
+    private List<EducationDTO> educations;
+    private List<ExperienceDTO> experiences;
+    private List<ProjectDTO> projects;
+    private List<String> skills;
+    private List<LanguageDTO> languages;
+    private List<CertificateDTO> certificates;
 
     /**
-     * Resume 엔티티를 ResumeDetailResponseDTO로 변환하는 정적 메서드
-     *
-     * @param resume 변환할 Resume 엔티티
-     * @return 변환된 ResumeDetailResponseDTO 객체
+     * Resume + 상세 항목들을 포함하는 변환 메서드
      */
-    public static ResumeDetailResponseDTO fromEntity(Resume resume) {
+    public static ResumeDetailResponseDTO fromEntity(
+        Resume resume,
+        List<EducationDTO> educations,
+        List<ExperienceDTO> experiences,
+        List<ProjectDTO> projects,
+        List<String> skills,
+        List<LanguageDTO> languages,
+        List<CertificateDTO> certificates
+    ) {
         return ResumeDetailResponseDTO.builder()
             .resumeId(resume.getId())
             .title(resume.getTitle())
@@ -45,6 +61,12 @@ public class ResumeDetailResponseDTO {
             .isPrimary(resume.getIsPrimary())
             .resumeType(resume.getResumeType())
             .status(resume.getStatus())
+            .educations(educations)
+            .experiences(experiences)
+            .projects(projects)
+            .skills(skills)
+            .languages(languages)
+            .certificates(certificates)
             .build();
     }
 }
