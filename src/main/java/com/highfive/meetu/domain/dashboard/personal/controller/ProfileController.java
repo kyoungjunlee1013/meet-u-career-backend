@@ -18,7 +18,7 @@ public class ProfileController {
     return ResultData.success(1, profileService.getProfileInfo());
   }
 
-  @PutMapping("/me")
+  @PostMapping("/me")
   public ResultData<Void> updateProfile(@RequestBody ProfileInfoDTO dto) {
     profileService.updateProfileByProfileId(dto);
     return ResultData.success(1, null);

@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface LocationRepository extends JpaRepository<Location, Long> {
+public interface LocationRepository extends JpaRepository<Location, Long>, LocationQueryRepository {
+
     List<Location> findAllByOrderByIdAsc();
     Optional<Location> findByLocationCode(String locationCode);
     List<Location> findByProvince(String province);
