@@ -8,8 +8,12 @@ import com.highfive.meetu.domain.job.common.entity.JobPosting;
 import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
 import com.highfive.meetu.domain.job.common.entity.Location;
 import com.highfive.meetu.domain.job.common.repository.LocationRepository;
+import com.highfive.meetu.domain.job.admin.dto.JobPostingAdminDTO;
+import com.highfive.meetu.domain.job.common.repository.JobPostingAdminRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -33,6 +37,28 @@ public class JobPostingAdminService {
     private final ObjectMapper objectMapper;
     private final CompanyRepository companyRepository;
     private final LocationRepository locationRepository;
+
+    private final JobPostingAdminRepository jobPostingAdminRepository;
+
+
+
+    public Page<JobPostingAdminDTO> findAllByStatus(Pageable pageable, Integer status) {
+        return jobPostingAdminRepository.findAllByStatus(pageable, status);
+    }
+
+    public void approve(Long id) {
+        jobPostingAdminRepository.approve(id);
+    }
+
+    public void reject(Long id) {
+        jobPostingAdminRepository.reject(id);
+    }
+
+    public void block(Long id) {
+        jobPostingAdminRepository.block(id);
+    }
+
+
 
     // 사람인 API와 금융위원회 API 인증키
     @Value("${api.saramin.key}")
