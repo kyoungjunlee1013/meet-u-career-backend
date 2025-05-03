@@ -33,14 +33,14 @@ public class JwtProvider {
     private final AccountRepository accountRepository;
     private final AdminRepository adminRepository;
 
-    @Value("${jwt.secret-key}")
-    private String secretKey;
+  @Value("${jwt.secret-key}")
+  private String secretKey;
 
-    @Value("${jwt.access-token-expiration}")
-    private long accessTokenExpiration;
+  @Value("${jwt.access-token-expiration}")
+  private long accessTokenExpiration;
 
-    @Value("${jwt.refresh-token-expiration}")
-    private long refreshTokenExpiration;
+  @Value("${jwt.refresh-token-expiration}")
+  private long refreshTokenExpiration;
 
     /**
      * 서명 키 반환 (HMAC-SHA256용 Key)
