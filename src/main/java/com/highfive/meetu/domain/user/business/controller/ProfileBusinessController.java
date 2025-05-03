@@ -17,7 +17,7 @@ import com.highfive.meetu.domain.user.business.dto.ProfileDto;
 @RequiredArgsConstructor
 @RequestMapping("/business/profiles")
 
-public class ProfileController {
+public class ProfileBusinessController {
 
     private final ProfileService profileService;
 
