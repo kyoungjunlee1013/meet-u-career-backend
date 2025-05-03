@@ -1,5 +1,7 @@
 package com.highfive.meetu.global.common.exception;
 
+import com.highfive.meetu.global.common.exception.NotFoundException;
+import com.highfive.meetu.global.common.exception.ResourceNotFoundException;
 import com.highfive.meetu.global.common.response.ResultData;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ResultData<Void>> handleNotFound(NotFoundException ex) {
+    @ExceptionHandler({NotFoundException.class, ResourceNotFoundException.class})
+    public ResponseEntity<ResultData<Void>> handleNotFound(RuntimeException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .header("Content-Type", "application/json")

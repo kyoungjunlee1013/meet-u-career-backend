@@ -6,6 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * 프로필 엔티티에 대한 JPA 레파지토리
+ */
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
