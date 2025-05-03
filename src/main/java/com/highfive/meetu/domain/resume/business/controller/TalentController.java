@@ -12,7 +12,6 @@ import com.highfive.meetu.global.common.response.ResultData;
  * 비즈니스용 인재(이력서) 조회 REST API
  */
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 @RequestMapping("api/business/talents")
 public class TalentController {

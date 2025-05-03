@@ -11,10 +11,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/business/dashboard/info")
 @RequiredArgsConstructor
-@CrossOrigin(
-    origins = "http://localhost:3000",
-    allowCredentials = "true"
-)
 public class BusinessDashboardController {
 
   private final BusinessDashboardService businessDashboardService;

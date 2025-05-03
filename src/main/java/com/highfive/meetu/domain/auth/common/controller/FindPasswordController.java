@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/password")
 @RequiredArgsConstructor
-// @CrossOrigin(origins = "http://localhost:3000") // <-- Add this line!
 public class FindPasswordController {
 
   private final PasswordService passwordService;

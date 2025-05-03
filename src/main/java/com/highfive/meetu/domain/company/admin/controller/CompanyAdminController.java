@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/companies")
-@CrossOrigin(origins = {"http://localhost:3000"}, allowCredentials = "true")
 @RequiredArgsConstructor
 public class CompanyAdminController {
 
