@@ -51,7 +51,7 @@ public class JobPostingAdminController {
   }
 
     // DB에 저장된 채용 공고 조회
-    @GetMapping
+    @GetMapping("/get-all")
     public List<JobPosting> getAllJobPostings() {
         return jobPostingAdminService.getAllJobPostings();
     }
