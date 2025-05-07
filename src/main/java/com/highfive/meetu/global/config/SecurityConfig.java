@@ -44,7 +44,6 @@ public class SecurityConfig {
 
             // 인가 설정
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/admin/dashboard/**").hasRole("ADMIN")  // 관리자 대시보드 보호
                 .requestMatchers(
                     "/**",                                               // 임시 - 전체 인가 허용
                     "/api/admin/auth/login",                            // 관리자 로그인

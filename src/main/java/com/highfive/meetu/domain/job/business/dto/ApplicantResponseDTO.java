@@ -33,12 +33,12 @@ public class ApplicantResponseDTO {
         Profile profile = application.getProfile();  // 지원자의 프로필 정보
 
         return ApplicantResponseDTO.builder()
-                    .applicationId(application.getId())                        // 지원서 ID
+            .applicationId(application.getId())                                 // 지원서 ID
             .applicantName(profile.getAccount().getName())                      // 이름은 Account에서 가져옴
             .email(profile.getAccount().getEmail())                             // 이메일
             .phone(profile.getAccount().getPhone())                             // 연락처
             .position(application.getJobPosting().getTitle())                   // 채용 공고 제목
-            .appliedDate(application.getCreatedAt().toLocalDate().toString())  // 지원일
+            .appliedDate(application.getCreatedAt().toLocalDate().toString())   // 지원일
             .status(application.getStatus())                                    // 상태
             .build();
     }

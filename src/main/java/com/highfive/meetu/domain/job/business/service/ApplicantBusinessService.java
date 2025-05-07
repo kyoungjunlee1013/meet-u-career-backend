@@ -15,6 +15,7 @@ import com.highfive.meetu.global.common.exception.NotFoundException;
 import com.highfive.meetu.infra.oauth.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +75,7 @@ public class ApplicantBusinessService {
     public List<ApplicantResponseDTO> getApplicantsByJobPosting(Long jobPostingId) {
         return applicationRepository.findAllByJobPostingId(jobPostingId)
             .stream()
-            .map(ApplicantResponseDTO::fromEntity) // Entity → DTO 변환
+            .map(ApplicantResponseDTO::fromEntity)
             .toList();
     }
 
@@ -140,7 +141,6 @@ public class ApplicantBusinessService {
                 .collect(Collectors.toList()))
             .orElse(List.of());
 
-        // 5. 최종 DTO 조립
         return ResumeDetailResponseDTO.fromEntity(
             resume,
             educations,
@@ -150,5 +150,51 @@ public class ApplicantBusinessService {
             languages,
             certificates
         );
+    }
+
+    /**
+     * 특정 채용공고에 대한 지원자 통계를 반환합니다.
+     *
+     * 통계 항목:
+     * - 총 지원자 수
+     * - 서류 검토 중 수 (status = APPLIED)
+     * - 서류 합격 수 (status = DOCUMENT_PASSED)
+     * - 서류 불합격 수 (status = DOCUMENT_REJECTED)
+     * - 면접 완료 수 (status = INTERVIEW_COMPLETED)
+     *
+     * @param jobPostingId 채용공고 ID
+     * @return 지원자 통계 정보를 담은 ApplicantStatsDTO
+     */
+    public ApplicantStatsDTO getApplicantStats(Long jobPostingId) {
+        // 총 지원자 수
+        int total = applicationRepository.countByJobPostingId(jobPostingId);
+        
+        // 서류 검토
+        int reviewing = applicationRepository.countByJobPostingIdAndStatus(jobPostingId, Application.Status.APPLIED);
+        
+        // 서류 합격
+        int passed = applicationRepository.countByJobPostingIdAndStatus(jobPostingId, Application.Status.DOCUMENT_PASSED);
+        
+        // 서류 탈락
+        int failed = applicationRepository.countByJobPostingIdAndStatus(jobPostingId, Application.Status.DOCUMENT_REJECTED);
+        
+        // 면접 완료
+        int interviewed = applicationRepository.countByJobPostingIdAndStatus(jobPostingId, Application.Status.INTERVIEW_COMPLETED);
+
+        return new ApplicantStatsDTO(total, reviewing, passed, failed, interviewed);
+    }
+
+    /**
+     * 지원서 상태(status)를 업데이트하는 메서드
+     *
+     * @param applicationId 지원서 ID
+     * @param status 변경할 상태값 (0: 서류검토중, 1: 서류합격, 2: 서류불합격, 3: 면접완료)
+     * @throws IllegalArgumentException 지원서가 존재하지 않는 경우 예외 발생
+     */
+    @Transactional
+    public void updateStatus(Long applicationId, Integer status) {
+        Application application = applicationRepository.findById(applicationId)
+            .orElseThrow(() -> new IllegalArgumentException("지원서를 찾을 수 없습니다."));
+        application.setStatus(status);
     }
 }

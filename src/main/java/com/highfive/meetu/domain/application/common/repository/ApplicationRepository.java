@@ -3,6 +3,7 @@ package com.highfive.meetu.domain.application.common.repository;
 import com.highfive.meetu.domain.application.common.entity.Application;
 import com.highfive.meetu.domain.dashboard.personal.dto.RecentApplicationDTO;
 import com.highfive.meetu.domain.dashboard.personal.dto.ApplicationSummaryDTO;
+import com.highfive.meetu.domain.job.business.type.ApplicationStatus;
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
 import com.highfive.meetu.domain.user.common.entity.Profile;
 import org.springframework.data.domain.Pageable;
@@ -210,8 +211,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
     """)
     List<Object[]> countApplicationsByJobPostingGrouped(@Param("companyId") Long companyId);
 
-
-
     /**
      * (Business 대시보드용) 회사 ID 기준 지원자 수를 Map<Long, Integer>로 반환
      */
@@ -224,4 +223,14 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
         return map;
     }
 
+    /**
+     * 특정 공고의 전체 지원자 수 조회
+     */
+    int countByJobPostingId(Long jobPostingId);
+
+    /**
+     * 특정 공고의 상태별 지원자 수 조회
+     * - 서류검토중, 서류합격, 서류불합격, 면접완료
+     */
+    int countByJobPostingIdAndStatus(Long jobPostingId, int status);
 }
