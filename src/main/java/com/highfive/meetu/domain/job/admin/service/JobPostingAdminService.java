@@ -28,9 +28,12 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class JobPostingAdminService {
 
     private final JobPostingRepository jobPostingRepo;
@@ -45,6 +48,7 @@ public class JobPostingAdminService {
     public Page<JobPostingAdminDTO> findAllByStatus(Pageable pageable, Integer status) {
         return jobPostingAdminRepository.findAllByStatus(pageable, status);
     }
+
 
     public void approve(Long id) {
         jobPostingAdminRepository.approve(id);

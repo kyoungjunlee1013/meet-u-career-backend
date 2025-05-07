@@ -58,7 +58,7 @@ public class JobPostingAdminRepositoryImpl implements JobPostingAdminRepository 
   public void approve(Long id) {
     queryFactory
         .update(jobPosting)
-        .set(jobPosting.status, JobPosting.Status.ACTIVE)
+        .set(jobPosting.status, 1) // 1: 승인
         .where(jobPosting.id.eq(id))
         .execute();
   }
@@ -67,7 +67,7 @@ public class JobPostingAdminRepositoryImpl implements JobPostingAdminRepository 
   public void reject(Long id) {
     queryFactory
         .update(jobPosting)
-        .set(jobPosting.status, JobPosting.Status.INACTIVE)
+        .set(jobPosting.status, 0) // 0: 반려
         .where(jobPosting.id.eq(id))
         .execute();
   }
@@ -76,8 +76,9 @@ public class JobPostingAdminRepositoryImpl implements JobPostingAdminRepository 
   public void block(Long id) {
     queryFactory
         .update(jobPosting)
-        .set(jobPosting.status, JobPosting.Status.INACTIVE)
+        .set(jobPosting.status, 3) // 3: 차단
         .where(jobPosting.id.eq(id))
         .execute();
   }
+
 }
