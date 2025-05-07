@@ -1,6 +1,8 @@
 package com.highfive.meetu.domain.resume.common.repository;
 
+import com.highfive.meetu.domain.coverletter.common.entity.CoverLetter;
 import com.highfive.meetu.domain.resume.common.entity.Resume;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -47,13 +49,24 @@ public interface ResumeRepository extends JpaRepository<Resume, Long> {
     @Query("SELECT r FROM resume r LEFT JOIN FETCH r.resumeContentList WHERE r.id = :resumeId")
     Optional<Resume> findWithContentsById(@Param("resumeId") Long resumeId);
 
-
-
     // ----------------------------------
     @Modifying
     @Query("UPDATE resume r SET r.isPrimary = false WHERE r.profile.id = :profileId AND r.status <> 3")
     void clearPrimaryResume(@Param("profileId") Long profileId);
 
+    /**
+     * 이력서와 모든 연관 항목 (Profile + Account, ResumeContentList, CoverLetter + CoverLetterContentList 포함)
+     */
+    @Query("SELECT r FROM resume r " +
+        "LEFT JOIN FETCH r.resumeContentList " +
+        "LEFT JOIN FETCH r.profile p " +
+        "LEFT JOIN FETCH p.account a " +
+        "LEFT JOIN FETCH r.coverLetter " +
+        "WHERE r.id = :id")
+    Optional<Resume> findWithResumeContentsOnly(@Param("id") Long id);
 
-
+    @Query("SELECT c FROM coverLetter c " +
+        "JOIN FETCH c.coverLetterContentList " +
+        "WHERE c.id = :id")
+    Optional<CoverLetter> findCoverLetterWithContents(@Param("id") Long id);
 }

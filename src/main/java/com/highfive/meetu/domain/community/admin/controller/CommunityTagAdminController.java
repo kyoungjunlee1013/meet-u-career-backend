@@ -8,6 +8,7 @@ import com.highfive.meetu.domain.community.admin.service.CommunityTagAdminServic
 import com.highfive.meetu.global.common.response.ResultData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/community/tags")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER')")
 public class CommunityTagAdminController {
 
     private final CommunityTagAdminService communityTagAdminService;

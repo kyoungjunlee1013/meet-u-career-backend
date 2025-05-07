@@ -20,6 +20,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/dashboard")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER')")
 public class AdminDashboardController {
     private final AdminDashboardService adminDashboardService;
     private final AdminDashboardExcelService adminDashboardExcelService;
@@ -29,7 +30,6 @@ public class AdminDashboardController {
      *
      * 응답 데이터: UserStats (사용자 수, 기업 수, 공고 수, 커뮤니티 게시글 수, 월별 사용자 증가 추이, 사용자 유형 분포 등)
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/userstats")
     public ResultData<UserStats> getUserStats() {
         return ResultData.success(1, adminDashboardService.getUserStats());
