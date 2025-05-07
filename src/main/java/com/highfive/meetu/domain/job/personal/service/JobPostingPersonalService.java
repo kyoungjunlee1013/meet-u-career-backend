@@ -12,12 +12,15 @@ import com.highfive.meetu.domain.user.common.repository.ProfileRepository;
 import com.highfive.meetu.global.common.exception.NotFoundException;
 import com.highfive.meetu.global.common.response.ResultData;
 import com.highfive.meetu.infra.oauth.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +37,10 @@ public class JobPostingPersonalService {
     private final ProfileRepository profileRepository;
     private final InterviewReviewRepository interviewReviewRepository;
     private final ApplicationQueryPersonalRepository applicationQueryRepository;
+
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private static final String JOB_VIEW_PREFIX = "job_view:";
 
     /**
      * 통합 검색 (필터 + 키워드 + 정렬)
@@ -107,13 +114,13 @@ public class JobPostingPersonalService {
 
     /**
      * 채용 공고 상세 조회
-     * - 로그인 여부에 따라 스크랩 여부, 지원 여부, 관심기업 여부 포함
+     * - 로그인 여부에 따라 스크랩 여부, 지원 여부, 관심기업 여부, 조회수 증가 포함
      *
      * @param jobPostingId 조회할 공고 ID
      * @return ResultData로 래핑된 JobPostingDetailDTO
      */
-    @Transactional(readOnly = true)
-    public ResultData<JobPostingDetailDTO> getJobPostingDetails(Long jobPostingId) {
+    @Transactional
+    public ResultData<JobPostingDetailDTO> getJobPostingDetails(Long jobPostingId, HttpServletRequest request) {
         // 1. 공고 기본 정보 조회 (활성화된 공고만)
         JobPosting jobPosting = jobPostingRepository.findByIdAndStatus(jobPostingId, JobPosting.Status.ACTIVE)
             .orElseThrow(() -> new NotFoundException("존재하지 않거나 비활성화된 공고입니다."));
@@ -128,6 +135,14 @@ public class JobPostingPersonalService {
 
         if (isAuthenticated) {
             Long accountId = SecurityUtil.getAccountId();
+            String redisKey = buildRedisKeyForUser(accountId, jobPostingId);
+
+            // 조회수 증가
+            if (!Boolean.TRUE.equals(redisTemplate.hasKey(redisKey))) {
+                jobPosting.setViewCount(jobPosting.getViewCount() + 1);
+                redisTemplate.opsForValue().set(redisKey, "true", Duration.ofHours(24));
+            }
+
             profile = profileRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new NotFoundException("사용자 프로필을 찾을 수 없습니다."));
 
@@ -184,5 +199,21 @@ public class JobPostingPersonalService {
         );
 
         return ResultData.success(1, dto);
+    }
+
+    /**
+     * Redis 조회수 중복 방지를 위한 고유 키 생성 메서드
+     *
+     * - 하루 동안 동일한 사용자(accountId)가 동일한 공고(jobPostingId)를 여러 번 조회해도
+     *   조회수는 1회만 증가하도록 하기 위해 고유 키를 생성함.
+     * - Redis에 이 키가 존재하면 조회수 증가를 방지하고,
+     *   존재하지 않으면 조회수 증가 후 24시간 TTL을 부여함.
+     *
+     * @param accountId 로그인한 사용자 계정 ID
+     * @param jobPostingId 조회 대상 채용 공고 ID
+     * @return Redis 저장용 고유 키 (예: "job_view:user:3:17")
+     */
+    private String buildRedisKeyForUser(Long accountId, Long jobPostingId) {
+        return JOB_VIEW_PREFIX + "user:" + accountId + ":" + jobPostingId;
     }
 }
