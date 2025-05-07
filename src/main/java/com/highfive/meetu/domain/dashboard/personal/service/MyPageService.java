@@ -46,11 +46,13 @@ public class MyPageService {
         List<RecommendedJobPostingDTO> recommendedJobs = jobPostingRepository.findRecommendedForProfile(profile, PageRequest.of(0, 6));
 
         int profileCompleteness = 0;
-        if (StringUtils.hasText(account.getName())) profileCompleteness += 20;
-        if (StringUtils.hasText(account.getEmail())) profileCompleteness += 20;
-        if (StringUtils.hasText(account.getPhone())) profileCompleteness += 20;
-        if (account.getBirthday() != null) profileCompleteness += 20;
-        if (profile.getLocation() != null && StringUtils.hasText(profile.getLocation().getFullLocation())) profileCompleteness += 20;
+        if (StringUtils.hasText(account.getName())) profileCompleteness += 14;
+        if (StringUtils.hasText(account.getEmail())) profileCompleteness += 14;
+        if (StringUtils.hasText(account.getPhone())) profileCompleteness += 14;
+        if (profile.getEducationLevel() != null) profileCompleteness += 14;
+        if (profile.getExperienceLevel() != null) profileCompleteness += 14;
+        if (profile.getDesiredSalaryCode() != null) profileCompleteness += 14;
+        if (profile.getSkills() != null) profileCompleteness += 16;
 
         return MyPageDTO.of(
             AccountDTO.from(account),
