@@ -150,7 +150,7 @@ public class CompanyFinancialService {
           changed = true;
         }
         if (!avgSalary.isBlank()) {
-          company.setLogoUrl(avgSalary);
+          company.setAvgAnnualSalary(Long.valueOf(avgSalary));
           changed = true;
         }
 

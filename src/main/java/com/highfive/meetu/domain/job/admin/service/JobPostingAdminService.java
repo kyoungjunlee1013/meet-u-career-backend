@@ -221,11 +221,11 @@ public class JobPostingAdminService {
                         .website(firstItem.path("enpHmpgUrl").asText())
 
                 /*
-                /      문성후 테스트: 법인등록번호 >> logoKey, 평균연봉 >> logoUrl
+                /      문성후 테스트: 법인등록번호 >> logoKey, 평균연봉 >> avgAnnualSalary
                 */
-                      //.logoKey(null)
+                        .logoKey(null)
                         .logoKey(firstItem.path("crno").asText())
-                        .logoUrl(firstItem.path("avgSalary").asText())
+                        .avgAnnualSalary((long) firstItem.path("avgSalary").asDouble())
 
                         .address(firstItem.path("enpBsadr").asText())
                         .updatedAt(LocalDateTime.now())
