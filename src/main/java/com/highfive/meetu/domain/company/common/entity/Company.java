@@ -64,6 +64,9 @@ public class Company extends BaseEntity {
     @Column(length = 500)
     private String logoKey;  // 기업 로고 이미지 URL
 
+    @Column(length = 255)
+    private String logoUrl;   // 로고 URL (선택)
+
     @Column(length = 500)
     private String address;  // 회사 주소
 
@@ -71,7 +74,7 @@ public class Company extends BaseEntity {
     private String companyType;  // 기업 형태 (예: 대기업 등)
 
     @Column(length = 50)
-    private String corpcode;  // API 연동용 기업 코드
+    private String corpCode;  // API 연동용 기업 코드
 
     @Column
     private Long operatingProfit;  // 최근 연도 영업이익
