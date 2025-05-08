@@ -1,7 +1,6 @@
 package com.highfive.meetu.domain.dashboard.business.dto;
 
 import com.highfive.meetu.domain.company.common.entity.Company;
-import com.highfive.meetu.domain.dashboard.business.dto.JobPostingSimpleDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,20 +45,20 @@ public class BusinessDashboardDTO {
                                            Map<String, Integer> appMap,
                                            List<JobPostingSimpleDTO> postings) {
     return BusinessDashboardDTO.builder()
-        .companyName(company.getName())
-        .industry(company.getIndustry())
-        .address(company.getAddress())
-        .foundedDate(company.getFoundedDate() != null ? company.getFoundedDate().toString() : null)
-        .employeeScale(company.getNumEmployees() + "명")
-        .totalJobPostings(total)
-        .activeJobPostings(active)
-        .closedJobPostings(closed)
-        .nearingDeadlineJobPostings(nearingDeadline)
-        .totalViews(totalViews)
-        .totalApplications(totalApps)
-        .jobCategoryViewCount(viewMap)
-        .jobCategoryApplicationCount(appMap)
-        .jobPostings(postings)
-        .build();
+            .companyName(company.getName())
+            .industry(company.getIndustry())
+            .address(company.getAddress())
+            .foundedDate(company.getFoundedDate() != null ? company.getFoundedDate().toString() : null)
+            .employeeScale(company.getNumEmployees() + "명")
+            .totalJobPostings(total)
+            .activeJobPostings(active)
+            .closedJobPostings(closed)
+            .nearingDeadlineJobPostings(nearingDeadline)
+            .totalViews(totalViews)
+            .totalApplications(totalApps)
+            .jobCategoryViewCount(viewMap)
+            .jobCategoryApplicationCount(appMap)
+            .jobPostings(postings)
+            .build();
   }
 }

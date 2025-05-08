@@ -11,6 +11,7 @@ import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.user.common.repository.AccountRepository;
 import com.highfive.meetu.global.common.exception.NotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -46,20 +47,27 @@ public class BusinessDashboardService {
   /**
    * 기업 프로필 수정
    */
+  @Transactional
   public Long updateCompanyProfile(Long accountId, CompanyProfileDTO dto) {
     Company company = findCompanyByAccountId(accountId);
+
     company.setName(dto.getCompanyName());
     company.setWebsite(dto.getWebsite());
     company.setAddress(dto.getAddress());
     company.setIndustry(dto.getIndustry());
-    company.setFoundedDate(dto.getFoundedDate() != null ? LocalDateTime.parse(dto.getFoundedDate()).toLocalDate() : null);
+    company.setFoundedDate(dto.getFoundedDate() != null
+            ? LocalDateTime.parse(dto.getFoundedDate()).toLocalDate() : null);
     company.setLogoKey(dto.getLogoKey());
     company.setRepresentativeName(dto.getRepresentativeName());
     company.setBusinessNumber(dto.getBusinessNumber());
     company.setNumEmployees(dto.getNumEmployees());
     company.setRevenue(dto.getRevenue());
+    System.out.println("🔥 dto: " + dto); // 또는 dto.getCompanyName(), dto.getFoundedDate() 등
+    System.out.println("🔥 [백엔드 저장됨] 회사명: " + company.getName()); // 꼭 넣자
+
     return company.getId();
   }
+
 
   /**
    * accountId를 기반으로 회사 찾기
@@ -134,5 +142,7 @@ public class BusinessDashboardService {
         appByCategory,
         jobPostingDTOs
     );
+
   }
+
 }

@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 @Getter
 @Builder
 @NoArgsConstructor
@@ -20,24 +19,24 @@ public class JobPostingSimpleDTO {
   private int viewCount;
   private int applicationCount;
 
-  private String industry;     // ✅ 추가
-  private String jobType;      // ✅ 추가
-  private String salaryRange;  // ✅ 추가
-  private String keyword;      // ✅ 추가
+  private String industry;
+  private String jobType;
+  private String salaryRange;
+  private String keyword;
 
   public static JobPostingSimpleDTO from(JobPosting jp, int appCount) {
     return JobPostingSimpleDTO.builder()
-        .jobPostingId(jp.getId())
-        .title(jp.getTitle())
-        .location(jp.getLocation().getFullLocation())
-        .postedDate(jp.getPostingDate().toLocalDate().toString())
-        .deadline(jp.getExpirationDate().toLocalDate().toString())
-        .viewCount(jp.getViewCount())
-        .applicationCount(appCount)
-        .industry(jp.getIndustry())
-        .jobType(jp.getJobType())
-        .salaryRange(jp.getSalaryRange())
-        .keyword(jp.getKeyword())
-        .build();
+            .jobPostingId(jp.getId())
+            .title(jp.getTitle())
+            .location(jp.getLocation().getFullLocation())
+            .postedDate(jp.getPostingDate().toLocalDate().toString())
+            .deadline(jp.getExpirationDate().toLocalDate().toString())
+            .viewCount(jp.getViewCount())
+            .applicationCount(appCount)
+            .industry(jp.getIndustry())
+            .jobType(jp.getJobType())
+            .salaryRange(jp.getSalaryRange())
+            .keyword(jp.getKeyword())
+            .build();
   }
 }
