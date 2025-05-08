@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class JobPostingDetailDTO {
     private Long id;
+    private String jobId;
     private JobPostingInfo jobPosting;
     private CompanyInfo company;
     private int bookmarkCount;
@@ -149,6 +150,7 @@ public class JobPostingDetailDTO {
 
         return JobPostingDetailDTO.builder()
             .id(jobPosting.getId())
+            .jobId(jobPosting.getJobId())
             .jobPosting(JobPostingInfo.builder()
                 .title(jobPosting.getTitle())
                 .industry(jobPosting.getIndustry())
