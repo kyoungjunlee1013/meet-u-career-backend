@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class JobPostingDetailDTO {
     private Long id;
+    private String jobId;
     private JobPostingInfo jobPosting;
     private CompanyInfo company;
     private int bookmarkCount;
@@ -35,7 +36,9 @@ public class JobPostingDetailDTO {
         private String jobUrl;
         private String locationCode;
         private Integer experienceLevel;
+        private String experienceLevelName;
         private Integer educationLevel;
+        private String educationLevelName;
         private String salaryRange;
         private LocalDateTime postingDate;
         private LocalDateTime expirationDate;
@@ -98,6 +101,37 @@ public class JobPostingDetailDTO {
         }
     }
 
+    /**
+     * 경력
+     */
+    private static String getExperienceLevelName(Integer code) {
+        return switch (code) {
+            case JobPosting.ExperienceCode.NEW -> "신입";
+            case JobPosting.ExperienceCode.EXPERIENCED -> "경력";
+            case JobPosting.ExperienceCode.BOTH -> "신입/경력";
+            default -> "기타";
+        };
+    }
+
+    /**
+     * 학력
+     */
+    private static String getEducationLevelName(Integer code) {
+        return switch (code) {
+            case JobPosting.EducationLevel.ANY -> "학력무관";
+            case JobPosting.EducationLevel.HIGH_SCHOOL -> "고등학교졸업";
+            case JobPosting.EducationLevel.COLLEGE -> "대학졸업(2,3년)";
+            case JobPosting.EducationLevel.UNIVERSITY -> "대학교졸업(4년)";
+            case JobPosting.EducationLevel.MASTER -> "석사졸업";
+            case JobPosting.EducationLevel.DOCTOR -> "박사졸업";
+            case JobPosting.EducationLevel.HIGH_SCHOOL_OR_MORE -> "고등학교졸업이상";
+            case JobPosting.EducationLevel.COLLEGE_OR_MORE -> "대학졸업(2,3년)이상";
+            case JobPosting.EducationLevel.UNIVERSITY_OR_MORE -> "대학교졸업(4년)이상";
+            case JobPosting.EducationLevel.MASTER_OR_MORE -> "석사졸업이상";
+            default -> "기타";
+        };
+    }
+
     public static JobPostingDetailDTO from(
         JobPosting jobPosting,
         int bookmarkCount,
@@ -116,6 +150,7 @@ public class JobPostingDetailDTO {
 
         return JobPostingDetailDTO.builder()
             .id(jobPosting.getId())
+            .jobId(jobPosting.getJobId())
             .jobPosting(JobPostingInfo.builder()
                 .title(jobPosting.getTitle())
                 .industry(jobPosting.getIndustry())
@@ -123,7 +158,9 @@ public class JobPostingDetailDTO {
                 .jobUrl(jobPosting.getJobUrl())
                 .locationCode(jobPosting.getLocation().getFullLocation())
                 .experienceLevel(jobPosting.getExperienceLevel())
+                .experienceLevelName(getExperienceLevelName(jobPosting.getExperienceLevel()))
                 .educationLevel(jobPosting.getEducationLevel())
+                .educationLevelName(getEducationLevelName(jobPosting.getEducationLevel()))
                 .salaryRange(jobPosting.getSalaryRange())
                 .postingDate(jobPosting.getPostingDate())
                 .expirationDate(jobPosting.getExpirationDate())

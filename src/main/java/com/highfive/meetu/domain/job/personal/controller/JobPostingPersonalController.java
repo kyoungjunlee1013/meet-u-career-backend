@@ -8,6 +8,7 @@ import com.highfive.meetu.domain.job.personal.dto.RecommendedJobPostingDTO;
 import com.highfive.meetu.domain.job.personal.service.JobPostingPersonalService;
 import com.highfive.meetu.domain.job.personal.service.JobPostingRecommendService;
 import com.highfive.meetu.global.common.response.ResultData;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
@@ -79,9 +80,12 @@ public class JobPostingPersonalController {
     /**
      * 공고 상세 조회
      */
-    @GetMapping("/{jobpostingId}")
-    public ResultData<JobPostingDetailDTO> getJobPostingDetails(@PathVariable Long jobpostingId) {
-        return jobPostingService.getJobPostingDetails(jobpostingId);
+    @GetMapping("/{jobPostingId}")
+    public ResultData<JobPostingDetailDTO> getJobPostingDetails(
+        @PathVariable Long jobPostingId,
+        HttpServletRequest request
+    ) {
+        return jobPostingService.getJobPostingDetails(jobPostingId, request);
     }
 
     /**
