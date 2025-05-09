@@ -34,7 +34,7 @@ public class BusinessDashboardController {
     return ResultData.success(1, dto);
   }
 
-  @PutMapping("/profile")
+  @PutMapping("/update")
   public ResultData<Long> updateCompanyProfile(@RequestBody CompanyProfileDTO dto) {
     Long accountId = SecurityUtil.getAccountId();
     Long id = businessDashboardService.updateCompanyProfile(accountId, dto);

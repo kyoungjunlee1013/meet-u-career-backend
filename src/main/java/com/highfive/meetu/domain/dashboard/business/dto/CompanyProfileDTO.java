@@ -1,12 +1,10 @@
 package com.highfive.meetu.domain.dashboard.business.dto;
 
 import com.highfive.meetu.domain.company.common.entity.Company;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

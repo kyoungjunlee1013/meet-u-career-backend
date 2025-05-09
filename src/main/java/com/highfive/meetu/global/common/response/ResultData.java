@@ -45,4 +45,6 @@ public class ResultData<T> {
     public static <T> ResultData<T> fail(ErrorCode errorCode) {
         return new ResultData<>(0, errorCode.getMessage(), null);
     }
+
+
 }
