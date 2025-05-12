@@ -54,7 +54,12 @@ public class SecurityConfig {
                     "/api/community/popular/posts",                     // 커뮤니티 인기 게시글
                     "/api/personal/community/posts/all-posts",          // 커뮤니티 글 목록
                     "/api/personal/interview-reviews",                  // 면접 후기
-                    "/ws/**",                                           // WebSocket
+                    "/ws/**",
+                    "/ws-stomp/**",       // ✅ WebSocket STOMP endpoint
+                    "/topic/**",          // ✅ 구독 채널
+                    "/app/**",            // ✅ 발행 채널
+                    "/api/chat/**",       // ✅ 채팅 REST API
+                    "/swagger-ui/**",// WebSocket
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/error"
