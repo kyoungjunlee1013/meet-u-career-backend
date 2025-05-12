@@ -30,6 +30,7 @@ public class BusinessDashboardDTO {
   private Integer status;
   private String updatedAt;
 
+
   // ✅ 추가 정보
   private String employeeScale; // 문자열 예: "50명"
 

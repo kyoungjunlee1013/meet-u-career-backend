@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -17,7 +18,7 @@ public class JobPostingSimpleDTO {
   private String postedDate;
   private String deadline;
   private int viewCount;
-  private int applicationCount;
+  private int applicationCount; // ✅ 공고별 지원자 수
 
   private String industry;
   private String jobType;
@@ -32,7 +33,7 @@ public class JobPostingSimpleDTO {
             .postedDate(jp.getPostingDate().toLocalDate().toString())
             .deadline(jp.getExpirationDate().toLocalDate().toString())
             .viewCount(jp.getViewCount())
-            .applicationCount(appCount)
+            .applicationCount(appCount) // ✅ 지원자 수 반영
             .industry(jp.getIndustry())
             .jobType(jp.getJobType())
             .salaryRange(jp.getSalaryRange())

@@ -75,6 +75,7 @@ public class BusinessDashboardService {
     return company;
   }
 
+  // ✅ 아래는 수정 반영된 전체 메서드
   private BusinessDashboardDTO buildDashboardDTO(Company company) {
     Long companyId = company.getId();
     List<JobPosting> postings = jobPostingRepository.findByCompanyId(companyId);
@@ -97,8 +98,9 @@ public class BusinessDashboardService {
             .mapToInt(JobPosting::getViewCount)
             .sum();
 
-    // ✅ 여기 핵심: 공고별 Map 제거하고 회사 전체 지원자 수 직접 계산
-    int totalApplications = applicationRepository.countTotalApplicationsByCompanyId(companyId);
+    int totalApplications = postings.stream()
+            .mapToInt(JobPosting::getApplyCount) // ✅ 각 공고의 지원자 수 합산
+            .sum();
 
     Map<String, Integer> viewByCategory = new HashMap<>();
     Map<String, Integer> appByCategory = new HashMap<>();
@@ -109,12 +111,12 @@ public class BusinessDashboardService {
                       ? jp.getJobPostingJobCategoryList().get(0).getJobCategory().getJobName()
                       : "기타";
 
-              int apps = 0;
+              int apps = jp.getApplyCount(); // ✅ 공고별 지원자 수
 
               viewByCategory.merge(category, jp.getViewCount(), Integer::sum);
-              appByCategory.merge(category, apps, Integer::sum);
+              appByCategory.merge(category, apps, Integer::sum); // ✅ 카테고리별 누적
 
-              return JobPostingSimpleDTO.from(jp, apps);
+              return JobPostingSimpleDTO.from(jp, apps); // ✅ DTO에 전달
             })
             .collect(Collectors.toList());
 

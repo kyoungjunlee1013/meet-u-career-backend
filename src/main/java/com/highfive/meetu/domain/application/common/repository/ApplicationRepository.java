@@ -42,11 +42,13 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
           "ORDER BY a.createdAt DESC")
   List<RecentApplicationDTO> findRecentByProfileId(@Param("profileId") Long profileId);
 
+  // ✅ 수정됨: status 0 ~ 4 포함하는 요약 쿼리
   @Query("SELECT new com.highfive.meetu.domain.dashboard.personal.dto.ApplicationSummaryDTO(" +
-          "SUM(CASE WHEN a.status = 1 THEN 1 ELSE 0 END), " +
-          "SUM(CASE WHEN a.status = 2 THEN 1 ELSE 0 END), " +
-          "SUM(CASE WHEN a.status = 3 THEN 1 ELSE 0 END), " +
-          "SUM(CASE WHEN a.status = 4 THEN 1 ELSE 0 END)) " +
+          "SUM(CASE WHEN a.status = 0 THEN 1 ELSE 0 END), " + // waiting
+          "SUM(CASE WHEN a.status = 1 THEN 1 ELSE 0 END), " + // passedDocument
+          "SUM(CASE WHEN a.status = 2 THEN 1 ELSE 0 END), " + // interview1st
+          "SUM(CASE WHEN a.status = 3 THEN 1 ELSE 0 END), " + // finalAccepted
+          "SUM(CASE WHEN a.status = 4 THEN 1 ELSE 0 END)) " + // rejected
           "FROM application a " +
           "WHERE a.profile.id = :profileId")
   ApplicationSummaryDTO aggregateStatusSummary(@Param("profileId") Long profileId);
@@ -149,9 +151,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
 
   List<Application> findByProfile_Account_Id(Long accountId);
 
-  /**
-   * ✅ 최종 정답: 실제 컬럼명 jobPostingId, companyId 기준 native query
-   */
   @Query(value = """
         SELECT COUNT(*) 
         FROM application a
@@ -180,4 +179,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
   int countByJobPostingId(Long jobPostingId);
 
   int countByJobPostingIdAndStatus(Long jobPostingId, int status);
+
+  @Query("SELECT COUNT(a) FROM application a WHERE a.profile.id = :profileId")
+  int countApplicationsByProfileId(@Param("profileId") Long profileId);
 }
