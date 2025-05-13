@@ -69,7 +69,7 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
      */
     @Query("""
         SELECT j FROM jobPosting j
-        WHERE j.status = 2
+        WHERE j.status = 2 AND j.expirationDate > CURRENT_TIMESTAMP
         ORDER BY j.viewCount DESC
     """)
     Page<JobPosting> findPopular(Pageable pageable);
@@ -82,7 +82,7 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
      */
     @Query("""
         SELECT j FROM jobPosting j
-        WHERE j.status = 2
+        WHERE j.status = 2 AND j.expirationDate > CURRENT_TIMESTAMP
         ORDER BY j.createdAt DESC
     """)
     Page<JobPosting> findLatest(Pageable pageable);
@@ -95,7 +95,7 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
      */
     @Query("""
         SELECT j FROM jobPosting j
-        WHERE j.status = 2
+        WHERE j.status = 2 AND j.expirationDate > CURRENT_TIMESTAMP
         ORDER BY j.applyCount DESC
     """)
     Page<JobPosting> findMostApplied(Pageable pageable);
@@ -106,7 +106,7 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
      */
     @Query("""
         SELECT DISTINCT j FROM jobPosting j
-        WHERE j.status = 2 AND (
+        WHERE j.status = 2 AND j.expirationDate > CURRENT_TIMESTAMP AND (
             LOWER(j.keyword) LIKE LOWER(CONCAT('%', :keyword1, '%'))
             OR LOWER(j.keyword) LIKE LOWER(CONCAT('%', :keyword2, '%'))
             OR LOWER(j.keyword) LIKE LOWER(CONCAT('%', :keyword3, '%'))
