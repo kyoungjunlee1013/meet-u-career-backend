@@ -18,6 +18,7 @@ import java.util.List;
 @RequestMapping("/api/chat")
 public class ChatController {
 
+    private final StompPresenceTracker presenceTracker;
     private final SimpMessageSendingOperations messagingTemplate;
     private final ChatService chatService;
 
@@ -26,7 +27,7 @@ public class ChatController {
      */
     @MessageMapping("/chat/message")
     public void send(@Payload ChatMessageDTO chatMessage) {
-        try {
+        try {   
             System.out.println("🔥 수신된 메시지: " + chatMessage); // ✅ 로그 찍기
 
             var saved = chatService.save(chatMessage);
@@ -79,4 +80,11 @@ public class ChatController {
         List<ChatRoomSummaryDTO> rooms = chatService.getRoomsForUser(accountId);
         return ResultData.success(rooms.size(), rooms);
     }
+
+    @GetMapping("/online-status")
+    public ResultData<Boolean> getOnlineStatus(@RequestParam Long accountId) {
+        boolean isOnline = presenceTracker.isOnline(accountId);
+        return ResultData.success(1, isOnline);
+    }
 }
+

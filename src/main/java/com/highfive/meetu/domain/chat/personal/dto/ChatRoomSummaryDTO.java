@@ -19,7 +19,10 @@ public class ChatRoomSummaryDTO {
     private String lastMessageTime;   // 포맷된 시간 (ex: 5분 전)
     private int unreadCount;
 
-    public static ChatRoomSummaryDTO of(ChatRoom room, Account me, ChatMessage lastMessage, int unreadCount, String avatar) {
+    private Long opponentId;          // ✅ 상대방 ID
+    private boolean isOnline;         // ✅ 상대방 온라인 여부
+
+    public static ChatRoomSummaryDTO of(ChatRoom room, Account me, ChatMessage lastMessage, int unreadCount, String avatar, boolean isOnline) {
         Account opponent = room.getBusinessAccount().equals(me)
                 ? room.getPersonalAccount()
                 : room.getBusinessAccount();
@@ -31,6 +34,8 @@ public class ChatRoomSummaryDTO {
                 .lastMessage(lastMessage != null ? lastMessage.getMessage() : "")
                 .lastMessageTime(lastMessage != null ? TimeUtils.formatTimeAgo(lastMessage.getCreatedAt()) : "")
                 .unreadCount(unreadCount)
+                .opponentId(opponent.getId()) // ✅ 추가
+                .isOnline(isOnline)           // ✅ 추가
                 .build();
     }
 }

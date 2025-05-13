@@ -4,6 +4,7 @@ import com.highfive.meetu.domain.chat.common.entity.ChatMessage;
 import com.highfive.meetu.domain.chat.common.entity.ChatRoom;
 import com.highfive.meetu.domain.chat.common.repository.ChatMessageRepository;
 import com.highfive.meetu.domain.chat.common.repository.ChatRoomRepository;
+import com.highfive.meetu.domain.chat.personal.controller.StompPresenceTracker;
 import com.highfive.meetu.domain.chat.personal.dto.ChatMessageDTO;
 import com.highfive.meetu.domain.chat.personal.dto.ChatRoomSummaryDTO;
 import com.highfive.meetu.domain.user.common.entity.Account;
@@ -25,6 +26,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final AccountRepository accountRepository;
     private final ProfileRepository profileRepository;
+    private final StompPresenceTracker presenceTracker; // ✅ 주입 추가
 
     public ChatMessage save(ChatMessageDTO dto) {
         ChatRoom chatRoom = chatRoomRepository.findById(dto.getChatRoomId())
@@ -60,7 +62,9 @@ public class ChatService {
     public List<ChatRoomSummaryDTO> getRoomsForUser(Long accountId) {
         Account me = accountRepository.findById(accountId)
                 .orElseThrow(() -> new NotFoundException("사용자 정보 없음"));
+
         List<ChatRoom> rooms = chatRoomRepository.findByBusinessAccountOrPersonalAccount(me, me);
+
         return rooms.stream().map(room -> {
             List<ChatMessage> messages = chatMessageRepository.findRecentMessagesByRoom(room);
             ChatMessage lastMessage = messages.isEmpty() ? null : messages.get(0);
@@ -70,10 +74,23 @@ public class ChatService {
                     ? room.getPersonalAccount()
                     : room.getBusinessAccount();
 
+            Long opponentId = opponent.getId();
+
             Profile profile = profileRepository.findByAccount(opponent).orElse(null);
             String avatar = (profile != null) ? profile.getProfileImageKey() : null;
 
-            return ChatRoomSummaryDTO.of(room, me, lastMessage, unread, avatar);
+            boolean isOnline = presenceTracker.isOnline(opponentId); // ✅ 온라인 여부 체크
+
+            return ChatRoomSummaryDTO.builder()
+                    .roomId(room.getId())
+                    .name(opponent.getName())
+                    .avatar(avatar)
+                    .lastMessage(lastMessage != null ? lastMessage.getMessage() : "")
+                    .lastMessageTime(lastMessage != null ? lastMessage.getCreatedAt().toString() : "")
+                    .unreadCount(unread)
+                    .opponentId(opponentId)
+                    .isOnline(isOnline) // ✅ 포함
+                    .build();
         }).collect(Collectors.toList());
     }
 
