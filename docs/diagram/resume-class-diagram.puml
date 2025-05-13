@@ -1,0 +1,55 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+class Resume {
+  String title
+  Integer resumeType
+  String resumeFileKey
+  String resumeFileName
+  String resumeFileType
+  String resumeUrl
+  String overview
+  Boolean isPrimary
+  Integer status
+  LocalDateTime updatedAt
+}
+
+class ResumeContent {
+  Integer sectionType
+  String sectionTitle
+  Integer contentOrder
+  String organization
+  String title
+  String field
+  String description
+  LocalDate dateFrom
+  LocalDate dateTo
+  String contentFileKey
+  String contentFileName
+  String contentFileType
+}
+
+class ResumeViewLog {
+  Integer viewType
+  Boolean isNotified
+}
+
+class Profile {
+  Long id
+  String name
+  String email
+}
+
+class CoverLetter {
+  Long id
+  String title
+}
+
+Profile --> Resume : 작성자
+Resume --> CoverLetter : 연결 자소서
+Resume --> ResumeContent : 구성
+Resume --> ResumeViewLog : 조회기록
+
+@enduml

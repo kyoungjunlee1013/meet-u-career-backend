@@ -1,0 +1,62 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+class CoverLetter {
+  Profile profile
+  String title
+  Integer status
+  LocalDateTime updatedAt
+  Resume resume
+}
+
+class CoverLetterContent {
+  CoverLetter coverLetter
+  String sectionTitle
+  String content
+  Integer contentOrder
+}
+
+class CoverLetterContentFeedback {
+  CoverLetterContent content
+  String originalContent
+  String feedback
+  String revisedContent
+  Boolean isApplied
+  LocalDateTime appliedAt
+  LocalDateTime updatedAt
+}
+
+class CoverLetterContentFitAnalysis {
+  CoverLetterContent content
+  JobCategory jobCategory
+  Double fitScore
+  String comment
+}
+
+class Profile {
+  Long id
+  String name
+}
+
+class Resume {
+  Long id
+  String title
+}
+
+class JobCategory {
+  String jobCode
+  String jobName
+}
+
+CoverLetter --> Profile : 작성자
+CoverLetter --> Resume : 연결 이력서
+CoverLetter --> CoverLetterContent : 구성
+
+CoverLetterContent --> CoverLetterContentFeedback : 피드백
+CoverLetterContent --> CoverLetterContentFitAnalysis : 적합도 분석
+
+CoverLetterContentFitAnalysis --> JobCategory : 직무
+
+@enduml

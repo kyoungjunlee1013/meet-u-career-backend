@@ -1,0 +1,70 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+class Company {
+  String name
+  String businessNumber
+  String representativeName
+  String industry
+  LocalDate foundedDate
+  Integer numEmployees
+  Long revenue
+  String website
+  String logoKey
+  String address
+  String companyType
+  String corpCode
+  Long operatingProfit
+  Long avgAnnualSalary
+  Integer status
+  LocalDateTime updatedAt
+}
+
+class CompanyBlock {
+}
+class CompanyFollow {
+}
+
+class Profile {
+  Long id
+  String name
+  String email
+  Integer experienceLevel
+  Integer educationLevel
+  String skills
+  Integer desiredSalaryCode
+  String profileImageKey
+  LocalDateTime updatedAt
+}
+
+class Account {
+  Long id
+  String email
+}
+
+class JobCategory {
+  String jobCode
+  String jobName
+}
+
+class Location {
+  Long id
+  String region
+}
+
+CompanyBlock --> Company : 차단한 기업
+CompanyBlock --> Profile : 차단한 사용자
+
+CompanyFollow --> Company : 팔로우한 기업
+CompanyFollow --> Profile : 팔로우한 사용자
+
+Company --> Profile : 연결
+
+Profile --> Account : 계정 연결
+Profile --> JobCategory : 희망 직무
+Profile --> Location : 현재 거주지
+Profile --> Location : 희망 지역
+
+@enduml

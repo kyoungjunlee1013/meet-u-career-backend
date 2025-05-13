@@ -1,0 +1,48 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+class Profile {
+  Long id
+  Integer experienceLevel
+  Integer educationLevel
+  String skills
+  LocalDateTime updatedAt
+}
+
+class Resume {
+  Long id
+  String title
+  Boolean isPrimary
+  String resumeUrl
+  LocalDateTime updatedAt
+}
+
+class Application {
+  Long id
+  Integer status
+}
+
+class JobPosting {
+  Long id
+  String title
+  String jobType
+  LocalDateTime postingDate
+  Integer applyCount
+}
+
+class Location {
+  Long id
+  String region
+}
+
+' 관계 설정
+Resume --> Profile : 작성자
+Application --> Profile : 지원자
+Application --> Resume : 제출 이력서
+Application --> JobPosting : 지원한 공고
+
+Profile --> Location : 희망지역
+JobPosting --> Location : 근무지역
+@enduml

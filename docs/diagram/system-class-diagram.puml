@@ -1,0 +1,27 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class Admin {
+  String email
+  String password
+  String name
+  Integer role
+}
+
+class SystemLog {
+  Integer logType
+  Integer module
+  String action
+  String ipAddress
+}
+
+class Account {
+  Long id
+  String email
+}
+
+SystemLog --> Admin : 관리자 로그
+SystemLog --> Account : 사용자 로그
+
+@enduml
