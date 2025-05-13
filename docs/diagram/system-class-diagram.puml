@@ -1,12 +1,23 @@
 @startuml
+' 가로 방향 설정
+left to right direction
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
 
-class Admin {
+' 클래스 정의
+class Account {
+  Long id
   String email
-  String password
-  String name
-  Integer role
+}
+
+class CustomerSupport {
+  Account account
+  String title
+  String content
+  String answer
+  Boolean isAnswered
+  LocalDateTime createdAt
+  LocalDateTime updatedAt
 }
 
 class SystemLog {
@@ -16,12 +27,16 @@ class SystemLog {
   String ipAddress
 }
 
-class Account {
-  Long id
+class Admin {
   String email
+  String password
+  String name
+  Integer role
 }
 
-SystemLog --> Admin : 관리자 로그
-SystemLog --> Account : 사용자 로그
+' 관계 (좌→우 방향)
+Account --> CustomerSupport : 문의 작성자
+Account --> SystemLog : 사용자 로그
+Admin --> SystemLog : 관리자 로그
 
 @enduml

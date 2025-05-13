@@ -1,6 +1,7 @@
 @startuml
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
+left to right direction
 
 class JobPosting {
   String jobId
@@ -25,14 +26,6 @@ class JobPosting {
   Integer status
 }
 
-class JobCategory {
-  String jobCode
-  String jobName
-}
-
-class JobPostingJobCategory {
-}
-
 class Company {
   Long id
   String name
@@ -48,10 +41,17 @@ class Location {
   String region
 }
 
+class JobCategory {
+  String jobCode
+  String jobName
+}
+
+class JobPostingJobCategory {
+}
+
 JobPosting --> Company : 소속 회사
 JobPosting --> Account : 등록 계정
 JobPosting --> Location : 근무 지역
-
 JobPosting --> JobPostingJobCategory : 매핑
 JobCategory --> JobPostingJobCategory : 매핑
 JobPostingJobCategory --> JobPosting : 1

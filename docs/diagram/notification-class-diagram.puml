@@ -1,6 +1,7 @@
 @startuml
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
+left to right direction
 
 class Notification {
   Integer notificationType
@@ -31,9 +32,8 @@ class JobPosting {
 }
 
 Notification --> Account : 알림 수신자
-
-Notification --> Application : 관련 지원서 (예: 상태 변경)
-Notification --> ChatRoom : 관련 채팅방 (메시지 도착)
-Notification --> JobPosting : 관련 공고 (마감임박 등)
+Notification --> Application : 관련 지원서
+Notification --> ChatRoom : 관련 채팅방
+Notification --> JobPosting : 관련 공고
 
 @enduml
