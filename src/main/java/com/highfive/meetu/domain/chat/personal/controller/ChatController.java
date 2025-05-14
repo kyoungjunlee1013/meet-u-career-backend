@@ -2,6 +2,7 @@ package com.highfive.meetu.domain.chat.personal.controller;
 
 import com.highfive.meetu.domain.chat.personal.dto.ChatMessageDTO;
 import com.highfive.meetu.domain.chat.personal.dto.ChatRoomSummaryDTO;
+import com.highfive.meetu.domain.chat.personal.service.ChatFileService;
 import com.highfive.meetu.domain.chat.personal.service.ChatService;
 import com.highfive.meetu.global.common.response.ResultData;
 import com.highfive.meetu.infra.oauth.SecurityUtil;
@@ -10,6 +11,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ public class ChatController {
     private final StompPresenceTracker presenceTracker;
     private final SimpMessageSendingOperations messagingTemplate;
     private final ChatService chatService;
+    private final ChatFileService chatFileService;
 
     /**
      * STOMP 실시간 채팅 메시지 수신
@@ -86,5 +89,22 @@ public class ChatController {
         boolean isOnline = presenceTracker.isOnline(accountId);
         return ResultData.success(1, isOnline);
     }
-}
+    @RestController
+    @RequiredArgsConstructor
+    @RequestMapping("/api/chat")
+    public class ChatFileController {
 
+        private final ChatFileService chatFileService;
+
+        /**
+         * 파일 업로드 (이미지, PDF 등)
+         */
+        @PostMapping("/upload")
+        public ResultData<String> uploadFile(@RequestParam("file") MultipartFile file) {
+            String url = chatFileService.uploadFile(file);
+            return ResultData.success(1, url);
+        }
+
+    }
+
+}
