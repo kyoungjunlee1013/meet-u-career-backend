@@ -8,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,12 @@ import static com.highfive.meetu.global.util.CookieUtil.extractRefreshToken;
 @RequiredArgsConstructor
 @RequestMapping("/api/personal/auth")
 public class AuthController {
+
+    /**
+     * secure 플래그
+     */
+    @Value("${cookie.secure:false}")
+    private boolean cookieSecure;
 
     private final RefreshTokenService refreshTokenService;
 
@@ -42,7 +49,7 @@ public class AuthController {
         // 새 AccessToken을 쿠키로 내려줌
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
             .httpOnly(true)
-            .secure(false) // 운영에서는 true
+            .secure(cookieSecure)
             .path("/")
             .sameSite("Strict")
             .maxAge(1800) // 30분

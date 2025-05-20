@@ -5,6 +5,9 @@ import com.highfive.meetu.domain.application.common.repository.ApplicationReposi
 import com.highfive.meetu.domain.company.common.entity.Company;
 import com.highfive.meetu.domain.job.business.dto.*;
 import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
+import com.highfive.meetu.domain.notification.common.entity.Notification;
+import com.highfive.meetu.domain.notification.common.repository.NotificationRepository;
+import com.highfive.meetu.domain.notification.common.service.NotificationService;
 import com.highfive.meetu.domain.resume.common.entity.Resume;
 import com.highfive.meetu.domain.resume.common.entity.ResumeContent;
 import com.highfive.meetu.domain.resume.common.repository.ResumeContentRepository;
@@ -36,6 +39,7 @@ public class ApplicantBusinessService {
     private final AccountRepository accountRepository;
     private final JobPostingRepository jobPostingRepository;
     private final ResumeContentRepository resumeContentRepository;
+    private final NotificationService notificationService;
 
     /**
      * 현재 로그인한 기업회원이 소속된 기업의 "활성 + 마감되지 않은" 채용공고 목록을 반환
@@ -193,8 +197,48 @@ public class ApplicantBusinessService {
      */
     @Transactional
     public void updateStatus(Long applicationId, Integer status) {
+        // 1. 지원서 조회
         Application application = applicationRepository.findById(applicationId)
             .orElseThrow(() -> new IllegalArgumentException("지원서를 찾을 수 없습니다."));
+
+        // 2. 상태 변경
         application.setStatus(status);
+
+        // 3. 상태에 따라 알림 메시지 분기
+        // 지원한 공고 제목
+        String postTitle = application.getJobPosting().getTitle();
+
+        // 4. 상태에 따라 알림 메시지 분기
+        String detailMsg;
+        int notificationType;
+        switch (status) {
+            case 1 -> {
+                detailMsg = "서류전형에 합격하셨습니다!";
+                notificationType = 11;
+            }
+            case 2 -> {
+                detailMsg = "서류전형에서 아쉽게 탈락하셨습니다.";
+                notificationType = 12;
+            }
+            case 3 -> {
+                detailMsg = "면접이 완료되었습니다.";
+                notificationType = 13;
+            }
+            default -> {
+                detailMsg = "지원서 상태가 업데이트되었습니다.";
+                notificationType = 10;
+            }
+        }
+
+        // 공고 제목과 세부 메시지를 합쳐서 저장
+        String message = "[" + postTitle + "]\n" + detailMsg;
+
+        // 공통 서비스로 알림 전송
+        notificationService.sendNotification(
+            application.getProfile().getAccount(),
+            notificationType,
+            message,
+            application.getId()
+        );
     }
 }
