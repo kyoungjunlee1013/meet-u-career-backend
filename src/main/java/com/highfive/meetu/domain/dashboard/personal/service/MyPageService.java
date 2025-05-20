@@ -1,11 +1,10 @@
 package com.highfive.meetu.domain.dashboard.personal.service;
 
 import com.highfive.meetu.domain.application.common.repository.ApplicationRepository;
-import com.highfive.meetu.domain.company.common.repository.CompanyRepository;
 import com.highfive.meetu.domain.dashboard.personal.dto.*;
 import com.highfive.meetu.domain.job.common.repository.BookmarkRepository;
 import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
-import com.highfive.meetu.domain.resume.common.repository.ResumeRepository;
+import com.highfive.meetu.domain.offer.common.repository.OfferRepository;
 import com.highfive.meetu.domain.resume.common.repository.ResumeViewLogRepository;
 import com.highfive.meetu.domain.user.common.entity.Account;
 import com.highfive.meetu.domain.user.common.entity.Profile;
@@ -24,22 +23,22 @@ import java.util.List;
 public class MyPageService {
 
     private final ProfileRepository profileRepository;
-    private final ResumeRepository resumeRepository;
     private final ResumeViewLogRepository resumeViewLogRepository;
     private final ApplicationRepository applicationRepository;
     private final BookmarkRepository bookmarkRepository;
     private final JobPostingRepository jobPostingRepository;
-    private final CompanyRepository companyRepository;
+    private final OfferRepository offerRepository;
 
     public MyPageDTO getMyPageInfo() {
         Long profileId = SecurityUtil.getProfileId();
         Profile profile = profileRepository.findById(profileId)
-            .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
         Account account = profile.getAccount();
 
         int resumeViewCount = resumeViewLogRepository.countByProfileId(profileId);
-        int offerCount = applicationRepository.countOffersByProfileId(profileId); // 필요시 이 메서드 구현
+        int offerCount = offerRepository.countByPersonalAccountId(account.getId());
         int bookmarkCount = bookmarkRepository.countByProfile_Id(profileId);
+        int applicationCount = applicationRepository.countApplicationsByProfileId(profileId); // ✅ 핵심 추가
 
         List<RecentApplicationDTO> recentApplications = applicationRepository.findRecentByProfileId(profileId);
         ApplicationSummaryDTO summary = applicationRepository.aggregateStatusSummary(profileId);
@@ -55,15 +54,16 @@ public class MyPageService {
         if (profile.getSkills() != null) profileCompleteness += 16;
 
         return MyPageDTO.of(
-            AccountDTO.from(account),
-            ProfileDTO.from(profile),
-            resumeViewCount,
-            offerCount,
-            bookmarkCount,
-            recentApplications,
-            summary,
-            recommendedJobs,
-            profileCompleteness
+                AccountDTO.from(account),
+                ProfileDTO.from(profile),
+                resumeViewCount,
+                offerCount,
+                bookmarkCount,
+                applicationCount, // ✅ 여기도 전달
+                recentApplications,
+                summary,
+                recommendedJobs,
+                profileCompleteness
         );
     }
 }

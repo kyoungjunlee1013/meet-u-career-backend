@@ -37,7 +37,8 @@ public class Admin extends BaseEntity {
     /**
      * 관리자 권한 등급
      */
-    public static class Role {
+    public static
+    class Role {
         public static final int SUPER = 1;  // 슈퍼 관리자 (모든 권한)
         public static final int ADMIN = 2;  // 일반 관리자 (일부 제한 가능)
     }
