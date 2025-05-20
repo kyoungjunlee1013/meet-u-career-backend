@@ -6,13 +6,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
 /**
  * WebMvcConfigurer 설정
- * - CORS 설정 및 커스텀 ArgumentResolver 등록
+ * - CORS 설정
+ * - 커스텀 ArgumentResolver 등록
+ * - 정적 리소스 핸들러 등록 (/static/chat/** → uploads/chat/)
  */
 @Configuration
 @RequiredArgsConstructor
@@ -30,17 +33,29 @@ public class WebConfig implements WebMvcConfigurer {
         resolvers.add(loginUserArgumentResolver);
     }
 
+    /**
+     * CORS 설정
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(
-                        // "*",
                         "https://meet-u-career.com",
                         "https://api.meet-u-career.com",
                         "http://localhost:3000"
                 )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-                .allowedHeaders("*") // allowedOrigins 와는 별도.
+                .allowedHeaders("*")
                 .allowCredentials(true);
+    }
+
+    /**
+     * 정적 리소스 핸들러 등록
+     * - 클라이언트에서 /static/chat/** 요청 시 uploads/chat/ 디렉토리에서 파일 제공
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/static/chat/**")
+                .addResourceLocations("file:uploads/chat/");
     }
 }

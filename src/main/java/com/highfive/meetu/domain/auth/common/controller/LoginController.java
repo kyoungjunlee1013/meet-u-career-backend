@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,12 @@ import static com.highfive.meetu.global.util.CookieUtil.extractRefreshToken;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class LoginController {
+
+    /**
+     * secure 플래그
+     */
+    @Value("${cookie.secure:false}")
+    private boolean cookieSecure;
 
     private final LoginService loginService;
     private final LogUtil logUtil;
@@ -116,7 +123,7 @@ public class LoginController {
         // 쿠키 삭제 (maxAge=0)
         ResponseCookie deleteAccessTokenCookie = ResponseCookie.from("accessToken", "")
             .httpOnly(true)
-            .secure(false) // 운영(prod)에서는 true
+            .secure(cookieSecure)
             .path("/")
             .sameSite("Strict")
             .maxAge(0)

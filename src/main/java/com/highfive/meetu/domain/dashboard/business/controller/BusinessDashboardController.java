@@ -8,6 +8,11 @@ import com.highfive.meetu.infra.oauth.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(
+        origins = "http://localhost:3000", // 프론트 도메인
+        allowedHeaders = "*",
+        allowCredentials = "true"
+)
 @RestController
 @RequestMapping("/api/business/dashboard/info")
 @RequiredArgsConstructor
@@ -29,10 +34,11 @@ public class BusinessDashboardController {
     return ResultData.success(1, dto);
   }
 
-  @PutMapping("/profile")
+  @PutMapping("/update")
   public ResultData<Long> updateCompanyProfile(@RequestBody CompanyProfileDTO dto) {
     Long accountId = SecurityUtil.getAccountId();
     Long id = businessDashboardService.updateCompanyProfile(accountId, dto);
     return ResultData.success(1, id);
   }
+
 }
