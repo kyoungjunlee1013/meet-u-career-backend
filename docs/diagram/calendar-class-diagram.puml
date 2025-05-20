@@ -1,0 +1,57 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+class JobPosting {
+  Long id
+  String title
+  LocalDateTime openingDate
+  LocalDateTime expirationDate
+}
+
+class CalendarEvent {
+  Integer eventType
+  String title
+  String description
+  Long relatedId
+  LocalDateTime startDateTime
+  LocalDateTime endDateTime
+  Boolean isAllDay
+  LocalDateTime updatedAt
+}
+
+class Account {
+  Long id
+  String email
+}
+
+class Profile {
+  Long id
+  String name
+}
+
+class Company {
+  Long id
+  String name
+}
+
+class CompanyFollow {
+  Profile profile
+  Company company
+}
+
+class Bookmark {
+  Profile profile
+  JobPosting jobPosting
+}
+
+JobPosting --> CalendarEvent : 일정 생성 (공고 기반)
+CalendarEvent --> Account : 기업회원 이벤트
+CalendarEvent --> Profile : 개인회원 이벤트
+CalendarEvent --> Company : 소속 기업
+
+Profile --> CompanyFollow : 팔로우
+Profile --> Bookmark : 북마크
+
+@enduml

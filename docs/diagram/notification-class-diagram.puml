@@ -1,0 +1,39 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+class Notification {
+  Integer notificationType
+  String message
+  Long relatedId
+  Integer isRead
+  LocalDateTime createdAt
+}
+
+class Account {
+  Long id
+  String email
+  Integer userType  // 0=개인, 1=기업
+}
+
+class Application {
+  Long id
+  Integer status
+}
+
+class ChatRoom {
+  Long id
+}
+
+class JobPosting {
+  Long id
+  LocalDateTime expirationDate
+}
+
+Notification --> Account : 알림 수신자
+Notification --> Application : 관련 지원서
+Notification --> ChatRoom : 관련 채팅방
+Notification --> JobPosting : 관련 공고
+
+@enduml

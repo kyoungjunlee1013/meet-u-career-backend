@@ -70,8 +70,8 @@ public class CoverLetterPersonalController {
 
     // 1. 전체 공용 (비회원/회원) - 저장 없이 코칭만
     @PostMapping("/coaching")
-    public ResultData<CoachingResponseDTO> getCoaching(@RequestBody CoachingRequestDTO dto) {
-        CoachingResponseDTO response = coachingService.getSimpleCoaching(
+    public ResultData<SimpleCoachingResponseDTO> getCoaching(@RequestBody SimpleCoachingRequestDTO dto) {
+        SimpleCoachingResponseDTO response = coachingService.getSimpleCoaching(
                 dto.getSectionTitle(),
                 dto.getContent()
         );

@@ -16,12 +16,14 @@ public class MyOfferDTO {
 
   private List<OfferDetail> offerList;
 
+
   public static MyOfferDTO build(List<Offer> offers) {
     List<OfferDetail> list = offers.stream()
         .map(OfferDetail::from)
         .collect(Collectors.toList());
     return new MyOfferDTO(list);
   }
+
 
   @Getter
   @NoArgsConstructor
@@ -33,7 +35,8 @@ public class MyOfferDTO {
     private LocalDateTime offerDate;
     private String message;
     private String location;
-
+    private String businessId;
+    private String industry;
     public static OfferDetail from(Offer offer) {
       return new OfferDetail(
           offer.getStatus(),
@@ -41,7 +44,9 @@ public class MyOfferDTO {
           offer.getCompany().getName(),
           offer.getCreatedAt(),
           offer.getMessage(),
-          offer.getCompany().getAddress()
+          offer.getCompany().getAddress(),
+          offer.getBusinessAccount().getName(),
+          offer.getCompany().getIndustry()
       );
     }
   }

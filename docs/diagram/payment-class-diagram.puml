@@ -1,0 +1,45 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+class Company {
+  Long id
+  String name
+}
+
+class Account {
+  Long id
+  String email
+}
+
+class JobPosting {
+  Long id
+  String title
+}
+
+class Advertisement {
+  Long id
+  String title
+  Integer adType
+  LocalDateTime startAt
+  LocalDateTime endAt
+  JobPosting jobPosting
+}
+
+class Payment {
+  BigDecimal amount
+  Integer status
+  String transactionId
+  Advertisement advertisement
+  Account account
+  LocalDateTime updatedAt
+}
+
+Company --> Account : 소속 기업
+Account --> JobPosting : 공고 등록
+JobPosting --> Advertisement : 광고 부착 (1:N)
+Advertisement --> Payment : 결제 (1:1)
+Payment --> Account : 결제 주체
+
+@enduml

@@ -1,0 +1,60 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+class JobPosting {
+  String jobId
+  String title
+  String jobUrl
+  String industry
+  String jobType
+  Integer experienceLevel
+  Integer educationLevel
+  Integer salaryCode
+  String salaryRange
+  LocalDateTime postingDate
+  LocalDateTime openingDate
+  LocalDateTime expirationDate
+  Integer closeType
+  Integer viewCount
+  Integer applyCount
+  String keyword
+  Integer templateType
+  String description
+  LocalDateTime updatedAt
+  Integer status
+}
+
+class Company {
+  Long id
+  String name
+}
+
+class Account {
+  Long id
+  String email
+}
+
+class Location {
+  Long id
+  String region
+}
+
+class JobCategory {
+  String jobCode
+  String jobName
+}
+
+class JobPostingJobCategory {
+}
+
+JobPosting --> Company : 소속 회사
+JobPosting --> Account : 등록 계정
+JobPosting --> Location : 근무 지역
+JobPosting --> JobPostingJobCategory : 매핑
+JobCategory --> JobPostingJobCategory : 매핑
+JobPostingJobCategory --> JobPosting : 1
+JobPostingJobCategory --> JobCategory : 1
+
+@enduml

@@ -1,0 +1,63 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam ranksep 40
+left to right direction
+
+class ChatMessage {
+  ChatRoom chatRoom
+  Account sender
+  Integer senderType
+  String message
+  Integer isRead
+}
+
+class Account {
+  Long id
+  String email
+}
+
+class Offer {
+  Account businessAccount
+  Company company
+  Account personalAccount
+  ChatRoom chatRoom
+  String message
+  Integer status
+  LocalDateTime updatedAt
+}
+
+class ChatRoom {
+  Company company
+  Account businessAccount
+  Account personalAccount
+  Resume resume
+  Integer status
+}
+
+class Resume {
+  Long id
+  String title
+}
+
+class Company {
+  Long id
+  String name
+}
+
+' 관계 설정
+ChatMessage --> ChatRoom : 소속 채팅방
+ChatMessage --> Account : 보낸 사람
+
+Account --> Offer : 기업 계정
+Account --> Offer : 개인 계정
+Account --> ChatRoom : 기업 계정
+Account --> ChatRoom : 개인 계정
+
+Offer --> ChatRoom : 연결 채팅방
+Offer --> Company : 소속 기업
+
+ChatRoom --> Company : 기업
+ChatRoom --> Resume : 관련 이력서
+
+@enduml

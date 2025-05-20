@@ -1,0 +1,42 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+class CommunityPost {
+  String title
+  String content
+  String postImageKey
+  Integer status
+  LocalDateTime updatedAt
+}
+
+class CommunityComment {
+  String content
+  Integer status
+  LocalDateTime updatedAt
+}
+
+class CommunityLike {
+}
+
+class CommunityTag {
+  String name
+  Integer status
+  LocalDateTime updatedAt
+}
+
+class Account {
+  Long id
+  String email
+}
+
+CommunityPost --> Account : 작성자
+CommunityPost --> CommunityTag : 태그
+CommunityPost --> "0..*" CommunityComment : 댓글
+CommunityPost --> "0..*" CommunityLike : 좋아요
+
+CommunityComment --> Account : 댓글 작성자
+CommunityLike --> Account : 좋아요 누른 사람
+
+@enduml

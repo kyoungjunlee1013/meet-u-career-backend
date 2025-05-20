@@ -1,0 +1,47 @@
+@startuml
+skinparam packageStyle rectangle
+
+package "domain" {
+  package "application" {}
+  package "auth" {}
+  package "calendar" {}
+  package "chat" {}
+  package "community" {}
+  package "company" {}
+  package "coverletter" {}
+  package "cs" {}
+  package "dashboard" {}
+  package "job" {}
+  package "notification" {}
+  package "offer" {}
+  package "payment" {}
+  package "portal" {}
+  package "resume" {}
+  package "system" {}
+  package "user" {}
+}
+
+package "global" {
+  package "common" {
+    package "entity" {}
+    package "exception" {}
+    package "response" {}
+  }
+  package "config" {}
+  package "security" {}
+  package "util" {}
+}
+
+package "infra" {
+  package "jwt" {}
+  package "oauth" {}
+  package "s3" {}
+  package "smtp" {}
+}
+
+"infra" --> "domain"
+"global" --> "domain"
+"domain.resume" --> "domain.user"
+"domain.coverletter" --> "domain.resume"
+"domain.application" --> "domain.job"
+@enduml

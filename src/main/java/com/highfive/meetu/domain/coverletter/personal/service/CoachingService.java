@@ -7,6 +7,8 @@ import com.highfive.meetu.domain.coverletter.common.repository.CoverLetterConten
 import com.highfive.meetu.domain.coverletter.common.repository.CoverLetterRepository;
 import com.highfive.meetu.domain.coverletter.personal.dto.CoachingRequestDTO;
 import com.highfive.meetu.domain.coverletter.personal.dto.CoachingResponseDTO;
+import com.highfive.meetu.domain.coverletter.personal.dto.SimpleCoachingRequestDTO;
+import com.highfive.meetu.domain.coverletter.personal.dto.SimpleCoachingResponseDTO;
 import com.highfive.meetu.global.common.exception.BadRequestException;
 import com.highfive.meetu.global.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -37,19 +39,17 @@ public class CoachingService {
     /**
      * 메인 메뉴용 가벼운 AI 코칭 요청 (DB 저장 없이)
      */
-    public CoachingResponseDTO getSimpleCoaching(String sectionTitle, String content) {
-        // 요청 DTO 생성
-        CoachingRequestDTO request = CoachingRequestDTO.builder()
+    public SimpleCoachingResponseDTO getSimpleCoaching(String sectionTitle, String content) {
+        SimpleCoachingRequestDTO request = SimpleCoachingRequestDTO.builder()
                 .sectionTitle(sectionTitle)
                 .content(content)
                 .build();
 
-        // FastAPI 서버로 POST 요청
         return webClient.post()
                 .uri(aiServiceUrl + "/coaching")
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(CoachingResponseDTO.class)
+                .bodyToMono(SimpleCoachingResponseDTO.class)
                 .block();
     }
 
