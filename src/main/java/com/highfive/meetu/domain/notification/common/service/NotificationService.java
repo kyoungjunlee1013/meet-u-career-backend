@@ -113,4 +113,28 @@ public class NotificationService {
 
         messagingTemplate.convertAndSend("/topic/notification/" + accountId, notificationMessage);
     }
+
+    /**
+     * 새 알림 생성
+     *
+     * @param account          알림 받을 계정
+     * @param notificationType 알림 타입 코드
+     * @param message          표시할 메시지 (여러 줄 가능)
+     * @param relatedId        연관된 엔티티 ID (예: applicationId)
+     */
+    @Transactional
+    public void sendNotification(Account account,
+                                 int notificationType,
+                                 String message,
+                                 Long relatedId) {
+        Notification notification = Notification.builder()
+            .account(account)
+            .notificationType(notificationType)
+            .message(message)
+            .relatedId(relatedId)
+            .isRead(Notification.ReadStatus.UNREAD)
+            .build();
+
+        notificationRepository.save(notification);
+    }
 }
