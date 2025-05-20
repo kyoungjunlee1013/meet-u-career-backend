@@ -22,7 +22,7 @@ public class ChatMessageDTO {
     private String message;
     private Integer isRead; // 0: 안읽음, 1: 읽음
     private LocalDateTime createdAt;
-    private MessageType messageType;
+    //private MessageType messageType;
 
 
     public ChatMessage toEntity(ChatRoom chatRoom, Account sender) {
@@ -32,7 +32,7 @@ public class ChatMessageDTO {
                 .senderType(this.senderType)
                 .message(this.message)
                 .isRead(ChatMessage.ReadStatus.UNREAD)
-                .messageType(dto.getType()) // ← 이거 필수!
+                //.messageType(dto.getType()) // ← 이거 필수!
                 .build();
     }
 }
