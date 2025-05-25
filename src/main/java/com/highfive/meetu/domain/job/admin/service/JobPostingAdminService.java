@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.highfive.meetu.domain.company.common.entity.Company;
 import com.highfive.meetu.domain.company.common.repository.CompanyRepository;
 import com.highfive.meetu.domain.job.common.entity.JobPosting;
-import com.highfive.meetu.domain.job.common.repository.JobPostingRepository;
+import com.highfive.meetu.domain.job.common.entity.JobPostingJobCategory;
+import com.highfive.meetu.domain.job.common.repository.*;
 import com.highfive.meetu.domain.job.common.entity.Location;
-import com.highfive.meetu.domain.job.common.repository.LocationRepository;
 import com.highfive.meetu.domain.job.admin.dto.JobPostingAdminDTO;
-import com.highfive.meetu.domain.job.common.repository.JobPostingAdminRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -42,6 +41,8 @@ public class JobPostingAdminService {
     private final LocationRepository locationRepository;
 
     private final JobPostingAdminRepository jobPostingAdminRepository;
+    private final JobPostingJobCategoryRepository jobPostingJobCategoryRepository;
+    private final JobCategoryRepository jobCategoryRepository;
 
 
 
@@ -80,7 +81,7 @@ public class JobPostingAdminService {
                     + "&keywords=" + encodedKeyword
                     + "&output=json"
                     + "&fields=count"  // read-cnt, apply-cnt 포함
-                    + "&count=10";     // 10개 출력
+                    + "&count=100";     // 100개 출력
             // 문성후 테스트 10
 
             URL url = new URL(apiUrl);
@@ -128,9 +129,13 @@ public class JobPostingAdminService {
                 String locationCodeRaw = job.path("position").path("location").path("code").asText();
                 String primaryLocationCode = locationCodeRaw.split(",")[0];
 
-                Location location = locationRepository.findByLocationCode(primaryLocationCode)
-                        .orElseThrow(() -> new IllegalArgumentException("해당 지역 코드가 존재하지 않습니다: " + primaryLocationCode));
+                Optional<Location> locationOpt = locationRepository.findByLocationCode(primaryLocationCode);
+                if (locationOpt.isEmpty()) {
+                    System.out.println("❗ 존재하지 않는 지역 코드: " + primaryLocationCode);
+                    continue; // 이 공고는 스킵
+                }
 
+                Location location = locationOpt.get();
                 JobPosting posting = JobPosting.builder()
                         .jobId(jobId)
                         .company(company)
@@ -154,6 +159,10 @@ public class JobPostingAdminService {
                         .build();
 
                 jobPostingRepo.save(posting);
+
+                // 직무 코드 매핑
+                JsonNode jobCodes = job.path("position").path("job-code");
+                saveJobPostingCategories(posting, jobCodes);
                 System.out.println("공고 저장 완료 - 사람인 API 요청 URL: " + apiUrl);
             }
         } catch (Exception e) {
@@ -165,11 +174,10 @@ public class JobPostingAdminService {
     // 금융위원회 기업정보 API를 호출해서 기업 정보를 저장 및 반환하는 함수
     public Company callCompanyInfo(String companyName, String industry) {
         String normalizedName = normalizeCompanyName(companyName);
-//        System.out.println("정규화된 기업명: " + normalizedName);
 
+        // 회사명으로 먼저 검색
         Optional<Company> existingCompany = companyRepository.findByName(normalizedName);
         if (existingCompany.isPresent()) {
-//            System.out.println("이미 존재하는 기업: " + normalizedName);
             return existingCompany.get();
         }
 
@@ -179,8 +187,6 @@ public class JobPostingAdminService {
                     + "?serviceKey=" + financeKey
                     + "&pageNo=1&numOfRows=1&resultType=json"
                     + "&corpNm=" + encodedName;
-
-//            System.out.println("금융위원회 API 요청 URL: " + financeApiUrl);
 
             URL url = new URL(financeApiUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -194,61 +200,53 @@ public class JobPostingAdminService {
             }
             br.close();
 
-//            System.out.println("금융위원회 API 응답: " + response.toString());
-
             JsonNode root = objectMapper.readTree(response.toString());
             JsonNode items = root.path("response").path("body").path("items").path("item");
 
             if (items.isArray() && items.size() > 0) {
                 JsonNode firstItem = items.get(0);
-//                System.out.println("금융위 응답 내 기업명: " + firstItem.path("corpNm").asText());
 
-                // 설립일 파싱: 값이 비어있으면 기본값(LocalDate.now())을 사용합니다.
+                String businessNumber = firstItem.path("bzno").asText();
+
+                // 👉 추가된 중복 체크 로직
+                Optional<Company> existingByBizNo = companyRepository.findByBusinessNumber(businessNumber);
+                if (existingByBizNo.isPresent()) {
+                    return existingByBizNo.get(); // 이미 등록된 사업자등록번호이면 바로 반환
+                }
+
                 String estbDt = firstItem.path("enpEstbDt").asText();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-                LocalDate foundedDate;
-                if (estbDt == null || estbDt.isEmpty()) {
-//                    System.out.println("설립일 정보가 없어 기본값(LocalDate.now())을 사용합니다.");
-                    foundedDate = LocalDate.now();
-                } else {
-                    foundedDate = LocalDate.parse(estbDt, formatter);
-                }
+                LocalDate foundedDate = (estbDt == null || estbDt.isEmpty())
+                        ? LocalDate.now()
+                        : LocalDate.parse(estbDt, formatter);
 
                 Company newCompany = Company.builder()
                         .name(firstItem.path("corpNm").asText())
-                        .businessNumber(firstItem.path("bzno").asText())
+                        .businessNumber(businessNumber)
                         .representativeName(firstItem.path("enpRprFnm").asText())
                         .industry(industry)
                         .foundedDate(foundedDate)
                         .numEmployees(firstItem.path("enpEmpeCnt").asInt())
                         .revenue(0L)
                         .website(firstItem.path("enpHmpgUrl").asText())
-
-                /*
-                /      문성후 테스트: 법인등록번호 >> logoKey, 평균연봉 >> avgAnnualSalary
-                */
-                        .logoKey(null)
-                        .logoKey(firstItem.path("crno").asText())
+                        .logoKey(firstItem.path("crno").asText()) // 법인등록번호를 logoKey로 임시 저장 중
                         .avgAnnualSalary((long) firstItem.path("avgSalary").asDouble())
-
                         .address(firstItem.path("enpBsadr").asText())
                         .updatedAt(LocalDateTime.now())
                         .status(Company.Status.ACTIVE)
                         .build();
 
-                Company savedCompany = companyRepository.save(newCompany);
-//                System.out.println("새로운 회사 저장 완료: " + savedCompany.getName());
-                return savedCompany;
-            } else {
-//                System.out.println("금융위원회 API에 해당 기업 정보 없음: " + normalizedName);
-                return null;
+                return companyRepository.save(newCompany);
             }
+
+            return null;
+
         } catch (Exception e) {
-//            System.out.println("금융위원회 API 호출 오류: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
     }
+
 
     // 기업명에서 "(주)"나 "㈜" 등의 문자열을 제거하고 공백을 트림하여 정규화합니다.
     private String normalizeCompanyName(String companyName) {
@@ -259,4 +257,33 @@ public class JobPostingAdminService {
     public List<JobPosting> getAllJobPostings() {
         return jobPostingRepo.findAll();
     }
+
+
+    /**
+     * 채용 공고와 직무 카테고리를 연결하는 다대다 관계를 저장하는 메서드
+     */
+    public void saveJobPostingCategories(JobPosting posting, JsonNode jobCodeNode) {
+        if (jobCodeNode == null) return;
+
+        if (jobCodeNode.isArray()) {
+            for (JsonNode codeNode : jobCodeNode) {
+                String jobCode = codeNode.path("code").asText();
+                saveMapping(posting, jobCode);
+            }
+        } else if (jobCodeNode.isObject()) {
+            String jobCode = jobCodeNode.path("code").asText();
+            saveMapping(posting, jobCode);
+        }
+    }
+
+    private void saveMapping(JobPosting posting, String jobCode) {
+        jobCategoryRepository.findByJobCode(jobCode).ifPresent(jobCategory -> {
+            JobPostingJobCategory mapping = JobPostingJobCategory.builder()
+                    .jobPosting(posting)
+                    .jobCategory(jobCategory)
+                    .build();
+            jobPostingJobCategoryRepository.save(mapping);
+        });
+    }
+
 }
