@@ -22,8 +22,10 @@ jobs:
       - name: Deploy via SSH
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/ubuntu/meet-u-career/meet-u-career-backend && git pull origin main
+            cd /home/ubuntu/meet-u-career/meet-u-career-frontend && git pull origin main
+            cd /home/ubuntu/meet-u-career/meet-u-career-ai-service && git pull origin main
             cd /home/ubuntu/meet-u-career
-            git pull origin main
             docker-compose down
             docker-compose up -d --build
           EOF
