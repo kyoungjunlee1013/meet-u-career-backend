@@ -8,9 +8,6 @@ build/
 .env
 .env.*
 
-# 민감 정보 파일 제외
-src/main/resources/application-secret.yml
-
 # Logs
 *.log
 logs/

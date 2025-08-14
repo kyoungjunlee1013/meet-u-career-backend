@@ -3,65 +3,74 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./meet-u-backend
     container_name: meet-u-backend
-    networks:
-      - meetu_net
     ports:
       - "8080:8080"
-    env_file: ./.env  # 명확하게 경로 지정
+    env_file: ./.env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=${DB_USER}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=${JPA_HIBERNATE_DDL_AUTO}
-      - AI_SERVICE_URL=http://ai-service:8000  # 서비스 이름으로 참조 (권장)
-      - SPRING_REDIS_HOST=redis  # Redis 서비스 이름으로 참조
-      - SPRING_REDIS_PORT=6379
+      - AI_SERVICE_URL=http://ai-service:8000
+      - JAVA_TOOL_OPTIONS=-Xmx512m       # 힙 메모리 제한 설정 추가
     volumes:
       - ./logs:/app/logs
     depends_on:
       - ai-service
       - redis
+    networks:
+      - meetu_net
     restart: always
 
   ai-service:
     build:
-      context: ../meet-u-career-ai
-      dockerfile: Dockerfile
+      context: ./meet-u-career-ai
     container_name: meet-u-career-ai
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    expose:
+      - "8000"
+    env_file: ./.env  # 추가된 env 설정
     networks:
       - meetu_net
-    expose:
-      - "8000"  # 내부 네트워크에서만 접근 가능
     restart: always
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
   redis:
     image: redis:alpine
     container_name: meet-u-redis
-    networks:
-      - meetu_net
     volumes:
       - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - meetu_net
     restart: always
-    command: redis-server --appendonly yes  # 데이터 지속성 활성화
+
+  frontend:
+    build:
+      context: ./meet-u-frontend
+    container_name: meet-u-frontend
+    ports:
+      - "3000:3000"
+    env_file: ./.env  # 추가된 env 설정
+    environment:
+      - NEXT_PUBLIC_API_BASE=https://api.meet-u-career.com
+    networks:
+      - meetu_net
+    restart: always
 
   nginx:
     image: nginx:alpine
     container_name: meet-u-nginx
-    networks:
-      - meetu_net
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - /etc/letsencrypt:/etc/letsencrypt
-      - ./nginx/www:/var/www/html
     depends_on:
       - backend
+      - ai-service
+      - frontend
+    networks:
+      - meetu_net
     restart: always
 
 networks:
@@ -69,4 +78,5 @@ networks:
     driver: bridge
 
 volumes:
-  redis-data:  # Redis 데이터 영속성을 위한 볼륨
+  redis-data:
+

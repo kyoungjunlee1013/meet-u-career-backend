@@ -1,0 +1,22 @@
+# Gradle
+.gradle
+build/
+
+# IDE
+.idea
+*.iml
+*.ipr
+out/
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 기타 불필요한 파일
+**/bin/
+**/out/

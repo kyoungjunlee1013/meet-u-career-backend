@@ -1,14 +1,79 @@
-## 개발 환경 설정 파일
-server:
-  port: 8080  # 애플리케이션이 실행될 포트 (개발 환경에서는 일반적으로 8080 포트 사용)
 spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/meetu_db
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: meet-u-redis
+      port: 6379
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: legenprimo@gmail.com
+    password: ytde oqba rvoj tupe
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+      auth-code-expiration-millis: 600000
+
   output:
     ansi:
       enabled: always
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-custom:
-  fileDirPath: /usr/work  # 애플리케이션에서 사용하는 파일 저장 경로 (파일 업로드 등 관련 경로 설정)
 
-jwt: # token
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  override-with-generic-response: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework.data.redis: DEBUG
+
+api:
+  jwt:
+    secret: meetu-super-secret-key-2025-change-to-something-longer-very-safe
+    access-token-expiration: 3600000
+    refresh-token-expiration: 604800000
+    passwordReset:
+      expiration: 600000
+
+cookie:
+  secure: false
+
+custom:
+  fileDirPath: /usr/work
+
+jwt:
   cookie-secure: false
